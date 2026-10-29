@@ -1,0 +1,620 @@
+<Window x:Class="BookStoreManagementSystem.HomePage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BookStoreManagementSystem"
+        mc:Ignorable="d"
+        Title="BookStore - Màn Hình Chính" 
+        Height="850" Width="1320"
+        MinHeight="700" MinWidth="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI, Inter, Arial">
+
+    <Window.Resources>
+        <!-- Card Drop Shadow -->
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="12" Direction="270" ShadowDepth="3" Opacity="0.08" Color="#0F172A" />
+        <DropShadowEffect x:Key="ModalShadow" BlurRadius="25" Direction="270" ShadowDepth="8" Opacity="0.25" Color="#000000" />
+
+        <!-- Converter for Boolean to Visibility -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+
+        <!-- Modern Button Style -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#4F46E5" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#4338CA" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#3730A3" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Background" Value="#94A3B8" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#EEF2FF" />
+            <Setter Property="Foreground" Value="#4F46E5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#C7D2FE" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E0E7FF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Rounded TextBox Style -->
+        <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="#1E293B" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="BorderBrush" Value="#CBD5E1" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#4F46E5" />
+                                <Setter TargetName="border" Property="BorderThickness" Value="1.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- MAIN WINDOW CONTENT -->
+        <DockPanel LastChildFill="True">
+
+            <!-- 1. TOP HEADER / APP BAR -->
+            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Logo and App Title -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="42" Height="42" CornerRadius="10" Background="#4F46E5" Margin="0,0,12,0">
+                            <TextBlock Text="📚" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="BOOK" FontWeight="Black" FontSize="20" Foreground="#4F46E5" />
+                                <TextBlock Text="STORE" FontWeight="Black" FontSize="20" Foreground="#0F172A" />
+                                <Border Background="#EEF2FF" CornerRadius="4" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="/homepage" FontSize="11" FontWeight="SemiBold" Foreground="#4F46E5" />
+                                </Border>
+                            </StackPanel>
+                            <TextBlock Text="Hệ Thống Phân Phối &amp; Quản Lý Sách" FontSize="11" Foreground="#64748B" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Search Input -->
+                    <Grid Grid.Column="1" HorizontalAlignment="Center" Width="460" Margin="20,0">
+                        <TextBox x:Name="txtSearch" 
+                                 Style="{StaticResource SearchTextBoxStyle}"
+                                 Padding="36,8,30,8"
+                                 TextChanged="txtSearch_TextChanged" />
+                        <!-- Search Icon Placeholder -->
+                        <TextBlock Text="🔍" FontSize="14" Foreground="#94A3B8" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False" />
+                        <TextBlock x:Name="txtSearchPlaceholder" 
+                                   Text="Tìm kiếm sách theo tên, tác giả, nhà xuất bản..." 
+                                   Foreground="#94A3B8" FontSize="13" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                   Margin="36,0,0,0" IsHitTestVisible="False" />
+                        <Button x:Name="btnClearSearch" Content="✖" 
+                                HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" 
+                                Background="Transparent" BorderThickness="0" Foreground="#94A3B8" 
+                                Cursor="Hand" Click="btnClearSearch_Click" Visibility="Collapsed" />
+                    </Grid>
+
+                    <!-- Header Action Buttons -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Refresh Button -->
+                        <Button x:Name="btnRefresh" Content="🔄 Làm mới" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="btnRefresh_Click" />
+
+                        <!-- Cart Button -->
+                        <Button x:Name="btnOpenCart" Style="{StaticResource PrimaryButtonStyle}" Click="btnOpenCart_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🛒 " FontSize="14" />
+                                <TextBlock x:Name="txtCartBadge" Text="Giỏ hàng (0)" FontWeight="Bold" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 2. MAIN BODY (Sidebar + Book Catalog) -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="280" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT SIDEBAR: FILTERS -->
+                <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,1,0" Padding="18">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Filter Header -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <TextBlock Text="⚡" FontSize="16" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="BỘ LỌC TÌM KIẾM" FontWeight="Bold" FontSize="14" Foreground="#1E293B" VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <!-- CATEGORY FILTER -->
+                            <TextBlock Text="THỂ LOẠI SÁCH" FontWeight="Bold" FontSize="12" Foreground="#64748B" Margin="0,0,0,8" />
+                            <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Background="#F8FAFC" Padding="4" Margin="0,0,0,16">
+                                <ListBox x:Name="lstCategories" 
+                                         BorderThickness="0" Background="Transparent" 
+                                         SelectionChanged="lstCategories_SelectionChanged"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="8,6" CornerRadius="6" Background="Transparent">
+                                                <Grid>
+                                                    <TextBlock Text="{Binding Name}" FontSize="13" Foreground="#1E293B" TextTrimming="CharacterEllipsis" />
+                                                    <Border Background="#E2E8F0" CornerRadius="10" Padding="6,1" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding Count}" FontSize="11" Foreground="#475569" FontWeight="SemiBold" />
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+
+                            <!-- PRICE RANGE FILTER -->
+                            <TextBlock Text="KHOẢNG GIÁ" FontWeight="Bold" FontSize="12" Foreground="#64748B" Margin="0,0,0,8" />
+                            <StackPanel Margin="0,0,0,16">
+                                <RadioButton x:Name="rbPriceAll" Content="Tất cả mức giá" IsChecked="True" Margin="0,4" Checked="FilterChanged" />
+                                <RadioButton x:Name="rbPriceUnder100" Content="Dưới 100.000 đ" Margin="0,4" Checked="FilterChanged" />
+                                <RadioButton x:Name="rbPrice100To300" Content="100.000 đ - 300.000 đ" Margin="0,4" Checked="FilterChanged" />
+                                <RadioButton x:Name="rbPriceAbove300" Content="Trên 300.000 đ" Margin="0,4" Checked="FilterChanged" />
+                            </StackPanel>
+
+                            <!-- STATUS FILTER -->
+                            <TextBlock Text="HÌNH THỨC SÁCH" FontWeight="Bold" FontSize="12" Foreground="#64748B" Margin="0,0,0,8" />
+                            <ComboBox x:Name="cbBookStatus" Margin="0,0,0,16" Padding="10,6" SelectionChanged="cbBookStatus_SelectionChanged">
+                                <ComboBoxItem Content="Tất cả hình thức" IsSelected="True" />
+                                <ComboBoxItem Content="Bán" />
+                                <ComboBoxItem Content="Cho thuê" />
+                                <ComboBoxItem Content="Đã thuê" />
+                            </ComboBox>
+
+                            <!-- STOCK AVAILABILITY FILTER -->
+                            <TextBlock Text="TỒN KHO" FontWeight="Bold" FontSize="12" Foreground="#64748B" Margin="0,0,0,8" />
+                            <CheckBox x:Name="chkInStockOnly" Content="Chỉ hiện sách còn hàng" Margin="0,0,0,20" Checked="FilterChanged" Unchecked="FilterChanged" />
+
+                            <!-- RESET FILTER BUTTON -->
+                            <Button x:Name="btnResetFilters" Content="🧹 Đặt Lại Bộ Lọc" Style="{StaticResource SecondaryButtonStyle}" Click="btnResetFilters_Click" HorizontalAlignment="Stretch" />
+
+                            <Separator Margin="0,20" Background="#E2E8F0" />
+
+                            <!-- Quick Guide / Info -->
+                            <Border Background="#F1F5F9" CornerRadius="8" Padding="12">
+                                <StackPanel>
+                                    <TextBlock Text="💡 Mẹo mua sắm" FontWeight="Bold" FontSize="12" Foreground="#334155" Margin="0,0,0,4" />
+                                    <TextBlock Text="Nhấp vào 'Chi tiết' để xem đầy đủ thông tin sách, tác giả, nhà xuất bản và năm phát hành." 
+                                               FontSize="11" Foreground="#64748B" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- RIGHT MAIN CATALOG -->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- HERO BANNER -->
+                    <Border Grid.Row="0" Margin="20,16,20,10" CornerRadius="14" Padding="28,20">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#4F46E5" Offset="0" />
+                                <GradientStop Color="#6366F1" Offset="0.5" />
+                                <GradientStop Color="#06B6D4" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <Border Background="#30FFFFFF" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left" Margin="0,0,0,8">
+                                    <TextBlock Text="✨ KHO SÁCH CHÍNH HÃNG &amp; ĐA DẠNG" FontWeight="Bold" FontSize="11" Foreground="White" />
+                                </Border>
+                                <TextBlock Text="Chào mừng bạn đến với BookStore (/homepage)" FontWeight="Black" FontSize="24" Foreground="White" Margin="0,0,0,6" />
+                                <TextBlock Text="Khám phá hàng ngàn tựa sách từ Lập trình, Kinh tế, Khởi nghiệp đến Văn học &amp; Kỹ năng sống." 
+                                           FontSize="13" Foreground="#E0E7FF" TextWrapping="Wrap" MaxWidth="600" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
+                                <Border Background="#25FFFFFF" CornerRadius="12" Padding="14,10" Margin="6,0">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock x:Name="txtTotalBooksChip" Text="10+" FontWeight="Black" FontSize="18" Foreground="White" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Đầu sách" FontSize="11" Foreground="#E0E7FF" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="#25FFFFFF" CornerRadius="12" Padding="14,10" Margin="6,0">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock x:Name="txtTotalCategoriesChip" Text="5" FontWeight="Black" FontSize="18" Foreground="White" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Thể loại" FontSize="11" Foreground="#E0E7FF" HorizontalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- CATALOG CONTROLS BAR -->
+                    <Border Grid.Row="1" Margin="20,4,20,8">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Danh Sách Sách" FontWeight="Bold" FontSize="18" Foreground="#0F172A" VerticalAlignment="Center" />
+                                <Border Background="#EEF2FF" CornerRadius="12" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="txtResultCount" Text="Hiển thị: 10 sách" FontSize="12" FontWeight="SemiBold" Foreground="#4F46E5" />
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Sorting Options -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock Text="Sắp xếp theo:" FontSize="13" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <ComboBox x:Name="cbSortBy" Width="180" Padding="10,6" SelectionChanged="cbSortBy_SelectionChanged">
+                                    <ComboBoxItem Content="Mặc định (Mới nhất)" IsSelected="True" />
+                                    <ComboBoxItem Content="Giá: Thấp đến cao" />
+                                    <ComboBoxItem Content="Giá: Cao đến thấp" />
+                                    <ComboBoxItem Content="Tên: A -> Z" />
+                                    <ComboBoxItem Content="Tên: Z -> A" />
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- BOOK GRID ITEMS -->
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="12,0,12,20">
+                        <Grid>
+                            <!-- EMPTY STATE (Shown when 0 books match) -->
+                            <StackPanel x:Name="panelEmptyState" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,60,0,0">
+                                <TextBlock Text="🔍" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,12" />
+                                <TextBlock Text="Không tìm thấy quyển sách nào!" FontWeight="Bold" FontSize="18" Foreground="#334155" HorizontalAlignment="Center" Margin="0,0,0,6" />
+                                <TextBlock Text="Vui lòng thử tìm kiếm với từ khóa khác hoặc bấm 'Đặt Lại Bộ Lọc'." FontSize="13" Foreground="#64748B" HorizontalAlignment="Center" Margin="0,0,0,14" />
+                                <Button Content="Đặt Lại Bộ Lọc" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Center" Click="btnResetFilters_Click" />
+                            </StackPanel>
+
+                            <!-- BOOK CARDS CONTAINER -->
+                            <ItemsControl x:Name="icBooks">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- BOOK CARD -->
+                                        <Border Width="240" Height="370" Margin="8,8,8,12" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Effect="{StaticResource CardShadow}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="180" />
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <!-- 1. COVER PHOTO / PLACEHOLDER -->
+                                                <Border Grid.Row="0" CornerRadius="12,12,0,0" ClipToBounds="True">
+                                                    <Grid>
+                                                        <!-- Real Image (if available) -->
+                                                        <Image Source="{Binding CoverImage}" Stretch="UniformToFill" 
+                                                               Visibility="{Binding HasCoverImage, Converter={StaticResource BoolToVisConverter}}" />
+
+                                                        <!-- Stylized Gradient Placeholder (if no image) -->
+                                                        <Border Visibility="{Binding HasNoCoverImage, Converter={StaticResource BoolToVisConverter}}" Padding="12">
+                                                            <Border.Background>
+                                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                                    <GradientStop Color="#4338CA" Offset="0" />
+                                                                    <GradientStop Color="#6D28D9" Offset="0.6" />
+                                                                    <GradientStop Color="#0284C7" Offset="1" />
+                                                                </LinearGradientBrush>
+                                                            </Border.Background>
+                                                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                                <TextBlock Text="📖" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,6" />
+                                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="Bold" Foreground="White" 
+                                                                           TextAlignment="Center" TextWrapping="Wrap" MaxHeight="45" TextTrimming="CharacterEllipsis" />
+                                                            </StackPanel>
+                                                        </Border>
+
+                                                        <!-- Category Badge (Top Left) -->
+                                                        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8" 
+                                                                Background="#D9000000" CornerRadius="6" Padding="6,2">
+                                                            <TextBlock Text="{Binding CategoryName}" FontSize="10" FontWeight="SemiBold" Foreground="White" />
+                                                        </Border>
+
+                                                        <!-- Status Badge (Top Right) -->
+                                                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8" 
+                                                                Background="{Binding StatusBadgeColor}" CornerRadius="6" Padding="8,2">
+                                                            <TextBlock Text="{Binding BookStatus}" FontSize="10" FontWeight="Bold" Foreground="White" />
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+
+                                                <!-- 2. BOOK INFO -->
+                                                <StackPanel Grid.Row="1" Margin="12,10,12,6">
+                                                    <!-- Title -->
+                                                    <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="13" Foreground="#0F172A" 
+                                                               TextTrimming="CharacterEllipsis" MaxHeight="38" TextWrapping="Wrap" Margin="0,0,0,4" />
+                                                    
+                                                    <!-- Author -->
+                                                    <TextBlock Text="{Binding Author}" FontSize="11" Foreground="#64748B" 
+                                                               TextTrimming="CharacterEllipsis" Margin="0,0,0,8" />
+
+                                                    <!-- Price and Stock -->
+                                                    <Grid Margin="0,2,0,0">
+                                                        <TextBlock Text="{Binding FormattedPrice}" FontWeight="Black" FontSize="15" Foreground="#4F46E5" VerticalAlignment="Center" />
+                                                        <TextBlock Text="{Binding StockStatusText}" FontSize="11" Foreground="#64748B" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <!-- 3. ACTIONS -->
+                                                <Border Grid.Row="2" BorderBrush="#F1F5F9" BorderThickness="0,1,0,0" Padding="10,8">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button Grid.Column="0" Content="Chi Tiết" Style="{StaticResource SecondaryButtonStyle}" 
+                                                                Margin="0,0,6,0" Padding="8,6" FontSize="12"
+                                                                Tag="{Binding}" Click="btnViewDetail_Click" />
+                                                        <Button Grid.Column="1" Content="🛒 Thêm Giỏ" Style="{StaticResource PrimaryButtonStyle}" 
+                                                                Padding="10,6" FontSize="12"
+                                                                Tag="{Binding}" Click="btnAddToCart_Click" 
+                                                                IsEnabled="{Binding IsInStock}" />
+                                                    </Grid>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </DockPanel>
+
+        <!-- 3. MODAL OVERLAY: BOOK DETAIL POPUP -->
+        <Grid x:Name="gridDetailModal" Background="#70000000" Visibility="Collapsed">
+            <Border Width="640" MaxHeight="700" Background="#FFFFFF" CornerRadius="16" Effect="{StaticResource ModalShadow}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Modal Header -->
+                    <Border Grid.Row="0" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,16">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="📖 " FontSize="18" />
+                                <TextBlock Text="Thông Tin Chi Tiết Sách" FontWeight="Bold" FontSize="16" Foreground="#0F172A" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Button Content="✕" Width="30" Height="30" Background="#F1F5F9" BorderThickness="0" 
+                                    Foreground="#64748B" FontWeight="Bold" Cursor="Hand" HorizontalAlignment="Right" 
+                                    Click="btnCloseDetail_Click" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Modal Content -->
+                    <ScrollViewer Grid.Row="1" Padding="24,18" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Title & Author -->
+                            <TextBlock x:Name="txtDetailTitle" Text="Clean Code: A Handbook" FontWeight="Black" FontSize="20" Foreground="#0F172A" TextWrapping="Wrap" Margin="0,0,0,6" />
+                            <TextBlock x:Name="txtDetailAuthor" Text="Tác giả: Robert C. Martin" FontSize="13" Foreground="#475569" Margin="0,0,0,14" />
+
+                            <!-- Badges Row -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <Border Background="#EEF2FF" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
+                                    <TextBlock x:Name="txtDetailCategory" Text="Công nghệ thông tin" FontSize="12" FontWeight="Bold" Foreground="#4F46E5" />
+                                </Border>
+                                <Border x:Name="borderDetailStatus" Background="#10B981" CornerRadius="6" Padding="10,4">
+                                    <TextBlock x:Name="txtDetailStatus" Text="Bán" FontSize="12" FontWeight="Bold" Foreground="White" />
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Quick Specs Box -->
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Price -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,8">
+                                        <TextBlock Text="Đơn Giá" FontSize="11" Foreground="#64748B" />
+                                        <TextBlock x:Name="txtDetailPrice" Text="450.000 đ" FontWeight="Black" FontSize="18" Foreground="#4F46E5" />
+                                    </StackPanel>
+
+                                    <!-- Stock -->
+                                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,8">
+                                        <TextBlock Text="Tồn Kho" FontSize="11" Foreground="#64748B" />
+                                        <TextBlock x:Name="txtDetailStock" Text="Còn 20 cuốn" FontWeight="Bold" FontSize="14" Foreground="#0F172A" />
+                                    </StackPanel>
+
+                                    <!-- Publisher -->
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,8">
+                                        <TextBlock Text="Nhà Xuất Bản" FontSize="11" Foreground="#64748B" />
+                                        <TextBlock x:Name="txtDetailPublisher" Text="Prentice Hall" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
+                                    </StackPanel>
+
+                                    <!-- Publication Year -->
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,8">
+                                        <TextBlock Text="Năm Xuất Bản" FontSize="11" Foreground="#64748B" />
+                                        <TextBlock x:Name="txtDetailYear" Text="2008" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
+                                    </StackPanel>
+
+                                    <!-- ISBN -->
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                        <TextBlock Text="Mã Tiêu Chuẩn ISBN" FontSize="11" Foreground="#64748B" />
+                                        <TextBlock x:Name="txtDetailIsbn" Text="9780132350884" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Description -->
+                            <TextBlock Text="MÔ TẢ SÁCH" FontWeight="Bold" FontSize="13" Foreground="#334155" Margin="0,0,0,6" />
+                            <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12">
+                                <TextBlock x:Name="txtDetailDescription" Text="Sách hướng dẫn chi tiết về clean code..." FontSize="13" Foreground="#475569" TextWrapping="Wrap" LineHeight="20" />
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Modal Actions -->
+                    <Border Grid.Row="2" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,14" Background="#F8FAFC">
+                        <Grid>
+                            <Button Content="Đóng" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Click="btnCloseDetail_Click" />
+                            <Button x:Name="btnDetailAddToCart" Content="🛒 Thêm Vào Giỏ Hàng" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Right" Click="btnDetailAddToCart_Click" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 4. MODAL OVERLAY: SHOPPING CART POPUP -->
+        <Grid x:Name="gridCartModal" Background="#70000000" Visibility="Collapsed">
+            <Border Width="560" MaxHeight="620" Background="#FFFFFF" CornerRadius="16" Effect="{StaticResource ModalShadow}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Cart Header -->
+                    <Border Grid.Row="0" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,16">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="🛒 " FontSize="18" />
+                                <TextBlock Text="Giỏ Hàng Của Bạn" FontWeight="Bold" FontSize="16" Foreground="#0F172A" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <Button Content="✕" Width="30" Height="30" Background="#F1F5F9" BorderThickness="0" 
+                                    Foreground="#64748B" FontWeight="Bold" Cursor="Hand" HorizontalAlignment="Right" 
+                                    Click="btnCloseCart_Click" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Cart Item List -->
+                    <ScrollViewer Grid.Row="1" Padding="20,14" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Empty Cart Note -->
+                            <StackPanel x:Name="panelEmptyCart" Visibility="Collapsed" HorizontalAlignment="Center" Margin="0,40">
+                                <TextBlock Text="🛍️" FontSize="42" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                                <TextBlock Text="Giỏ hàng của bạn đang trống" FontWeight="Bold" FontSize="15" Foreground="#64748B" HorizontalAlignment="Center" />
+                            </StackPanel>
+
+                            <ItemsControl x:Name="icCartItems">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Item Title & Unit Price -->
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="13" Foreground="#0F172A" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding FormattedUnitPrice}" FontSize="12" Foreground="#64748B" Margin="0,2,0,0" />
+                                                </StackPanel>
+
+                                                <!-- Quantity Controls -->
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0">
+                                                    <Button Content="-" Width="24" Height="24" Padding="0" Tag="{Binding}" Click="btnDecreaseQty_Click" Style="{StaticResource SecondaryButtonStyle}" />
+                                                    <TextBlock Text="{Binding Quantity}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" Margin="8,0" />
+                                                    <Button Content="+" Width="24" Height="24" Padding="0" Tag="{Binding}" Click="btnIncreaseQty_Click" Style="{StaticResource SecondaryButtonStyle}" />
+                                                </StackPanel>
+
+                                                <!-- SubTotal -->
+                                                <TextBlock Grid.Column="2" Text="{Binding FormattedSubTotal}" FontWeight="Black" FontSize="14" Foreground="#4F46E5" VerticalAlignment="Center" Margin="10,0" />
+
+                                                <!-- Remove Button -->
+                                                <Button Grid.Column="3" Content="🗑️" Background="Transparent" BorderThickness="0" Cursor="Hand" Tag="{Binding}" Click="btnRemoveCartItem_Click" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Cart Footer / Total -->
+                    <Border Grid.Row="2" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,16" Background="#F8FAFC">
+                        <Grid>
+                            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock Text="Tổng Tiền Tạm Tính:" FontSize="12" Foreground="#64748B" />
+                                <TextBlock x:Name="txtCartTotalAmount" Text="0 đ" FontWeight="Black" FontSize="18" Foreground="#4F46E5" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Tiếp Tục Mua" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="btnCloseCart_Click" />
+                                <Button Content="Thanh Toán Ngay" Style="{StaticResource PrimaryButtonStyle}" Click="btnCheckout_Click" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
