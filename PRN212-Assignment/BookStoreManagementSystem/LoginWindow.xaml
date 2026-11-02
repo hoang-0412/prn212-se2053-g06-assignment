@@ -101,7 +101,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!-- LEFT PANEL: BRANDING & DEMO QUICK LOGIN -->
+                <!-- LEFT PANEL: BRANDING -->
                 <Border Grid.Column="0" CornerRadius="20,0,0,20" Padding="34,36">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -114,7 +114,6 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <!-- Brand Header -->
@@ -166,41 +165,6 @@
                                 </StackPanel>
                             </Border>
                         </StackPanel>
-
-                        <!-- Quick Demo Accounts Box -->
-                        <Border Grid.Row="2" Background="#28000000" CornerRadius="12" Padding="14,12">
-                            <StackPanel>
-                                <TextBlock Text="⚡ ĐĂNG NHẬP NHANH (TÀI KHOẢN MẪU TRONG DB)" FontWeight="Bold" FontSize="11" Foreground="#FDE68A" Margin="0,0,0,8" />
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="👑 Vào quyền Admin" Margin="0,0,6,0" Padding="10,8"
-                                            Background="#F59E0B" Foreground="White" FontWeight="Bold" FontSize="12" BorderThickness="0" Cursor="Hand"
-                                            Click="btnQuickAdmin_Click">
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                    <Button Grid.Column="1" Content="👤 Vào Khách Hàng" Margin="6,0,0,0" Padding="10,8"
-                                            Background="#10B981" Foreground="White" FontWeight="Bold" FontSize="12" BorderThickness="0" Cursor="Hand"
-                                            Click="btnQuickCustomer_Click">
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
                     </Grid>
                 </Border>
 
@@ -246,19 +210,11 @@
                         <TextBlock Text="Nhập email và mật khẩu của bạn để truy cập hệ thống hiệu sách." FontSize="13" Foreground="#64748B" Margin="0,0,0,22" />
 
                         <TextBlock Text="ĐỊA CHỈ EMAIL" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,6" />
-                        <TextBox x:Name="txtLoginEmail" Style="{StaticResource InputTextBoxStyle}" Text="" Margin="0,0,0,16" /> 
+                        <TextBox x:Name="txtLoginEmail" Style="{StaticResource InputTextBoxStyle}" Text="" Margin="0,0,0,16" />
 
                         <TextBlock Text="MẬT KHẨU" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,6" />
-                        <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White" Margin="0,0,0,16">
+                        <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White" Margin="0,0,0,24">
                             <PasswordBox x:Name="txtLoginPassword" FontSize="13" Padding="10,0" VerticalContentAlignment="Center" BorderThickness="0" Background="Transparent" />
-                        </Border>
-
-                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,18">
-                            <StackPanel>
-                                <TextBlock Text="💡 Gợi ý tài khoản có sẵn trong bsDB.sql:" FontWeight="Bold" FontSize="11" Foreground="#334155" />
-                                <TextBlock Text="• Admin: admin@bookstore.com  (MK: hashed_pwd_admin_123 hoặc 123456)" FontSize="11" Foreground="#64748B" Margin="0,2,0,0" />
-                                <TextBlock Text="• Khách: nguyenvana@gmail.com (MK: hashed_pwd_user_456 hoặc 123456)" FontSize="11" Foreground="#64748B" />
-                            </StackPanel>
                         </Border>
 
                         <Button Content="Đăng Nhập Vào Hệ Thống →" Style="{StaticResource PrimaryButtonStyle}" Click="btnSubmitLogin_Click" />
@@ -318,7 +274,7 @@
                     <Border Grid.Row="2" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="0,14,0,0" Margin="0,12,0,0">
                         <Grid>
                             <TextBlock Text="Bạn chỉ muốn dạo xem kho sách?" FontSize="12" Foreground="#64748B" VerticalAlignment="Center" />
-                            <Button Content="🏪 Vào Trang Chủ Ngay (Khách)" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" Click="btnContinueAsGuest_Click" />
+                            <Button Content="🏪 Quay lại" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" Click="btnContinueAsGuest_Click" />
                         </Grid>
                     </Border>
                 </Grid>
@@ -326,4 +282,3 @@
         </Border>
     </Grid>
 </Window>
-
