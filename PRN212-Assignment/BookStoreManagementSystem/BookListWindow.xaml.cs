@@ -1,0 +1,720 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using BookStoreManagementSystem.Models;
+using BookStoreManagementSystem.ViewModels;
+using Microsoft.EntityFrameworkCore;
+
+namespace BookStoreManagementSystem
+{
+    public partial class BookListWindow : Window
+    {
+        private List<BookCardViewModel> _allBooks = new();
+        private List<BookCardViewModel> _filteredBooks = new();
+        private List<CategoryFilterItem> _categoryItems = new();
+
+        private BookCardViewModel? _selectedBookForDetail;
+        private BookImageItemViewModel? _selectedGalleryImage;
+        private bool _isTableView = false;
+        private bool _isLoaded = false;
+        private bool _isUpdatingFilters = false;
+
+        private int _currentPage = 1;
+        private int _pageSize = 8;
+        private int _totalPages = 1;
+
+        public BookListWindow()
+        {
+            InitializeComponent();
+            Loaded += BookListWindow_Loaded;
+        }
+
+        private void BookListWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            HomePage.EnsureRichSampleCatalogIfNeeded();
+            UpdateUserHeaderUI();
+            LoadAllBooksFromDatabase();
+        }
+
+        private void UpdateUserHeaderUI()
+        {
+            txtCurrentUserName.Text = SessionManager.DisplayName;
+            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
+            btnAuthAction.Content = SessionManager.IsLoggedIn ? "🔄 Đổi TK / Thoát" : "🔐 Đăng Nhập";
+            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public void LoadAllBooksFromDatabase()
+        {
+            try
+            {
+                _isUpdatingFilters = true;
+                using var context = new BookStoreDbContext();
+
+                // 1. Load Categories
+                var categoriesFromDb = context.Categories
+                    .AsNoTracking()
+                    .Include(c => c.Books)
+                    .OrderBy(c => c.CategoryName)
+                    .ToList();
+
+                var booksFromDb = context.Books
+                    .AsNoTracking()
+                    .Include(b => b.Category)
+                    .Include(b => b.BookImages)
+                    .OrderByDescending(b => b.CreatedAt)
+                    .ThenByDescending(b => b.BookId)
+                    .ToList();
+
+                _categoryItems = new List<CategoryFilterItem>
+                {
+                    new CategoryFilterItem
+                    {
+                        CategoryId = null,
+                        Name = "Tất cả thể loại",
+                        Count = booksFromDb.Count
+                    }
+                };
+
+                foreach (var cat in categoriesFromDb)
+                {
+                    _categoryItems.Add(new CategoryFilterItem
+                    {
+                        CategoryId = cat.CategoryId,
+                        Name = cat.CategoryName,
+                        Count = cat.Books.Count
+                    });
+                }
+
+                int prevCatIndex = lstCategories.SelectedIndex;
+                lstCategories.ItemsSource = _categoryItems;
+                lstCategories.SelectedIndex = prevCatIndex >= 0 && prevCatIndex < _categoryItems.Count ? prevCatIndex : 0;
+
+                // 2. Map Books to ViewModels (with full BookImages loaded)
+                _allBooks = booksFromDb.Select(BookCardViewModel.FromEntity).ToList();
+
+                // 3. Populate Dynamic Publisher & Publication Year Filters
+                var publishers = _allBooks
+                    .Select(b => b.Publisher?.Trim())
+                    .Where(p => !string.IsNullOrEmpty(p))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(p => p)
+                    .ToList();
+
+                var publisherOptions = new List<string> { "Tất cả Nhà xuất bản" };
+                publisherOptions.AddRange(publishers!);
+                cbPublisherFilter.ItemsSource = publisherOptions;
+                if (cbPublisherFilter.SelectedIndex < 0) cbPublisherFilter.SelectedIndex = 0;
+
+                var years = _allBooks
+                    .Where(b => b.PublicationYear.HasValue)
+                    .Select(b => b.PublicationYear!.Value)
+                    .Distinct()
+                    .OrderByDescending(y => y)
+                    .Select(y => y.ToString())
+                    .ToList();
+
+                var yearOptions = new List<string> { "Tất cả năm xuất bản" };
+                yearOptions.AddRange(years);
+                cbYearFilter.ItemsSource = yearOptions;
+                if (cbYearFilter.SelectedIndex < 0) cbYearFilter.SelectedIndex = 0;
+
+                // 4. Update Top Summary KPI Strip
+                statTotalBooks.Text = $"{_allBooks.Count} đầu sách";
+                statTotalStock.Text = $"{_allBooks.Sum(b => b.StockQuantity)} cuốn";
+                statForSale.Text = $"{_allBooks.Count(b => b.IsForSale)} đầu sách";
+                statForRent.Text = $"{_allBooks.Count(b => b.IsForRent)} cho thuê ({_allBooks.Count(b => b.IsRentedOut)} đã thuê)";
+                statCategories.Text = $"{categoriesFromDb.Count} thể loại • {publishers.Count} NXB";
+
+                _isUpdatingFilters = false;
+                _isLoaded = true;
+                ApplyFiltersAndPagination();
+            }
+            catch (Exception ex)
+            {
+                _isUpdatingFilters = false;
+                MessageBox.Show(
+                    $"Không thể tải danh sách sách từ CSDL:\n{ex.Message}",
+                    "Lỗi kết nối CSDL",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private void ApplyFiltersAndPagination(bool resetPage = false)
+        {
+            if (!_isLoaded || _isUpdatingFilters) return;
+
+            if (resetPage)
+            {
+                _currentPage = 1;
+            }
+
+            IEnumerable<BookCardViewModel> query = _allBooks;
+
+            // 1. Keyword Search
+            var keyword = txtSearch?.Text?.Trim().ToLower() ?? "";
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(b =>
+                    b.Title.ToLower().Contains(keyword) ||
+                    b.Author.ToLower().Contains(keyword) ||
+                    b.CategoryName.ToLower().Contains(keyword) ||
+                    b.BookCode.ToLower().Contains(keyword) ||
+                    (!string.IsNullOrEmpty(b.Isbn) && b.Isbn.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(b.Publisher) && b.Publisher.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(b.Description) && b.Description.ToLower().Contains(keyword)));
+            }
+
+            // 2. Category Filter
+            if (lstCategories?.SelectedItem is CategoryFilterItem selectedCat && selectedCat.CategoryId.HasValue)
+            {
+                query = query.Where(b => b.CategoryId == selectedCat.CategoryId.Value);
+            }
+
+            // 3. Transaction Status Filter
+            if (cbStatusFilter?.SelectedItem is ComboBoxItem statusItem)
+            {
+                var statusText = statusItem.Content?.ToString();
+                if (!string.IsNullOrEmpty(statusText) && statusText != "Tất cả hình thức")
+                {
+                    query = query.Where(b => b.BookStatus.Equals(statusText, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            // 4. Price Filter
+            bool hasMinPrice = decimal.TryParse(txtMinPrice?.Text?.Trim(), out decimal minPrice) && minPrice >= 0;
+            bool hasMaxPrice = decimal.TryParse(txtMaxPrice?.Text?.Trim(), out decimal maxPrice) && maxPrice > 0;
+
+            if (hasMinPrice || hasMaxPrice)
+            {
+                if (hasMinPrice) query = query.Where(b => b.Price >= minPrice);
+                if (hasMaxPrice) query = query.Where(b => b.Price <= maxPrice);
+            }
+            else
+            {
+                if (rbPriceUnder100?.IsChecked == true)
+                    query = query.Where(b => b.Price < 100000m);
+                else if (rbPrice100To250?.IsChecked == true)
+                    query = query.Where(b => b.Price >= 100000m && b.Price <= 250000m);
+                else if (rbPrice250To500?.IsChecked == true)
+                    query = query.Where(b => b.Price > 250000m && b.Price <= 500000m);
+                else if (rbPriceAbove500?.IsChecked == true)
+                    query = query.Where(b => b.Price > 500000m);
+            }
+
+            // 5. Publisher Filter
+            if (cbPublisherFilter?.SelectedItem is string selectedPublisher && selectedPublisher != "Tất cả Nhà xuất bản")
+            {
+                query = query.Where(b => string.Equals(b.Publisher?.Trim(), selectedPublisher, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // 6. Publication Year Filter
+            if (cbYearFilter?.SelectedItem is string selectedYearStr && selectedYearStr != "Tất cả năm xuất bản" && int.TryParse(selectedYearStr, out int selectedYear))
+            {
+                query = query.Where(b => b.PublicationYear == selectedYear);
+            }
+
+            // 7. Stock Filter
+            if (chkInStockOnly?.IsChecked == true)
+            {
+                query = query.Where(b => b.IsInStock);
+            }
+
+            // 8. Sorting
+            int sortIndex = cbSortBy?.SelectedIndex ?? 0;
+            query = sortIndex switch
+            {
+                1 => query.OrderBy(b => b.BookId),
+                2 => query.OrderByDescending(b => b.BookId),
+                3 => query.OrderBy(b => b.Price),
+                4 => query.OrderByDescending(b => b.Price),
+                5 => query.OrderBy(b => b.Title),
+                6 => query.OrderByDescending(b => b.Title),
+                7 => query.OrderByDescending(b => b.PublicationYear ?? 0),
+                8 => query.OrderByDescending(b => b.StockQuantity),
+                _ => query.OrderByDescending(b => b.CreatedAt).ThenByDescending(b => b.BookId)
+            };
+
+            _filteredBooks = query.ToList();
+
+            // 9. Pagination Calculation
+            int totalFiltered = _filteredBooks.Count;
+            _totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / _pageSize));
+            if (_currentPage > _totalPages) _currentPage = _totalPages;
+            if (_currentPage < 1) _currentPage = 1;
+
+            var pagedBooks = _filteredBooks
+                .Skip((_currentPage - 1) * _pageSize)
+                .Take(_pageSize)
+                .ToList();
+
+            // 10. Bind to Grid & Table Views
+            icBooksGrid.ItemsSource = pagedBooks;
+            dgBooksTable.ItemsSource = pagedBooks;
+
+            txtResultSummary.Text = $"Tìm thấy: {totalFiltered} / {_allBooks.Count} đầu sách";
+
+            int startItem = totalFiltered == 0 ? 0 : ((_currentPage - 1) * _pageSize) + 1;
+            int endItem = Math.Min(totalFiltered, _currentPage * _pageSize);
+            txtPaginationInfo.Text = $"Đang hiển thị {startItem} - {endItem} trên tổng {totalFiltered} đầu sách";
+            txtPageIndicator.Text = $"Trang {_currentPage} / {_totalPages}";
+
+            btnFirstPage.IsEnabled = _currentPage > 1;
+            btnPrevPage.IsEnabled = _currentPage > 1;
+            btnNextPage.IsEnabled = _currentPage < _totalPages;
+            btnLastPage.IsEnabled = _currentPage < _totalPages;
+
+            UpdateViewVisibility(totalFiltered == 0);
+        }
+
+        private void UpdateViewVisibility(bool isEmpty)
+        {
+            if (panelEmptyState == null || scrollGridView == null || borderTableView == null) return;
+
+            if (isEmpty)
+            {
+                panelEmptyState.Visibility = Visibility.Visible;
+                scrollGridView.Visibility = Visibility.Collapsed;
+                borderTableView.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                panelEmptyState.Visibility = Visibility.Collapsed;
+                scrollGridView.Visibility = _isTableView ? Visibility.Collapsed : Visibility.Visible;
+                borderTableView.Visibility = _isTableView ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        // ==================== VIEW MODE SWITCHER ====================
+        private void btnViewGrid_Click(object sender, RoutedEventArgs e)
+        {
+            _isTableView = false;
+            btnViewGrid.Style = (Style)FindResource("PrimaryButtonStyle");
+            btnViewTable.Style = (Style)FindResource("SecondaryButtonStyle");
+            UpdateViewVisibility(_filteredBooks.Count == 0);
+        }
+
+        private void btnViewTable_Click(object sender, RoutedEventArgs e)
+        {
+            _isTableView = true;
+            btnViewTable.Style = (Style)FindResource("PrimaryButtonStyle");
+            btnViewGrid.Style = (Style)FindResource("SecondaryButtonStyle");
+            UpdateViewVisibility(_filteredBooks.Count == 0);
+        }
+
+        // ==================== FILTER & SORT HANDLERS ====================
+        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool hasText = !string.IsNullOrEmpty(txtSearch.Text);
+            txtSearchPlaceholder.Visibility = hasText ? Visibility.Collapsed : Visibility.Visible;
+            btnClearSearch.Visibility = hasText ? Visibility.Visible : Visibility.Collapsed;
+            ApplyFiltersAndPagination(resetPage: true);
+        }
+
+        private void btnClearSearch_Click(object sender, RoutedEventArgs e)
+        {
+            txtSearch.Text = string.Empty;
+        }
+
+        private void lstCategories_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyFiltersAndPagination(resetPage: true);
+        }
+
+        private void FilterSelection_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyFiltersAndPagination(resetPage: true);
+        }
+
+        private void FilterCheck_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyFiltersAndPagination(resetPage: true);
+        }
+
+        private void CustomPrice_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ApplyFiltersAndPagination(resetPage: true);
+        }
+
+        private void cbSortBy_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ApplyFiltersAndPagination(resetPage: false);
+        }
+
+        private void btnPillAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 0;
+        }
+
+        private void btnPillForSale_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 1; // "Bán"
+        }
+
+        private void btnPillForRent_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 2; // "Cho thuê"
+        }
+
+        private void btnPillRentedOut_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 3; // "Đã thuê"
+        }
+
+        private void btnResetFilters_Click(object sender, RoutedEventArgs e)
+        {
+            _isUpdatingFilters = true;
+            txtSearch.Text = string.Empty;
+            txtSearchPlaceholder.Visibility = Visibility.Visible;
+            btnClearSearch.Visibility = Visibility.Collapsed;
+
+            if (lstCategories.Items.Count > 0) lstCategories.SelectedIndex = 0;
+            if (cbStatusFilter.Items.Count > 0) cbStatusFilter.SelectedIndex = 0;
+            if (rbPriceAll != null) rbPriceAll.IsChecked = true;
+            txtMinPrice.Text = string.Empty;
+            txtMaxPrice.Text = string.Empty;
+            if (cbPublisherFilter.Items.Count > 0) cbPublisherFilter.SelectedIndex = 0;
+            if (cbYearFilter.Items.Count > 0) cbYearFilter.SelectedIndex = 0;
+            if (chkInStockOnly != null) chkInStockOnly.IsChecked = false;
+            if (cbSortBy != null) cbSortBy.SelectedIndex = 0;
+            _isUpdatingFilters = false;
+
+            ApplyFiltersAndPagination(resetPage: true);
+        }
+
+        private void btnRefreshData_Click(object sender, RoutedEventArgs e)
+        {
+            LoadAllBooksFromDatabase();
+        }
+
+        // ==================== PAGINATION HANDLERS ====================
+        private void cbPageSize_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbPageSize?.SelectedItem is ComboBoxItem item && int.TryParse(item.Tag?.ToString(), out int size))
+            {
+                _pageSize = size;
+                ApplyFiltersAndPagination(resetPage: true);
+            }
+        }
+
+        private void btnFirstPage_Click(object sender, RoutedEventArgs e)
+        {
+            _currentPage = 1;
+            ApplyFiltersAndPagination();
+        }
+
+        private void btnPrevPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                ApplyFiltersAndPagination();
+            }
+        }
+
+        private void btnNextPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage < _totalPages)
+            {
+                _currentPage++;
+                ApplyFiltersAndPagination();
+            }
+        }
+
+        private void btnLastPage_Click(object sender, RoutedEventArgs e)
+        {
+            _currentPage = _totalPages;
+            ApplyFiltersAndPagination();
+        }
+
+        // ==================== ADMIN IMAGE UPLOAD & BOOK DETAIL MODAL ====================
+        private void btnAdminUploadCardImage_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookCardViewModel book)
+            {
+                if (BookCardViewModel.PromptAndUploadBookImages(book.BookId, book.Title, setAsPrimaryCover: true, out int uploadedCount))
+                {
+                    LoadAllBooksFromDatabase();
+                    MessageBox.Show(
+                        $"✅ Đã tải lên {uploadedCount} ảnh cho sách '{book.Title}' thành công!",
+                        "Cập nhật ảnh sách",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+        }
+
+        private void btnViewDetail_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookCardViewModel book)
+            {
+                ShowBookDetailModal(book);
+            }
+        }
+
+        private void dgBooksTable_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dgBooksTable.SelectedItem is BookCardViewModel book)
+            {
+                ShowBookDetailModal(book);
+            }
+        }
+
+        private void ShowBookDetailModal(BookCardViewModel book)
+        {
+            _selectedBookForDetail = book;
+            _selectedGalleryImage = book.GalleryImages.FirstOrDefault(i => i.IsCover) ?? book.GalleryImages.FirstOrDefault();
+
+            txtDetailBookCode.Text = book.BookCode;
+            txtDetailTitle.Text = book.Title;
+            txtDetailAuthor.Text = $"Tác giả: {book.Author}";
+            txtDetailCategory.Text = book.CategoryName;
+            txtDetailStatus.Text = book.BookStatus;
+            borderDetailStatus.Background = new BrushConverter().ConvertFromString(book.StatusBadgeColor) as Brush;
+            txtDetailStock.Text = book.StockStatusText;
+            txtDetailCreatedAt.Text = $"Ngày nhập kho: {book.FormattedCreatedAt}";
+
+            txtDetailPrice.Text = book.FormattedPrice;
+            txtDetailRentPrice.Text = $"{book.RentalPrice7Days:N0} đ / {book.RentalPrice14Days:N0} đ";
+            txtDetailRent30Price.Text = $"{book.RentalPrice30Days:N0} đ / tháng";
+
+            txtDetailPublisher.Text = book.PublisherDisplay;
+            txtDetailYear.Text = book.YearDisplay;
+            txtDetailIsbn.Text = book.IsbnDisplay;
+            txtDetailDescription.Text = book.Description;
+
+            imgDetailCover.Source = _selectedGalleryImage?.ImageSource ?? book.CoverImage;
+            txtDetailImageCount.Text = $"🖼️ Album ảnh ({book.GalleryImages.Count})";
+            icDetailGallery.ItemsSource = book.GalleryImages;
+
+            panelAdminDetailImageControls.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            btnDetailSetSelectedAsCover.IsEnabled = _selectedGalleryImage != null;
+            btnDetailDeleteSelectedImage.IsEnabled = _selectedGalleryImage != null;
+
+            btnDetailAddToCart.IsEnabled = book.IsInStock;
+            gridDetailModal.Visibility = Visibility.Visible;
+        }
+
+        private void RefreshDetailModalBook(int bookId)
+        {
+            LoadAllBooksFromDatabase();
+            var updatedBook = _allBooks.FirstOrDefault(b => b.BookId == bookId);
+            if (updatedBook != null)
+            {
+                ShowBookDetailModal(updatedBook);
+            }
+        }
+
+        private void btnSelectGalleryThumbnail_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookImageItemViewModel imgItem)
+            {
+                _selectedGalleryImage = imgItem;
+                imgDetailCover.Source = imgItem.ImageSource;
+                btnDetailSetSelectedAsCover.IsEnabled = true;
+                btnDetailDeleteSelectedImage.IsEnabled = true;
+            }
+        }
+
+        private void btnDetailUploadImages_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null) return;
+            int bookId = _selectedBookForDetail.BookId;
+
+            if (BookCardViewModel.PromptAndUploadBookImages(bookId, _selectedBookForDetail.Title, setAsPrimaryCover: false, out int count))
+            {
+                RefreshDetailModalBook(bookId);
+                MessageBox.Show($"✅ Đã thêm {count} ảnh vào album sách '{_selectedBookForDetail?.Title}'!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnDetailChangeCover_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null) return;
+            int bookId = _selectedBookForDetail.BookId;
+
+            if (BookCardViewModel.PromptAndUploadBookImages(bookId, _selectedBookForDetail.Title, setAsPrimaryCover: true, out _))
+            {
+                RefreshDetailModalBook(bookId);
+                MessageBox.Show($"✅ Đã cập nhật ảnh bìa chính cho sách '{_selectedBookForDetail?.Title}'!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnDetailSetSelectedAsCover_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null || _selectedGalleryImage == null) return;
+            int bookId = _selectedBookForDetail.BookId;
+
+            if (BookCardViewModel.SetCoverImageInDatabase(bookId, _selectedGalleryImage.ImageId))
+            {
+                RefreshDetailModalBook(bookId);
+                MessageBox.Show("⭐ Đã đặt ảnh đang chọn làm ảnh bìa chính!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnDetailDeleteSelectedImage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null || _selectedGalleryImage == null) return;
+
+            if (MessageBox.Show("Bạn có chắc chắn muốn xóa bức ảnh này khỏi sách không?", "Xác nhận xóa ảnh", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            int bookId = _selectedBookForDetail.BookId;
+            if (BookCardViewModel.DeleteImageFromDatabase(bookId, _selectedGalleryImage.ImageId))
+            {
+                RefreshDetailModalBook(bookId);
+            }
+        }
+
+        private void btnCloseDetail_Click(object sender, RoutedEventArgs e)
+        {
+            gridDetailModal.Visibility = Visibility.Collapsed;
+            _selectedBookForDetail = null;
+            _selectedGalleryImage = null;
+        }
+
+        private void btnDetailAddToCart_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail != null)
+            {
+                var book = _selectedBookForDetail;
+                gridDetailModal.Visibility = Visibility.Collapsed;
+                AddBookToDatabaseCartAndNavigate(book);
+            }
+        }
+
+        private void btnSelectBookAction_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookCardViewModel book)
+            {
+                AddBookToDatabaseCartAndNavigate(book);
+            }
+        }
+
+        private void AddBookToDatabaseCartAndNavigate(BookCardViewModel book)
+        {
+            if (!book.IsInStock)
+            {
+                MessageBox.Show(
+                    $"Quyển sách '{book.Title}' hiện đang hết hàng hoặc đang được khách khác thuê!",
+                    "Không khả dụng",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                using var context = new BookStoreDbContext();
+                int? userId = SessionManager.CurrentUser?.UserId;
+
+                if (!userId.HasValue)
+                {
+                    var defaultCustomer = context.Users
+                        .Include(u => u.Role)
+                        .FirstOrDefault(u => u.RoleId == 1)
+                        ?? context.Users.Include(u => u.Role).FirstOrDefault();
+
+                    if (defaultCustomer != null)
+                    {
+                        SessionManager.CurrentUser = defaultCustomer;
+                        userId = defaultCustomer.UserId;
+                        UpdateUserHeaderUI();
+                    }
+                }
+
+                if (userId.HasValue)
+                {
+                    var cart = context.Carts
+                        .Include(c => c.CartItems)
+                        .FirstOrDefault(c => c.UserId == userId.Value);
+
+                    if (cart == null)
+                    {
+                        cart = new Cart
+                        {
+                            UserId = userId.Value,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+                        context.Carts.Add(cart);
+                        context.SaveChanges();
+                    }
+
+                    var existingItem = cart.CartItems.FirstOrDefault(ci => ci.BookId == book.BookId);
+                    if (existingItem != null)
+                    {
+                        if (existingItem.Quantity < book.StockQuantity)
+                        {
+                            existingItem.Quantity += 1;
+                        }
+                    }
+                    else
+                    {
+                        context.CartItems.Add(new CartItem
+                        {
+                            CartId = cart.CartId,
+                            BookId = book.BookId,
+                            Quantity = 1,
+                            AddedAt = DateTime.UtcNow
+                        });
+                    }
+
+                    cart.UpdatedAt = DateTime.UtcNow;
+                    context.SaveChanges();
+                }
+
+                var result = MessageBox.Show(
+                    $"✅ Đã thêm sách '{book.Title}' vào giỏ hàng!\n\nBạn có muốn chuyển sang Trang Chủ (/homepage) để mở Giỏ hàng / Đăng ký Thuê sách ngay không?",
+                    "Đã thêm vào giỏ hàng",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    var homeWin = new HomePage();
+                    homeWin.Show();
+                    Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể thêm vào giỏ hàng:\n{ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ==================== NAVIGATION ====================
+        private void btnBackHome_Click(object sender, RoutedEventArgs e)
+        {
+            var homeWin = new HomePage();
+            homeWin.Show();
+            Close();
+        }
+
+        private void btnOpenAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SessionManager.IsAdmin)
+            {
+                MessageBox.Show("Chỉ tài khoản Admin mới có thể truy cập Admin Dashboard!", "Phân quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var adminWin = new AdminDashboardWindow();
+            adminWin.Show();
+            Close();
+        }
+
+        private void btnAuthAction_Click(object sender, RoutedEventArgs e)
+        {
+            SessionManager.Logout();
+            var loginWin = new LoginWindow();
+            loginWin.Show();
+            Close();
+        }
+    }
+}
