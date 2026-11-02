@@ -16,7 +16,8 @@ namespace BookStoreManagementSystem
         public LoginWindow()
         {
             InitializeComponent();
-            txtLoginPassword.Password = "hashed_pwd_user_456";
+            txtLoginEmail.Text = string.Empty;
+            txtLoginPassword.Password = string.Empty;
         }
 
         private void btnTabLogin_Click(object sender, RoutedEventArgs e)
@@ -43,15 +44,16 @@ namespace BookStoreManagementSystem
 
         private void btnQuickAdmin_Click(object sender, RoutedEventArgs e)
         {
-            txtLoginEmail.Text = "admin@bookstore.com";
-            txtLoginPassword.Password = "hashed_pwd_admin_123";
+            txtLoginEmail.Text = string.Empty;
+            txtLoginPassword.Password = string.Empty;
             PerformLogin("admin@bookstore.com", "hashed_pwd_admin_123", openAdminDirectly: true);
         }
 
         private void btnQuickCustomer_Click(object sender, RoutedEventArgs e)
         {
-            txtLoginEmail.Text = "nguyenvana@gmail.com";
-            txtLoginPassword.Password = "hashed_pwd_user_456";
+            // Quick login customer
+            txtLoginEmail.Text = string.Empty;
+            txtLoginPassword.Password = string.Empty;
             PerformLogin("nguyenvana@gmail.com", "hashed_pwd_user_456", openAdminDirectly: false);
         }
 

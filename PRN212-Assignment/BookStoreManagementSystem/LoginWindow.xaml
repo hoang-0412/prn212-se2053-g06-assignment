@@ -244,7 +244,7 @@
                         <TextBlock Text="Nhập email và mật khẩu của bạn để truy cập hệ thống hiệu sách." FontSize="13" Foreground="#64748B" Margin="0,0,0,22" />
 
                         <TextBlock Text="ĐỊA CHỈ EMAIL" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,6" />
-                        <TextBox x:Name="txtLoginEmail" Style="{StaticResource InputTextBoxStyle}" Text="nguyenvana@gmail.com" Margin="0,0,0,16" />
+                        <TextBox x:Name="txtLoginEmail" Style="{StaticResource InputTextBoxStyle}" Text="" Margin="0,0,0,16" />
 
                         <TextBlock Text="MẬT KHẨU" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,6" />
                         <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White" Margin="0,0,0,12">

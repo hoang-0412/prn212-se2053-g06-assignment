@@ -1408,6 +1408,7 @@ namespace BookStoreManagementSystem
 
         private void btnAuthAction_Click(object sender, RoutedEventArgs e)
         {
+            SessionManager.Logout();
             var loginWin = new LoginWindow();
             loginWin.Show();
             Close();
