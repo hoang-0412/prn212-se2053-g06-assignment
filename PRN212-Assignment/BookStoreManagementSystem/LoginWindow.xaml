@@ -70,14 +70,16 @@
             <Setter Property="Background" Value="#FFFFFF" />
             <Setter Property="Foreground" Value="#0F172A" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="10,0" />
             <Setter Property="BorderBrush" Value="#CBD5E1" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
-                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" />
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
@@ -247,8 +249,8 @@
                         <TextBox x:Name="txtLoginEmail" Style="{StaticResource InputTextBoxStyle}" Text="" Margin="0,0,0,16" />
 
                         <TextBlock Text="MẬT KHẨU" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,6" />
-                        <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White" Margin="0,0,0,12">
-                            <PasswordBox x:Name="txtLoginPassword" FontSize="13" Padding="12,10" BorderThickness="0" Background="Transparent" />
+                        <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White" Margin="0,0,0,16">
+                            <PasswordBox x:Name="txtLoginPassword" FontSize="13" Padding="10,0" VerticalContentAlignment="Center" BorderThickness="0" Background="Transparent" />
                         </Border>
 
                         <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,18">
@@ -296,14 +298,14 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                     <TextBlock Text="MẬT KHẨU *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                                    <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White">
-                                        <PasswordBox x:Name="txtRegPassword" FontSize="13" Padding="12,9" BorderThickness="0" Background="Transparent" />
+                                    <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White">
+                                        <PasswordBox x:Name="txtRegPassword" FontSize="13" Padding="10,0" VerticalContentAlignment="Center" BorderThickness="0" Background="Transparent" />
                                     </Border>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Margin="8,0,0,0">
                                     <TextBlock Text="XÁC NHẬN MẬT KHẨU *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                                    <Border BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White">
-                                        <PasswordBox x:Name="txtRegConfirmPassword" FontSize="13" Padding="12,9" BorderThickness="0" Background="Transparent" />
+                                    <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White">
+                                        <PasswordBox x:Name="txtRegConfirmPassword" FontSize="13" Padding="10,0" VerticalContentAlignment="Center" BorderThickness="0" Background="Transparent" />
                                     </Border>
                                 </StackPanel>
                             </Grid>
