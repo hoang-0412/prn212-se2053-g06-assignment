@@ -19,6 +19,7 @@ namespace BookStoreManagementSystem
         private readonly ObservableCollection<CartItemViewModel> _cartItems = new();
 
         private BookCardViewModel? _selectedBookForDetail;
+        private BookImageItemViewModel? _selectedGalleryImage;
         private BookCardViewModel? _selectedBookForRent;
         private bool _isLoaded = false;
 
@@ -42,6 +43,7 @@ namespace BookStoreManagementSystem
             txtCurrentUserName.Text = SessionManager.DisplayName;
             txtCurrentUserRole.Text = SessionManager.RoleDisplay;
             btnAuthAction.Content = SessionManager.IsLoggedIn ? "🔄 Đổi TK / Thoát" : "🔐 Đăng Nhập";
+            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
 
             if (SessionManager.CurrentUser != null)
             {
@@ -58,11 +60,12 @@ namespace BookStoreManagementSystem
             }
         }
 
-        private void EnsureRichSampleCatalogIfNeeded()
+        public static void EnsureRichSampleCatalogIfNeeded()
         {
             try
             {
                 using var context = new BookStoreDbContext();
+                EnsureValidBookCoversInDatabase(context);
                 if (context.Books.Count() <= 3)
                 {
                     var extraCategories = new (string Name, string Desc)[]
@@ -84,7 +87,7 @@ namespace BookStoreManagementSystem
                     var catMap = context.Categories.ToDictionary(c => c.CategoryName, c => c.CategoryId);
                     int defaultCatId = catMap.Values.FirstOrDefault();
 
-                    var starterBooks = new[]
+                var starterBooks = new[]
                     {
                         new Book
                         {
@@ -195,6 +198,56 @@ namespace BookStoreManagementSystem
             }
         }
 
+        public static void EnsureValidBookCoversInDatabase(BookStoreDbContext context)
+        {
+            var allBooks = context.Books
+                .Include(b => b.Category)
+                .Include(b => b.BookImages)
+                .ToList();
+
+            bool changed = false;
+            foreach (var book in allBooks)
+            {
+                var invalidImgs = book.BookImages.Where(i => i.ImageData == null || i.ImageData.Length < 32).ToList();
+                if (invalidImgs.Any())
+                {
+                    context.BookImages.RemoveRange(invalidImgs);
+                    foreach (var inv in invalidImgs)
+                    {
+                        book.BookImages.Remove(inv);
+                    }
+                    changed = true;
+                }
+
+                if (!book.BookImages.Any())
+                {
+                    var pngBytes = BookCardViewModel.GenerateDefaultCoverPng(
+                        book.Title,
+                        book.Author,
+                        book.Category?.CategoryName ?? "BookStore",
+                        book.BookId);
+
+                    if (pngBytes.Length > 0)
+                    {
+                        context.BookImages.Add(new BookImage
+                        {
+                            BookId = book.BookId,
+                            ImageData = pngBytes,
+                            MimeType = "image/png",
+                            IsCover = true,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                        changed = true;
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                context.SaveChanges();
+            }
+        }
+
         private void LoadDataFromDatabase()
         {
             try
@@ -237,6 +290,7 @@ namespace BookStoreManagementSystem
                 }
 
                 // 2. Load Books with category and cover image
+                EnsureValidBookCoversInDatabase(context);
                 var booksFromDb = context.Books
                     .AsNoTracking()
                     .Include(b => b.Category)
@@ -272,6 +326,9 @@ namespace BookStoreManagementSystem
                 }).ToList();
 
                 // Update Hero chips
+                EnsureValidBookCoversInDatabase(context);
+                // Update Hero chips
+                _allBooks = booksFromDb.Select(BookCardViewModel.FromEntity).ToList();
                 txtTotalBooksChip.Text = $"{_allBooks.Count}";
                 txtTotalRentBooksChip.Text = $"{_allBooks.Count(b => b.IsForRent)}";
                 txtTotalCategoriesChip.Text = $"{categoriesFromDb.Count}";
@@ -324,7 +381,8 @@ namespace BookStoreManagementSystem
                                 UnitPrice = isRent ? rent7Price : ci.Book.Price,
                                 Quantity = ci.Quantity,
                                 OrderType = isRent ? "Thuê" : "Mua",
-                                RentalDays = isRent ? 7 : 0
+                                RentalDays = isRent ? 7 : 0,
+                                CoverImage = _allBooks.FirstOrDefault(b => b.BookId == ci.BookId)?.CoverImage
                             });
                         }
                     }
@@ -531,7 +589,137 @@ namespace BookStoreManagementSystem
         }
 
         // --- Book Detail Modal ---
+        // --- Book Detail Modal & Admin Image Upload ---
+        private void btnAdminUploadCardImage_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookCardViewModel book)
+            {
+                if (BookCardViewModel.PromptAndUploadBookImages(book.BookId, book.Title, setAsPrimaryCover: true, out int uploadedCount))
+                {
+                    LoadDataFromDatabase();
+                    LoadUserCartFromDatabase();
+                    MessageBox.Show(
+                        $"✅ Đã tải lên {uploadedCount} ảnh cho sách '{book.Title}' thành công!",
+                        "Cập nhật ảnh sách",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+        }
+
         private void btnViewDetail_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookCardViewModel book)
+            {
+                ShowBookDetailModal(book);
+            }
+        }
+
+        private void ShowBookDetailModal(BookCardViewModel book)
+        {
+            _selectedBookForDetail = book;
+            _selectedGalleryImage = book.GalleryImages.FirstOrDefault(i => i.IsCover) ?? book.GalleryImages.FirstOrDefault();
+
+            txtDetailTitle.Text = book.Title;
+            txtDetailAuthor.Text = $"Tác giả: {book.Author}";
+            txtDetailCategory.Text = book.CategoryName;
+            txtDetailStatus.Text = book.BookStatus;
+            borderDetailStatus.Background = new BrushConverter().ConvertFromString(book.StatusBadgeColor) as Brush;
+            txtDetailPrice.Text = book.FormattedPrice;
+            txtDetailRentPrice.Text = $"{book.RentalPrice7Days:N0} đ / tuần";
+            txtDetailStock.Text = book.StockStatusText;
+            txtDetailPublisher.Text = string.IsNullOrEmpty(book.Publisher) ? "Đang cập nhật" : book.Publisher;
+            txtDetailYear.Text = book.PublicationYear.HasValue ? book.PublicationYear.Value.ToString() : "Đang cập nhật";
+            txtDetailIsbn.Text = string.IsNullOrEmpty(book.Isbn) ? "Đang cập nhật" : book.Isbn;
+            txtDetailDescription.Text = book.Description;
+
+            imgDetailCover.Source = _selectedGalleryImage?.ImageSource ?? book.CoverImage;
+            txtDetailImageCount.Text = $"🖼️ Album ảnh ({book.GalleryImages.Count})";
+            icDetailGallery.ItemsSource = book.GalleryImages;
+
+            panelAdminDetailImageControls.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            btnDetailSetSelectedAsCover.IsEnabled = _selectedGalleryImage != null;
+            btnDetailDeleteSelectedImage.IsEnabled = _selectedGalleryImage != null;
+
+            btnDetailAddToCart.IsEnabled = book.IsInStock;
+            btnDetailRentBook.IsEnabled = book.IsInStock;
+
+            gridDetailModal.Visibility = Visibility.Visible;
+        }
+
+        private void RefreshHomeDetailModalBook(int bookId)
+        {
+            LoadDataFromDatabase();
+            LoadUserCartFromDatabase();
+            var updatedBook = _allBooks.FirstOrDefault(b => b.BookId == bookId);
+            if (updatedBook != null)
+            {
+                ShowBookDetailModal(updatedBook);
+            }
+        }
+
+        private void btnSelectGalleryThumbnail_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookImageItemViewModel imgItem)
+            {
+                _selectedGalleryImage = imgItem;
+                imgDetailCover.Source = imgItem.ImageSource;
+                btnDetailSetSelectedAsCover.IsEnabled = true;
+                btnDetailDeleteSelectedImage.IsEnabled = true;
+            }
+        }
+
+        private void btnDetailUploadImages_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null) return;
+            int bookId = _selectedBookForDetail.BookId;
+
+            if (BookCardViewModel.PromptAndUploadBookImages(bookId, _selectedBookForDetail.Title, setAsPrimaryCover: false, out int count))
+            {
+                RefreshHomeDetailModalBook(bookId);
+                MessageBox.Show($"✅ Đã thêm {count} ảnh vào album sách '{_selectedBookForDetail?.Title}'!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnDetailChangeCover_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null) return;
+            int bookId = _selectedBookForDetail.BookId;
+
+            if (BookCardViewModel.PromptAndUploadBookImages(bookId, _selectedBookForDetail.Title, setAsPrimaryCover: true, out _))
+            {
+                RefreshHomeDetailModalBook(bookId);
+                MessageBox.Show($"✅ Đã cập nhật ảnh bìa chính cho sách '{_selectedBookForDetail?.Title}'!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnDetailSetSelectedAsCover_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null || _selectedGalleryImage == null) return;
+            int bookId = _selectedBookForDetail.BookId;
+
+            if (BookCardViewModel.SetCoverImageInDatabase(bookId, _selectedGalleryImage.ImageId))
+            {
+                RefreshHomeDetailModalBook(bookId);
+                MessageBox.Show("⭐ Đã đặt ảnh đang chọn làm ảnh bìa chính!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnDetailDeleteSelectedImage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedBookForDetail == null || _selectedGalleryImage == null) return;
+
+            if (MessageBox.Show("Bạn có chắc chắn muốn xóa bức ảnh này khỏi sách không?", "Xác nhận xóa ảnh", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            int bookId = _selectedBookForDetail.BookId;
+            if (BookCardViewModel.DeleteImageFromDatabase(bookId, _selectedGalleryImage.ImageId))
+            {
+                RefreshHomeDetailModalBook(bookId);
+            }
+        }
+
+        private void btnViewDetail_LegacyUnused(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is BookCardViewModel book)
             {
@@ -778,7 +966,8 @@ namespace BookStoreManagementSystem
                     UnitPrice = unitPrice,
                     Quantity = 1,
                     OrderType = orderType,
-                    RentalDays = rentalDays
+                    RentalDays = rentalDays,
+                    CoverImage = book.CoverImage
                 });
             }
 
@@ -1207,6 +1396,13 @@ namespace BookStoreManagementSystem
 
             var adminWin = new AdminDashboardWindow();
             adminWin.Show();
+            Close();
+        }
+
+        private void btnOpenAllBooks_Click(object sender, RoutedEventArgs e)
+        {
+            var bookListWin = new BookListWindow();
+            bookListWin.Show();
             Close();
         }
 

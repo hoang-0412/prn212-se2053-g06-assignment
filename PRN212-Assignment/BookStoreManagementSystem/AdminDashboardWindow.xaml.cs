@@ -42,6 +42,7 @@ namespace BookStoreManagementSystem
                 txtAdminName.Text = SessionManager.CurrentUser.FullName;
                 txtAdminEmail.Text = SessionManager.CurrentUser.Email;
             }
+            HomePage.EnsureRichSampleCatalogIfNeeded();
             SetActiveTab("Overview");
             LoadAllDashboardData();
         }
@@ -133,6 +134,7 @@ namespace BookStoreManagementSystem
                 cbAdminBookCategoryFilter.SelectedIndex = 0;
 
                 // 2. Books
+                HomePage.EnsureValidBookCoversInDatabase(context);
                 var books = context.Books
                     .AsNoTracking()
                     .Include(b => b.Category)
@@ -164,6 +166,7 @@ namespace BookStoreManagementSystem
                     };
                 }).ToList();
 
+                _allBooks = books.Select(BookCardViewModel.FromEntity).ToList();
                 // 3. Orders
                 var orders = context.Orders
                     .AsNoTracking()
@@ -1284,6 +1287,13 @@ namespace BookStoreManagementSystem
         }
 
         // ==================== NAVIGATION ====================
+        private void btnOpenAllBooks_Click(object sender, RoutedEventArgs e)
+        {
+            var bookListWin = new BookListWindow();
+            bookListWin.Show();
+            Close();
+        }
+
         private void btnOpenStorefront_Click(object sender, RoutedEventArgs e)
         {
             var home = new HomePage();

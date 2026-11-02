@@ -190,6 +190,9 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- All Books Catalog Button -->
+                        <Button x:Name="btnOpenAllBooks" Content="📚 Toàn Bộ Sách (/books)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenAllBooks_Click" />
+
                         <!-- My Orders & Rentals Button -->
                         <Button x:Name="btnOpenMyOrders" Content="📦 Đơn Mua &amp; Thuê" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenMyOrders_Click" />
 
@@ -354,7 +357,8 @@
                                 <!-- Quick Mode Filter Pills -->
                                 <Button Content="Tất Cả" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="btnQuickTabAll_Click" />
                                 <Button Content="🛍️ Sách Mua" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="btnQuickTabBuy_Click" />
-                                <Button Content="📅 Sách Cho Thuê" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="11" Click="btnQuickTabRent_Click" />
+                                <Button Content="📅 Sách Cho Thuê" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="btnQuickTabRent_Click" />
+                                <Button Content="📋 Xem Toàn Bộ Sách (/books) →" Style="{StaticResource PrimaryButtonStyle}" Padding="10,4" FontSize="11" Click="btnOpenAllBooks_Click" />
                             </StackPanel>
 
                             <!-- Sorting Options -->
@@ -401,7 +405,7 @@
                                                 </Grid.RowDefinitions>
 
                                                 <!-- 1. COVER PHOTO / PLACEHOLDER -->
-                                                <Border Grid.Row="0" CornerRadius="12,12,0,0" ClipToBounds="True">
+                                                <Border Grid.Row="0" CornerRadius="12,12,0,0" ClipToBounds="True" Background="#1E1B4B">
                                                     <Grid>
                                                         <Image Source="{Binding CoverImage}" Stretch="UniformToFill" 
                                                                Visibility="{Binding HasCoverImage, Converter={StaticResource BoolToVisConverter}}" />
@@ -432,6 +436,20 @@
                                                                 Background="{Binding StatusBadgeColor}" CornerRadius="6" Padding="8,2">
                                                             <TextBlock Text="{Binding BookStatus}" FontSize="10" FontWeight="Bold" Foreground="White" />
                                                         </Border>
+
+                                                        <!-- Image Count Badge (Bottom Left) -->
+                                                        <Border HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="8"
+                                                                Background="#B80F172A" CornerRadius="6" Padding="7,2">
+                                                            <TextBlock Text="{Binding ImageCountBadge}" FontSize="10" FontWeight="SemiBold" Foreground="#F8FAFC" />
+                                                        </Border>
+
+                                                        <!-- ADMIN ONLY: Quick Upload Image Button (Bottom Right) -->
+                                                        <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="8"
+                                                                Content="📷 Thêm Ảnh" Padding="8,3" FontSize="10"
+                                                                Style="{StaticResource RentButtonStyle}" Background="#4F46E5"
+                                                                Visibility="{Binding IsAdminActionVisible, Converter={StaticResource BoolToVisConverter}}"
+                                                                Tag="{Binding}" Click="btnAdminUploadCardImage_Click"
+                                                                ToolTip="Quyền Admin: Tải thêm ảnh hoặc đổi ảnh bìa cho sách này" />
                                                     </Grid>
                                                 </Border>
 
@@ -485,7 +503,7 @@
 
         <!-- ==================== 3. MODAL OVERLAY: BOOK DETAIL POPUP ==================== -->
         <Grid x:Name="gridDetailModal" Background="#70000000" Visibility="Collapsed">
-            <Border Width="660" MaxHeight="720" Background="#FFFFFF" CornerRadius="16" Effect="{StaticResource ModalShadow}" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Border Width="720" MaxHeight="760" Background="#FFFFFF" CornerRadius="16" Effect="{StaticResource ModalShadow}" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -498,7 +516,7 @@
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="📖 " FontSize="18" />
-                                <TextBlock Text="Thông Tin Chi Tiết Sách" FontWeight="Bold" FontSize="16" Foreground="#0F172A" VerticalAlignment="Center" />
+                                <TextBlock Text="Thông Tin Chi Tiết Sách &amp; Album Ảnh" FontWeight="Bold" FontSize="16" Foreground="#0F172A" VerticalAlignment="Center" />
                             </StackPanel>
                             <Button Content="✕" Width="30" Height="30" Background="#F1F5F9" BorderThickness="0" 
                                     Foreground="#64748B" FontWeight="Bold" Cursor="Hand" HorizontalAlignment="Right" 
@@ -509,60 +527,123 @@
                     <!-- Modal Content -->
                     <ScrollViewer Grid.Row="1" Padding="24,18" VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <TextBlock x:Name="txtDetailTitle" Text="Clean Code" FontWeight="Black" FontSize="20" Foreground="#0F172A" TextWrapping="Wrap" Margin="0,0,0,6" />
-                            <TextBlock x:Name="txtDetailAuthor" Text="Tác giả: Robert C. Martin" FontSize="13" Foreground="#475569" Margin="0,0,0,14" />
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="168" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
 
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                                <Border Background="#EEF2FF" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
-                                    <TextBlock x:Name="txtDetailCategory" Text="Công nghệ thông tin" FontSize="12" FontWeight="Bold" Foreground="#4F46E5" />
-                                </Border>
-                                <Border x:Name="borderDetailStatus" Background="#10B981" CornerRadius="6" Padding="10,4">
-                                    <TextBlock x:Name="txtDetailStatus" Text="Bán" FontSize="12" FontWeight="Bold" Foreground="White" />
-                                </Border>
-                            </StackPanel>
+                                <!-- Left: Cover Image + Gallery Thumbnails -->
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Left">
+                                    <Border Width="154" Height="212" CornerRadius="12" ClipToBounds="True" BorderBrush="#E2E8F0" BorderThickness="1" Effect="{StaticResource CardShadow}">
+                                        <Grid>
+                                            <Border>
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                        <GradientStop Color="#4338CA" Offset="0" />
+                                                        <GradientStop Color="#0284C7" Offset="1" />
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <TextBlock Text="📖" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            </Border>
+                                            <Image x:Name="imgDetailCover" Stretch="UniformToFill" />
+                                        </Grid>
+                                    </Border>
 
-                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,0,16">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
+                                    <TextBlock x:Name="txtDetailImageCount" Text="🖼️ Album ảnh (0)" FontSize="11" FontWeight="SemiBold" Foreground="#64748B" Margin="2,8,0,4" />
 
-                                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,8">
-                                        <TextBlock Text="Giá Mua Sở Hữu" FontSize="11" Foreground="#64748B" />
-                                        <TextBlock x:Name="txtDetailPrice" Text="450.000 đ" FontWeight="Black" FontSize="18" Foreground="#4F46E5" />
+                                    <ItemsControl x:Name="icDetailGallery">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal" MaxWidth="158" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,5,5" Cursor="Hand"
+                                                        Tag="{Binding}" Click="btnSelectGalleryThumbnail_Click"
+                                                        ToolTip="{Binding CoverBadgeText}">
+                                                    <Border Width="44" Height="56" CornerRadius="6" BorderBrush="{Binding BorderColor}" BorderThickness="2" ClipToBounds="True">
+                                                        <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
+                                                    </Border>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <!-- Right: Title, Author, Status, Admin Image Actions & Pricing -->
+                                <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                    <TextBlock x:Name="txtDetailTitle" Text="Clean Code" FontWeight="Black" FontSize="20" Foreground="#0F172A" TextWrapping="Wrap" Margin="0,0,0,6" />
+                                    <TextBlock x:Name="txtDetailAuthor" Text="Tác giả: Robert C. Martin" FontSize="13" Foreground="#475569" Margin="0,0,0,12" />
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                        <Border Background="#EEF2FF" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
+                                            <TextBlock x:Name="txtDetailCategory" Text="Công nghệ thông tin" FontSize="12" FontWeight="Bold" Foreground="#4F46E5" />
+                                        </Border>
+                                        <Border x:Name="borderDetailStatus" Background="#10B981" CornerRadius="6" Padding="10,4">
+                                            <TextBlock x:Name="txtDetailStatus" Text="Bán" FontSize="12" FontWeight="Bold" Foreground="White" />
+                                        </Border>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,8">
-                                        <TextBlock Text="Giá Thuê (7 ngày)" FontSize="11" Foreground="#64748B" />
-                                        <TextBlock x:Name="txtDetailRentPrice" Text="68.000 đ / tuần" FontWeight="Black" FontSize="16" Foreground="#D97706" />
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,8">
-                                        <TextBlock Text="Nhà Xuất Bản" FontSize="11" Foreground="#64748B" />
-                                        <TextBlock x:Name="txtDetailPublisher" Text="Prentice Hall" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,8">
-                                        <TextBlock Text="Năm Xuất Bản &amp; Tồn Kho" FontSize="11" Foreground="#64748B" />
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock x:Name="txtDetailYear" Text="2008" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
-                                            <TextBlock Text=" • " Foreground="#94A3B8" />
-                                            <TextBlock x:Name="txtDetailStock" Text="Còn 20 cuốn" FontWeight="Bold" FontSize="13" Foreground="#10B981" />
+                                    <!-- ADMIN ONLY: Book Image Management Box -->
+                                    <Border x:Name="panelAdminDetailImageControls" Visibility="Collapsed"
+                                            Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="👑 QUẢN LÝ ẢNH SÁCH (CHỈ DÀNH CHO ADMIN)" FontSize="10.5" FontWeight="Bold" Foreground="#4338CA" Margin="0,0,0,6" />
+                                            <WrapPanel Orientation="Horizontal">
+                                                <Button Content="➕ Thêm Ảnh Mới" Style="{StaticResource PrimaryButtonStyle}" Padding="8,4" FontSize="11" Margin="0,0,5,5" Click="btnDetailUploadImages_Click" />
+                                                <Button Content="🔄 Đổi Ảnh Bìa" Style="{StaticResource RentButtonStyle}" Padding="8,4" FontSize="11" Margin="0,0,5,5" Click="btnDetailChangeCover_Click" />
+                                                <Button x:Name="btnDetailSetSelectedAsCover" Content="⭐ Đặt Làm Bìa" Style="{StaticResource SecondaryButtonStyle}" Padding="8,4" FontSize="11" Margin="0,0,5,5" Click="btnDetailSetSelectedAsCover_Click" />
+                                                <Button x:Name="btnDetailDeleteSelectedImage" Content="🗑️ Xóa Ảnh" Style="{StaticResource SecondaryButtonStyle}" Foreground="#DC2626" Padding="8,4" FontSize="11" Margin="0,0,0,5" Click="btnDetailDeleteSelectedImage_Click" />
+                                            </WrapPanel>
                                         </StackPanel>
-                                    </StackPanel>
+                                    </Border>
 
-                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                                        <TextBlock Text="Mã Tiêu Chuẩn ISBN" FontSize="11" Foreground="#64748B" />
-                                        <TextBlock x:Name="txtDetailIsbn" Text="9780132350884" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
+                                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,8">
+                                                <TextBlock Text="Giá Mua Sở Hữu" FontSize="11" Foreground="#64748B" />
+                                                <TextBlock x:Name="txtDetailPrice" Text="450.000 đ" FontWeight="Black" FontSize="18" Foreground="#4F46E5" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,8">
+                                                <TextBlock Text="Giá Thuê (7 ngày)" FontSize="11" Foreground="#64748B" />
+                                                <TextBlock x:Name="txtDetailRentPrice" Text="68.000 đ / tuần" FontWeight="Black" FontSize="16" Foreground="#D97706" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,8">
+                                                <TextBlock Text="Nhà Xuất Bản" FontSize="11" Foreground="#64748B" />
+                                                <TextBlock x:Name="txtDetailPublisher" Text="Prentice Hall" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,8">
+                                                <TextBlock Text="Năm Xuất Bản &amp; Tồn Kho" FontSize="11" Foreground="#64748B" />
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock x:Name="txtDetailYear" Text="2008" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
+                                                    <TextBlock Text=" • " Foreground="#94A3B8" />
+                                                    <TextBlock x:Name="txtDetailStock" Text="Còn 20 cuốn" FontWeight="Bold" FontSize="13" Foreground="#10B981" />
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                                <TextBlock Text="Mã Tiêu Chuẩn ISBN" FontSize="11" Foreground="#64748B" />
+                                                <TextBlock x:Name="txtDetailIsbn" Text="9780132350884" FontWeight="SemiBold" FontSize="13" Foreground="#334155" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
 
                             <TextBlock Text="MÔ TẢ NỘI DUNG SÁCH" FontWeight="Bold" FontSize="13" Foreground="#334155" Margin="0,0,0,6" />
                             <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12">
@@ -572,7 +653,7 @@
                     </ScrollViewer>
 
                     <!-- Modal Actions -->
-                    <Border Grid.Row="2" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,14" Background="#F8FAFC">
+                    <Border Grid.Row="2" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="20,14" Background="#F8FAFC" CornerRadius="0,0,16,16">
                         <Grid>
                             <Button Content="Đóng" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Click="btnCloseDetail_Click" />
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -702,35 +783,45 @@
                                         <Border BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="0,10">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
 
+                                                <!-- Book Cover Thumbnail in Cart -->
+                                                <Border Grid.Column="0" Width="40" Height="50" CornerRadius="6" ClipToBounds="True" Background="#E0E7FF" Margin="0,0,10,0">
+                                                    <Grid>
+                                                        <TextBlock Text="📖" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        <Image Source="{Binding CoverImage}" Stretch="UniformToFill"
+                                                               Visibility="{Binding HasCoverImage, Converter={StaticResource BoolToVisConverter}}" />
+                                                    </Grid>
+                                                </Border>
+
                                                 <!-- Item Title, Badge & Unit Price -->
-                                                <StackPanel Grid.Column="0">
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
                                                         <Border Background="{Binding TypeBadgeColor}" CornerRadius="4" Padding="6,1" Margin="0,0,6,0" VerticalAlignment="Center">
                                                             <TextBlock Text="{Binding TypeBadgeText}" FontSize="10" FontWeight="Bold" Foreground="{Binding TypeTextColor}" />
                                                         </Border>
-                                                        <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="13" Foreground="#0F172A" TextTrimming="CharacterEllipsis" MaxWidth="250" />
+                                                        <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="13" Foreground="#0F172A" TextTrimming="CharacterEllipsis" MaxWidth="220" />
                                                     </StackPanel>
                                                     <TextBlock Text="{Binding FormattedUnitPrice}" FontSize="12" Foreground="#64748B" />
                                                 </StackPanel>
 
                                                 <!-- Quantity Controls -->
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
                                                     <Button Content="-" Width="24" Height="24" Padding="0" Tag="{Binding}" Click="btnDecreaseQty_Click" Style="{StaticResource SecondaryButtonStyle}" />
                                                     <TextBlock Text="{Binding Quantity}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center" Margin="8,0" />
                                                     <Button Content="+" Width="24" Height="24" Padding="0" Tag="{Binding}" Click="btnIncreaseQty_Click" Style="{StaticResource SecondaryButtonStyle}" />
                                                 </StackPanel>
 
                                                 <!-- SubTotal -->
-                                                <TextBlock Grid.Column="2" Text="{Binding FormattedSubTotal}" FontWeight="Black" FontSize="14" Foreground="#4F46E5" VerticalAlignment="Center" Margin="10,0" Width="95" TextAlignment="Right" />
+                                                <TextBlock Grid.Column="3" Text="{Binding FormattedSubTotal}" FontWeight="Black" FontSize="14" Foreground="#4F46E5" VerticalAlignment="Center" Margin="10,0" Width="95" TextAlignment="Right" />
 
                                                 <!-- Remove Button -->
-                                                <Button Grid.Column="3" Content="🗑️" Background="Transparent" BorderThickness="0" Cursor="Hand" Tag="{Binding}" Click="btnRemoveCartItem_Click" VerticalAlignment="Center" />
+                                                <Button Grid.Column="4" Content="🗑️" Background="Transparent" BorderThickness="0" Cursor="Hand" Tag="{Binding}" Click="btnRemoveCartItem_Click" VerticalAlignment="Center" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

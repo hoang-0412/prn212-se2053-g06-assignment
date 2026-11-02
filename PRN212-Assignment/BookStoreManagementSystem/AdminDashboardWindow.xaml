@@ -224,6 +224,7 @@
 
                 <!-- Bottom Actions -->
                 <StackPanel Grid.Row="3">
+                    <Button Content="📚 Mở Trang Toàn Bộ Sách (/books)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8" Click="btnOpenAllBooks_Click" />
                     <Button Content="🏪 Mở Trang Chủ Cửa Hàng" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,8" Click="btnOpenStorefront_Click" />
                     <Button Content="🚪 Đăng Xuất Tài Khoản" Style="{StaticResource DangerButtonStyle}" Click="btnLogout_Click" />
                 </StackPanel>
@@ -379,6 +380,18 @@
                                           BorderBrush="#E2E8F0" BorderThickness="1" RowHeight="36" Background="White">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="ID" Binding="{Binding BookId}" Width="50" />
+                                        <DataGridTemplateColumn Header="Ảnh" Width="56">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="30" Height="34" CornerRadius="4" ClipToBounds="True" Background="#E0E7FF" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Grid>
+                                                            <TextBlock Text="📖" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                            <Image Source="{Binding CoverImage}" Stretch="UniformToFill" Visibility="{Binding HasCoverImage, Converter={StaticResource BoolToVisConverter}}" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="Tên Sách" Binding="{Binding Title}" Width="*" FontWeight="SemiBold" />
                                         <DataGridTextColumn Header="Tác Giả" Binding="{Binding Author}" Width="160" />
                                         <DataGridTextColumn Header="Thể Loại" Binding="{Binding CategoryName}" Width="150" />
@@ -427,6 +440,18 @@
                                       BorderBrush="#E2E8F0" BorderThickness="1" RowHeight="38" Background="White">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="ID" Binding="{Binding BookId}" Width="45" />
+                                    <DataGridTemplateColumn Header="Ảnh" Width="56">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Width="30" Height="34" CornerRadius="4" ClipToBounds="True" Background="#E0E7FF" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <Grid>
+                                                        <TextBlock Text="📖" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        <Image Source="{Binding CoverImage}" Stretch="UniformToFill" Visibility="{Binding HasCoverImage, Converter={StaticResource BoolToVisConverter}}" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="Tên Sách" Binding="{Binding Title}" Width="*" FontWeight="SemiBold" />
                                     <DataGridTextColumn Header="Tác Giả" Binding="{Binding Author}" Width="130" />
                                     <DataGridTextColumn Header="Thể Loại" Binding="{Binding CategoryName}" Width="130" />
