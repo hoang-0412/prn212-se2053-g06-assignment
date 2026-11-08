@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BookStoreManagementSystem"
-             StartupUri="HomePage.xaml">
+             StartupUri="Views/HomePage.xaml">
     <Application.Resources>
         <!-- Tắt hoàn toàn đường viền nét đứt (FocusVisualStyle) mặc định của WPF trên mọi thành phần -->
         <Style x:Key="{x:Static SystemParameters.FocusVisualStyleKey}">
