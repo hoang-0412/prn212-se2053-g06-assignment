@@ -22,6 +22,9 @@ namespace BookStoreManagementSystem
         private BookImageItemViewModel? _selectedGalleryImage;
         private BookCardViewModel? _selectedBookForRent;
         private bool _isLoaded = false;
+        private int _homeCurrentPage = 1;
+        private int _homeTotalPages = 1;
+        private const int HomePageSize = 10;
 
         public HomePage()
         {
@@ -298,40 +301,7 @@ namespace BookStoreManagementSystem
                     .OrderByDescending(b => b.CreatedAt)
                     .ToList();
 
-                _allBooks = booksFromDb.Select(b =>
-                {
-                    var coverImgData = b.BookImages.FirstOrDefault(i => i.IsCover)?.ImageData 
-                                       ?? b.BookImages.FirstOrDefault()?.ImageData;
-
-                    return new BookCardViewModel
-                    {
-                        BookId = b.BookId,
-                        CategoryId = b.CategoryId,
-                        Title = b.Title,
-                        Author = b.Author,
-                        CategoryName = b.Category?.CategoryName ?? "Chưa phân loại",
-                        Publisher = b.Publisher,
-                        PublicationYear = b.PublicationYear,
-                        Isbn = b.Isbn,
-                        Price = b.Price,
-                        StockQuantity = b.StockQuantity,
-                        Description = string.IsNullOrWhiteSpace(b.Description) 
-                            ? "Tác phẩm giá trị cung cấp nhiều kiến thức và góc nhìn sâu sắc cho người đọc." 
-                            : b.Description,
-                        BookStatus = string.IsNullOrWhiteSpace(b.BookStatus) ? "Bán" : b.BookStatus,
-                        RawCoverImage = coverImgData,
-                        CoverImage = BookCardViewModel.LoadImageSafe(coverImgData),
-                        CreatedAt = b.CreatedAt
-                    };
-                }).ToList();
-
-                // Update Hero chips
-                EnsureValidBookCoversInDatabase(context);
-                // Update Hero chips
                 _allBooks = booksFromDb.Select(BookCardViewModel.FromEntity).ToList();
-                txtTotalBooksChip.Text = $"{_allBooks.Count}";
-                txtTotalRentBooksChip.Text = $"{_allBooks.Count(b => b.IsForRent)}";
-                txtTotalCategoriesChip.Text = $"{categoriesFromDb.Count}";
 
                 // 3. Apply filters and render
                 _isLoaded = true;
@@ -445,7 +415,7 @@ namespace BookStoreManagementSystem
 
         private void ApplyFilters()
         {
-            if (!_isLoaded || _allBooks == null || icBooks == null || txtResultCount == null) return;
+            if (!_isLoaded || _allBooks == null || icBooks == null) return;
 
             IEnumerable<BookCardViewModel> query = _allBooks;
 
@@ -510,8 +480,24 @@ namespace BookStoreManagementSystem
             var filteredList = query.ToList();
 
             // Render to UI
-            icBooks.ItemsSource = filteredList;
-            txtResultCount.Text = $"Hiển thị: {filteredList.Count} / {_allBooks.Count} sách";
+            int totalFiltered = filteredList.Count;
+            _homeTotalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / HomePageSize));
+            if (_homeCurrentPage > _homeTotalPages) _homeCurrentPage = _homeTotalPages;
+            if (_homeCurrentPage < 1) _homeCurrentPage = 1;
+
+            var pagedList = filteredList
+                .Skip((_homeCurrentPage - 1) * HomePageSize)
+                .Take(HomePageSize)
+                .ToList();
+
+            icBooks.ItemsSource = pagedList;
+
+            if (txtHomePageIndicator != null && btnHomePrevPage != null && btnHomeNextPage != null)
+            {
+                txtHomePageIndicator.Text = $"Trang {_homeCurrentPage} / {_homeTotalPages}";
+                btnHomePrevPage.IsEnabled = _homeCurrentPage > 1;
+                btnHomeNextPage.IsEnabled = _homeCurrentPage < _homeTotalPages;
+            }
 
             if (panelEmptyState != null)
             {
@@ -519,20 +505,22 @@ namespace BookStoreManagementSystem
             }
         }
 
-        // --- Quick Mode Tabs ---
-        private void btnQuickTabAll_Click(object sender, RoutedEventArgs e)
+        private void btnHomePrevPage_Click(object sender, RoutedEventArgs e)
         {
-            if (cbBookStatus != null) cbBookStatus.SelectedIndex = 0;
+            if (_homeCurrentPage > 1)
+            {
+                _homeCurrentPage--;
+                ApplyFilters();
+            }
         }
 
-        private void btnQuickTabBuy_Click(object sender, RoutedEventArgs e)
+        private void btnHomeNextPage_Click(object sender, RoutedEventArgs e)
         {
-            if (cbBookStatus != null) cbBookStatus.SelectedIndex = 1; // "Bán"
-        }
-
-        private void btnQuickTabRent_Click(object sender, RoutedEventArgs e)
-        {
-            if (cbBookStatus != null) cbBookStatus.SelectedIndex = 2; // "Cho thuê"
+            if (_homeCurrentPage < _homeTotalPages)
+            {
+                _homeCurrentPage++;
+                ApplyFilters();
+            }
         }
 
         // --- Filter Event Handlers ---
@@ -611,7 +599,9 @@ namespace BookStoreManagementSystem
         {
             if (sender is Button btn && btn.Tag is BookCardViewModel book)
             {
-                ShowBookDetailModal(book);
+                var detailWin = new BookDetailWindow(book.BookId, "Home");
+                detailWin.Show();
+                Close();
             }
         }
 
@@ -990,7 +980,9 @@ namespace BookStoreManagementSystem
         private void btnOpenCart_Click(object sender, RoutedEventArgs e)
         {
             UpdateCartBadge();
-            gridCartModal.Visibility = Visibility.Visible;
+            var cartWin = new CartCheckoutWindow();
+            cartWin.Show();
+            Close();
         }
 
         private void btnCloseCart_Click(object sender, RoutedEventArgs e)
@@ -1207,7 +1199,9 @@ namespace BookStoreManagementSystem
         private void btnOpenMyOrders_Click(object sender, RoutedEventArgs e)
         {
             LoadCustomerOrders();
-            gridMyOrdersModal.Visibility = Visibility.Visible;
+            var ordersWin = new CustomerOrdersWindow();
+            ordersWin.Show();
+            Close();
         }
 
         private void btnCloseMyOrders_Click(object sender, RoutedEventArgs e)
@@ -1403,6 +1397,13 @@ namespace BookStoreManagementSystem
         {
             var bookListWin = new BookListWindow();
             bookListWin.Show();
+            Close();
+        }
+
+        private void btnOpenProfile_Click(object sender, RoutedEventArgs e)
+        {
+            var profileWin = new UserProfileWindow("Home");
+            profileWin.Show();
             Close();
         }
 

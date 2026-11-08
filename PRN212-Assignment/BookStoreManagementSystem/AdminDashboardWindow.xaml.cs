@@ -176,30 +176,50 @@ namespace BookStoreManagementSystem
                     .OrderByDescending(o => o.CreatedAt)
                     .ToList();
 
-                _allOrders = orders.Select(o => new OrderViewModel
+                _allOrders = orders.Select(o =>
                 {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    CustomerName = o.User?.FullName ?? $"User #{o.UserId}",
-                    CustomerEmail = o.User?.Email ?? "",
-                    RecipientPhone = o.RecipientPhone,
-                    ShippingAddress = o.ShippingAddress,
-                    TotalAmount = o.TotalAmount,
-                    OrderStatus = o.OrderStatus,
-                    PaymentMethod = o.PaymentMethod,
-                    PaymentStatus = o.PaymentStatus,
-                    CreatedAt = o.CreatedAt,
-                    TotalQuantity = o.OrderItems.Sum(i => i.Quantity),
-                    ItemsSummary = string.Join(", ", o.OrderItems.Select(i => $"{i.Book?.Title} (x{i.Quantity})")),
-                    Items = o.OrderItems.Select(i => new OrderItemDetailViewModel
+                    string custName = o.User?.FullName ?? $"User #{o.UserId}";
+                    string custEmail = o.User?.Email ?? "";
+
+                    if (!string.IsNullOrEmpty(o.ShippingAddress) && o.ShippingAddress.StartsWith("[Khách lẻ:"))
                     {
-                        OrderItemId = i.OrderItemId,
-                        BookId = i.BookId,
-                        BookTitle = i.Book?.Title ?? $"Sách #{i.BookId}",
-                        Author = i.Book?.Author ?? "",
-                        Quantity = i.Quantity,
-                        UnitPrice = i.UnitPrice
-                    }).ToList()
+                        int closeBracket = o.ShippingAddress.IndexOf(']');
+                        if (closeBracket > 10)
+                        {
+                            custName = o.ShippingAddress.Substring(10, closeBracket - 10).Trim();
+                            custEmail = "Khách vãng lai (Không TK)";
+                        }
+                    }
+                    else if (string.Equals(custEmail, "walkin@bookstore.local", StringComparison.OrdinalIgnoreCase))
+                    {
+                        custEmail = "Khách vãng lai (Không TK)";
+                    }
+
+                    return new OrderViewModel
+                    {
+                        OrderId = o.OrderId,
+                        UserId = o.UserId,
+                        CustomerName = custName,
+                        CustomerEmail = custEmail,
+                        RecipientPhone = o.RecipientPhone,
+                        ShippingAddress = o.ShippingAddress,
+                        TotalAmount = o.TotalAmount,
+                        OrderStatus = o.OrderStatus,
+                        PaymentMethod = o.PaymentMethod,
+                        PaymentStatus = o.PaymentStatus,
+                        CreatedAt = o.CreatedAt,
+                        TotalQuantity = o.OrderItems.Sum(i => i.Quantity),
+                        ItemsSummary = string.Join(", ", o.OrderItems.Select(i => $"{i.Book?.Title} (x{i.Quantity})")),
+                        Items = o.OrderItems.Select(i => new OrderItemDetailViewModel
+                        {
+                            OrderItemId = i.OrderItemId,
+                            BookId = i.BookId,
+                            BookTitle = i.Book?.Title ?? $"Sách #{i.BookId}",
+                            Author = i.Book?.Author ?? "",
+                            Quantity = i.Quantity,
+                            UnitPrice = i.UnitPrice
+                        }).ToList()
+                    };
                 }).ToList();
 
                 // 4. Users & Roles
@@ -210,6 +230,7 @@ namespace BookStoreManagementSystem
                     .AsNoTracking()
                     .Include(u => u.Role)
                     .Include(u => u.Orders)
+                    .Where(u => u.Email != "walkin@bookstore.local")
                     .OrderByDescending(u => u.UserId)
                     .ToList();
 
@@ -223,6 +244,8 @@ namespace BookStoreManagementSystem
                     Address = u.Address,
                     RoleName = u.Role?.RoleName ?? "Customer",
                     OrderCount = u.Orders.Count,
+                    ActiveRentalCount = u.Orders.Count(o => string.Equals(o.OrderStatus, "Renting", StringComparison.OrdinalIgnoreCase) || string.Equals(o.OrderStatus, "Đang thuê", StringComparison.OrdinalIgnoreCase) || string.Equals(o.OrderStatus, "Overdue", StringComparison.OrdinalIgnoreCase)),
+                    TotalSpent = u.Orders.Where(o => !string.Equals(o.OrderStatus, "Cancelled", StringComparison.OrdinalIgnoreCase)).Sum(o => o.TotalAmount),
                     CreatedAt = u.CreatedAt
                 }).ToList();
 
@@ -232,6 +255,7 @@ namespace BookStoreManagementSystem
                 UpdateOverviewTab(categories);
                 ApplyBookFilters();
                 ApplyOrderFilters();
+                ApplyUserFilters();
             }
             catch (Exception ex)
             {
@@ -953,7 +977,91 @@ namespace BookStoreManagementSystem
             }
         }
 
+        private void btnOpenCreateOrderPos_Click(object sender, RoutedEventArgs e)
+        {
+            OpenCreateOrderPosDialog(null);
+        }
+
+        private void btnCreateOrderForSelectedUser_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedUser == null)
+            {
+                MessageBox.Show("Vui lòng chọn một tài khoản ở bảng bên trái hoặc bấm nút '➕ Tạo Đơn Mua / Thuê Mới' để tạo đơn khách vãng lai!", "Chưa chọn tài khoản", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            OpenCreateOrderPosDialog(_selectedUser.UserId);
+        }
+
+        private void OpenCreateOrderPosDialog(int? preselectedUserId)
+        {
+            var createOrderWin = new AdminCreateOrderWindow(preselectedUserId)
+            {
+                Owner = this
+            };
+
+            createOrderWin.ShowDialog();
+            if (createOrderWin.OrderCreated)
+            {
+                LoadAllDashboardData();
+                SetActiveTab("Orders");
+
+                if (createOrderWin.CreatedOrderId.HasValue)
+                {
+                    var createdOrder = _allOrders.FirstOrDefault(o => o.OrderId == createOrderWin.CreatedOrderId.Value);
+                    if (createdOrder != null)
+                    {
+                        dgAdminOrders.SelectedItem = createdOrder;
+                        dgAdminOrders.ScrollIntoView(createdOrder);
+                    }
+                }
+            }
+        }
+
         // ==================== USERS MANAGEMENT ====================
+        private void txtAdminUserSearch_TextChanged(object sender, TextChangedEventArgs e) => ApplyUserFilters();
+        private void cbAdminUserRoleFilter_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplyUserFilters();
+
+        private void ApplyUserFilters()
+        {
+            if (!_isLoaded) return;
+            IEnumerable<UserAdminViewModel> query = _allUsers;
+
+            var keyword = txtAdminUserSearch?.Text?.Trim().ToLower() ?? "";
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(u =>
+                    u.FullName.ToLower().Contains(keyword) ||
+                    u.Email.ToLower().Contains(keyword) ||
+                    (u.PhoneNumber != null && u.PhoneNumber.ToLower().Contains(keyword)) ||
+                    (u.Address != null && u.Address.ToLower().Contains(keyword)));
+            }
+
+            if (cbAdminUserRoleFilter?.SelectedItem is ComboBoxItem roleItem)
+            {
+                var roleFilter = roleItem.Content?.ToString();
+                if (!string.IsNullOrEmpty(roleFilter) && roleFilter != "Tất cả vai trò")
+                {
+                    query = query.Where(u => string.Equals(u.RoleName, roleFilter, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            var filtered = query.ToList();
+            dgAdminUsers.ItemsSource = filtered;
+
+            if (txtAdminUserSummary != null)
+            {
+                int adminCount = _allUsers.Count(u => u.RoleId == 2 || string.Equals(u.RoleName, "Admin", StringComparison.OrdinalIgnoreCase));
+                int custCount = _allUsers.Count - adminCount;
+                txtAdminUserSummary.Text = $"Hiển thị {filtered.Count}/{_allUsers.Count} tài khoản ({adminCount} Admin • {custCount} Khách hàng)";
+            }
+        }
+
+        private void btnOpenMyProfile_Click(object sender, RoutedEventArgs e)
+        {
+            var profileWin = new UserProfileWindow("Admin");
+            profileWin.Show();
+            Close();
+        }
         private void dgAdminUsers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (dgAdminUsers.SelectedItem is UserAdminViewModel u)
@@ -965,6 +1073,22 @@ namespace BookStoreManagementSystem
                 txtAdminUserAddress.Text = u.Address ?? "";
                 cbAdminUserRole.SelectedValue = u.RoleId;
                 txtAdminUserPassword.Text = "";
+
+                bool isOtherAccount = SessionManager.CurrentUser == null || u.UserId != SessionManager.CurrentUser.UserId;
+                borderUserSecurityNotice.Visibility = isOtherAccount ? Visibility.Visible : Visibility.Collapsed;
+                txtAdminUserEmail.IsReadOnly = isOtherAccount;
+                txtAdminUserEmail.IsEnabled = !isOtherAccount;
+                lblAdminUserPassword.Visibility = isOtherAccount ? Visibility.Collapsed : Visibility.Visible;
+                txtAdminUserPassword.Visibility = isOtherAccount ? Visibility.Collapsed : Visibility.Visible;
+                txtAdminUserPassword.IsEnabled = !isOtherAccount;
+                if (!isOtherAccount)
+                {
+                    lblAdminUserPassword.Text = "MẬT KHẨU CỦA BẠN (Để trống nếu giữ nguyên)";
+                }
+
+                var userOrders = _allOrders.Where(o => o.UserId == u.UserId).ToList();
+                dgAdminSelectedUserOrders.ItemsSource = userOrders;
+                txtSelectedUserOrdersHeader.Text = $"📦 Lịch Sử Đơn Hàng Của '{u.FullName}' ({userOrders.Count} đơn • Tổng chi: {u.FormattedTotalSpent})";
             }
         }
 
@@ -977,6 +1101,16 @@ namespace BookStoreManagementSystem
             txtAdminUserPhone.Text = "";
             txtAdminUserAddress.Text = "";
             if (cbAdminUserRole.Items.Count > 0) cbAdminUserRole.SelectedIndex = 0;
+            borderUserSecurityNotice.Visibility = Visibility.Collapsed;
+            txtAdminUserEmail.IsReadOnly = false;
+            txtAdminUserEmail.IsEnabled = true;
+            lblAdminUserPassword.Visibility = Visibility.Visible;
+            lblAdminUserPassword.Text = "MẬT KHẨU ĐĂNG NHẬP *";
+            txtAdminUserPassword.Visibility = Visibility.Visible;
+            txtAdminUserPassword.IsEnabled = true;
+            txtAdminUserPassword.Text = "";
+            dgAdminSelectedUserOrders.ItemsSource = null;
+            txtSelectedUserOrdersHeader.Text = "📦 Lịch Sử Đơn Mua & Thuê Của Tài Khoản Đang Chọn (Chọn 1 tài khoản ở bảng trên)";
             txtAdminUserPassword.Text = "";
         }
 
@@ -1061,12 +1195,33 @@ namespace BookStoreManagementSystem
                     return;
                 }
 
+                bool isOtherAccount = SessionManager.CurrentUser == null || user.UserId != SessionManager.CurrentUser.UserId;
+                if (isOtherAccount && (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase) || !string.IsNullOrEmpty(pwd)))
+                {
+                    MessageBox.Show(
+                        "🔒 Bảo mật hệ thống: Admin không được phép thay đổi thông tin đăng nhập (Email hoặc Mật khẩu) của tài khoản khác!",
+                        "Chặn sửa thông tin đăng nhập",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    txtAdminUserEmail.Text = user.Email;
+                    txtAdminUserPassword.Text = "";
+                    return;
+                }
+
                 user.FullName = fullName;
-                user.Email = email;
+                if (!isOtherAccount)
+                {
+                    user.Email = email;
+                }
+                // Email is only updated for own account above
                 user.PhoneNumber = string.IsNullOrEmpty(phone) ? null : phone;
                 user.Address = string.IsNullOrEmpty(addr) ? null : addr;
                 user.RoleId = roleId;
-                if (!string.IsNullOrEmpty(pwd))
+                if (!isOtherAccount && !string.IsNullOrEmpty(pwd))
+                {
+                    user.PasswordHash = pwd;
+                }
+                if (!isOtherAccount && !string.IsNullOrEmpty(pwd))
                 {
                     user.PasswordHash = pwd;
                 }
@@ -1286,7 +1441,34 @@ namespace BookStoreManagementSystem
             }
         }
 
-        // ==================== NAVIGATION ====================
+        // ==================== NAVIGATION & REPORT EXPORT ====================
+        private void btnExportAdminReport_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new SaveFileDialog
+            {
+                Title = "Xuất Báo Cáo Doanh Thu & Kho Sách BookStore",
+                Filter = "CSV UTF-8 (*.csv)|*.csv|Text Report (*.txt)|*.txt",
+                FileName = $"BaoCao_BookStore_{DateTime.Now:yyyyMMdd_HHmm}.csv"
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("=== BAO CAO TONG QUAN HE THONG BOOKSTORE ===");
+                sb.AppendLine($"Thoi gian xuat: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+                sb.AppendLine($"Tong so dau sach: {_allBooks.Count}, Tong ton kho: {_allBooks.Sum(b => b.StockQuantity)}");
+                sb.AppendLine($"Tong so don hang: {_allOrders.Count}, Tong doanh thu hop le: {_allOrders.Where(o => o.OrderStatus != "Cancelled").Sum(o => o.TotalAmount):N0} VND");
+                sb.AppendLine();
+                sb.AppendLine("MA DON,KHACH HANG,SO DIEN THOAI,LOAI DON,TRANG THAI,THANH TOAN,TONG TIEN,NGAY TAO");
+                foreach (var o in _allOrders)
+                {
+                    sb.AppendLine($"{o.OrderCode},\"{o.CustomerName}\",{o.RecipientPhone},\"{o.OrderTypeDisplay}\",{o.StatusDisplay},{o.PaymentStatus},{o.TotalAmount},{o.FormattedCreatedAt}");
+                }
+
+                File.WriteAllText(dlg.FileName, sb.ToString(), System.Text.Encoding.UTF8);
+                MessageBox.Show($"📥 Đã xuất báo cáo thống kê ra file thành công:\n{dlg.FileName}", "Xuất báo cáo thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
         private void btnOpenAllBooks_Click(object sender, RoutedEventArgs e)
         {
             var bookListWin = new BookListWindow();
