@@ -24,7 +24,7 @@ namespace BookStoreManagementSystem
         private bool _isUpdatingFilters = false;
 
         private int _currentPage = 1;
-        private int _pageSize = 8;
+        private int _pageSize = 10;
         private int _totalPages = 1;
 
         public BookListWindow()
@@ -258,10 +258,6 @@ namespace BookStoreManagementSystem
             dgBooksTable.ItemsSource = pagedBooks;
 
             txtResultSummary.Text = $"Tìm thấy: {totalFiltered} / {_allBooks.Count} đầu sách";
-
-            int startItem = totalFiltered == 0 ? 0 : ((_currentPage - 1) * _pageSize) + 1;
-            int endItem = Math.Min(totalFiltered, _currentPage * _pageSize);
-            txtPaginationInfo.Text = $"Đang hiển thị {startItem} - {endItem} trên tổng {totalFiltered} đầu sách";
             txtPageIndicator.Text = $"Trang {_currentPage} / {_totalPages}";
 
             btnFirstPage.IsEnabled = _currentPage > 1;
@@ -393,15 +389,6 @@ namespace BookStoreManagementSystem
         }
 
         // ==================== PAGINATION HANDLERS ====================
-        private void cbPageSize_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cbPageSize?.SelectedItem is ComboBoxItem item && int.TryParse(item.Tag?.ToString(), out int size))
-            {
-                _pageSize = size;
-                ApplyFiltersAndPagination(resetPage: true);
-            }
-        }
-
         private void btnFirstPage_Click(object sender, RoutedEventArgs e)
         {
             _currentPage = 1;
@@ -453,7 +440,9 @@ namespace BookStoreManagementSystem
         {
             if (sender is Button btn && btn.Tag is BookCardViewModel book)
             {
-                ShowBookDetailModal(book);
+                var detailWin = new BookDetailWindow(book.BookId, "BookList");
+                detailWin.Show();
+                Close();
             }
         }
 
@@ -461,7 +450,9 @@ namespace BookStoreManagementSystem
         {
             if (dgBooksTable.SelectedItem is BookCardViewModel book)
             {
-                ShowBookDetailModal(book);
+                var detailWin = new BookDetailWindow(book.BookId, "BookList");
+                detailWin.Show();
+                Close();
             }
         }
 
@@ -670,15 +661,15 @@ namespace BookStoreManagementSystem
                 }
 
                 var result = MessageBox.Show(
-                    $"✅ Đã thêm sách '{book.Title}' vào giỏ hàng!\n\nBạn có muốn chuyển sang Trang Chủ (/homepage) để mở Giỏ hàng / Đăng ký Thuê sách ngay không?",
+                    $"✅ Đã thêm sách '{book.Title}' vào giỏ hàng!\n\nBạn có muốn chuyển sang màn Giỏ Hàng & Thanh Toán (/cart/checkout) ngay không?",
                     "Đã thêm vào giỏ hàng",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    var homeWin = new HomePage();
-                    homeWin.Show();
+                    var cartWin = new CartCheckoutWindow();
+                    cartWin.Show();
                     Close();
                 }
             }
@@ -696,6 +687,20 @@ namespace BookStoreManagementSystem
             Close();
         }
 
+        private void btnOpenCart_Click(object sender, RoutedEventArgs e)
+        {
+            var cartWin = new CartCheckoutWindow();
+            cartWin.Show();
+            Close();
+        }
+
+        private void btnOpenOrders_Click(object sender, RoutedEventArgs e)
+        {
+            var ordersWin = new CustomerOrdersWindow();
+            ordersWin.Show();
+            Close();
+        }
+
         private void btnOpenAdmin_Click(object sender, RoutedEventArgs e)
         {
             if (!SessionManager.IsAdmin)
@@ -706,6 +711,13 @@ namespace BookStoreManagementSystem
 
             var adminWin = new AdminDashboardWindow();
             adminWin.Show();
+            Close();
+        }
+
+        private void btnOpenProfile_Click(object sender, RoutedEventArgs e)
+        {
+            var profileWin = new UserProfileWindow("BookList");
+            profileWin.Show();
             Close();
         }
 

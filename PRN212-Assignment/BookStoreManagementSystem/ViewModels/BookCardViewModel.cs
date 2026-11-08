@@ -590,6 +590,9 @@ namespace BookStoreManagementSystem.ViewModels
         public string? Address { get; set; }
         public string RoleName { get; set; } = string.Empty;
         public int OrderCount { get; set; }
+        public int ActiveRentalCount { get; set; }
+        public decimal TotalSpent { get; set; }
+        public string FormattedTotalSpent => $"{TotalSpent:N0} đ";
         public DateTime CreatedAt { get; set; }
         public string FormattedCreatedAt => CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
         public string RoleBadgeColor => RoleId == 2 || string.Equals(RoleName, "Admin", StringComparison.OrdinalIgnoreCase)

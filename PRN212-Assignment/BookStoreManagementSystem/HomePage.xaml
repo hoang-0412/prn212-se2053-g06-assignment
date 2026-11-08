@@ -207,6 +207,7 @@
                         </Button>
 
                         <!-- Login / Switch Account Button -->
+                        <Button x:Name="btnOpenProfile" Content="👤 Hồ Sơ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenProfile_Click" />
                         <Button x:Name="btnAuthAction" Content="🔐 Tài khoản" Style="{StaticResource SecondaryButtonStyle}" Click="btnAuthAction_Click" />
                     </StackPanel>
                 </Grid>
@@ -295,69 +296,15 @@
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <!-- HERO BANNER -->
-                    <Border Grid.Row="0" Margin="20,16,20,10" CornerRadius="14" Padding="26,18">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#4F46E5" Offset="0" />
-                                <GradientStop Color="#6366F1" Offset="0.5" />
-                                <GradientStop Color="#06B6D4" Offset="1" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <Border Background="#30FFFFFF" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left" Margin="0,0,0,6">
-                                    <TextBlock Text="✨ HIỆU SÁCH TRỰC TUYẾN • MUA SỞ HỮU &amp; THUÊ SÁCH TIẾT KIỆM" FontWeight="Bold" FontSize="11" Foreground="White" />
-                                </Border>
-                                <TextBlock Text="Chào mừng bạn đến với BookStore" FontWeight="Black" FontSize="22" Foreground="White" Margin="0,0,0,4" />
-                                <TextBlock Text="Mua sách chính hãng giao tận nơi hoặc đăng ký thuê sách theo tuần/tháng với chi phí chỉ từ 15% giá bìa." 
-                                           FontSize="13" Foreground="#E0E7FF" TextWrapping="Wrap" MaxWidth="650" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                                <Border Background="#25FFFFFF" CornerRadius="12" Padding="14,8" Margin="4,0">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock x:Name="txtTotalBooksChip" Text="10+" FontWeight="Black" FontSize="18" Foreground="White" HorizontalAlignment="Center" />
-                                        <TextBlock Text="Đầu sách" FontSize="11" Foreground="#E0E7FF" HorizontalAlignment="Center" />
-                                    </StackPanel>
-                                </Border>
-                                <Border Background="#25FFFFFF" CornerRadius="12" Padding="14,8" Margin="4,0">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock x:Name="txtTotalRentBooksChip" Text="0" FontWeight="Black" FontSize="18" Foreground="#FDE68A" HorizontalAlignment="Center" />
-                                        <TextBlock Text="Sách cho thuê" FontSize="11" Foreground="#FEF3C7" HorizontalAlignment="Center" />
-                                    </StackPanel>
-                                </Border>
-                                <Border Background="#25FFFFFF" CornerRadius="12" Padding="14,8" Margin="4,0">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock x:Name="txtTotalCategoriesChip" Text="5" FontWeight="Black" FontSize="18" Foreground="White" HorizontalAlignment="Center" />
-                                        <TextBlock Text="Thể loại" FontSize="11" Foreground="#E0E7FF" HorizontalAlignment="Center" />
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
                     <!-- CATALOG CONTROLS BAR -->
-                    <Border Grid.Row="1" Margin="20,4,20,8">
+                    <Border Grid.Row="0" Margin="20,16,20,8">
                         <Grid>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="Kệ Sách Trực Tuyến" FontWeight="Bold" FontSize="18" Foreground="#0F172A" VerticalAlignment="Center" />
-                                <Border Background="#EEF2FF" CornerRadius="12" Padding="8,2" Margin="10,0,14,0" VerticalAlignment="Center">
-                                    <TextBlock x:Name="txtResultCount" Text="Hiển thị: 0 sách" FontSize="12" FontWeight="SemiBold" Foreground="#4F46E5" />
-                                </Border>
-
-                                <!-- Quick Mode Filter Pills -->
-                                <Button Content="Tất Cả" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="btnQuickTabAll_Click" />
-                                <Button Content="🛍️ Sách Mua" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="btnQuickTabBuy_Click" />
-                                <Button Content="📅 Sách Cho Thuê" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="btnQuickTabRent_Click" />
-                                <Button Content="📋 Xem Toàn Bộ Sách →" Style="{StaticResource PrimaryButtonStyle}" Padding="10,4" FontSize="11" Click="btnOpenAllBooks_Click" />
                             </StackPanel>
 
                             <!-- Sorting Options -->
@@ -375,7 +322,7 @@
                     </Border>
 
                     <!-- BOOK GRID ITEMS -->
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="12,0,12,20">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,0,12,20">
                         <Grid>
                             <!-- EMPTY STATE (Shown when 0 books match) -->
                             <StackPanel x:Name="panelEmptyState" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,60,0,0">
@@ -496,6 +443,17 @@
                             </ItemsControl>
                         </Grid>
                     </ScrollViewer>
+
+                    <!-- BOTTOM PAGINATION BAR (10 BOOKS / PAGE) -->
+                    <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Margin="20,4,20,12" Padding="16,10" Effect="{StaticResource CardShadow}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="btnHomePrevPage" Content="◀ Trang Trước" Style="{StaticResource SecondaryButtonStyle}" Padding="12,5" FontSize="12" Margin="0,0,10,0" Click="btnHomePrevPage_Click" />
+                            <Border Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="8" Padding="14,5" Margin="0,0,10,0" VerticalAlignment="Center">
+                                <TextBlock x:Name="txtHomePageIndicator" Text="Trang 1 / 1" FontSize="12" FontWeight="Bold" Foreground="#4F46E5" />
+                            </Border>
+                            <Button x:Name="btnHomeNextPage" Content="Trang Sau ▶" Style="{StaticResource SecondaryButtonStyle}" Padding="12,5" FontSize="12" Click="btnHomeNextPage_Click" />
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Grid>
         </DockPanel>

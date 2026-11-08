@@ -221,7 +221,7 @@
                     </StackPanel>
 
                     <!-- REGISTER FORM -->
-                    <ScrollViewer x:Name="panelRegister" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer x:Name="panelRegister" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Focusable="False" FocusVisualStyle="{x:Null}">
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="Tạo Tài Khoản Khách Hàng ✨" FontWeight="Black" FontSize="22" Foreground="#0F172A" Margin="0,0,0,4" />
                             <TextBlock Text="Đăng ký tài khoản để mua sách, thuê sách và theo dõi đơn hàng." FontSize="13" Foreground="#64748B" Margin="0,0,0,14" />
@@ -274,7 +274,7 @@
                     <Border Grid.Row="2" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="0,14,0,0" Margin="0,12,0,0">
                         <Grid>
                             <TextBlock Text="Bạn chỉ muốn dạo xem kho sách?" FontSize="12" Foreground="#64748B" VerticalAlignment="Center" />
-                            <Button Content="🏪 Quay lại" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" Click="btnContinueAsGuest_Click" />
+                            <Button Content="🏪 Vào Trang Chủ Ngay (Khách)" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" Click="btnContinueAsGuest_Click" />
                         </Grid>
                     </Border>
                 </Grid>
