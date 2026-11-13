@@ -155,72 +155,7 @@
                 </Border>
             </StackPanel>
 
-            <!-- ==================== 2. TOP KPI SUMMARY STRIP ==================== -->
-            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,10">
-                <UniformGrid Columns="5">
-                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14,8" Margin="0,0,8,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#EEF2FF" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
-                                <TextBlock Text="📚" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel>
-                                <TextBlock Text="TỔNG ĐẦU SÁCH" FontSize="10" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="statTotalBooks" Text="0 đầu sách" FontSize="15" FontWeight="Black" Foreground="#0F172A" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14,8" Margin="4,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#DCFCE7" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
-                                <TextBlock Text="📦" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel>
-                                <TextBlock Text="TỔNG TỒN KHO" FontSize="10" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="statTotalStock" Text="0 cuốn" FontSize="15" FontWeight="Black" Foreground="#15803D" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14,8" Margin="4,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#E0E7FF" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
-                                <TextBlock Text="🛍️" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel>
-                                <TextBlock Text="SÁCH ĐANG BÁN" FontSize="10" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="statForSale" Text="0 sách" FontSize="15" FontWeight="Black" Foreground="#4F46E5" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14,8" Margin="4,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#FEF3C7" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
-                                <TextBlock Text="📅" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel>
-                                <TextBlock Text="SÁCH CHO THUÊ" FontSize="10" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="statForRent" Text="0 sách" FontSize="15" FontWeight="Black" Foreground="#D97706" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14,8" Margin="8,0,0,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Background="#E0F2FE" CornerRadius="8" Width="36" Height="36" Margin="0,0,10,0">
-                                <TextBlock Text="🗂️" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <StackPanel>
-                                <TextBlock Text="THỂ LOẠI &amp; NXB" FontSize="10" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="statCategories" Text="0 thể loại" FontSize="15" FontWeight="Black" Foreground="#0284C7" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
-            </Border>
-
-            <!-- ==================== 3. MAIN BODY (SIDEBAR FILTERS + BOOK LIST) ==================== -->
+            <!-- ==================== 2. MAIN BODY (SIDEBAR FILTERS + BOOK LIST) ==================== -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="290" />

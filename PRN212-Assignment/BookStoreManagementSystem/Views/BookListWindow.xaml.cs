@@ -133,13 +133,6 @@ namespace BookStoreManagementSystem
                 cbYearFilter.ItemsSource = yearOptions;
                 if (cbYearFilter.SelectedIndex < 0) cbYearFilter.SelectedIndex = 0;
 
-                // 4. Update Top Summary KPI Strip
-                statTotalBooks.Text = $"{_allBooks.Count} đầu sách";
-                statTotalStock.Text = $"{_allBooks.Sum(b => b.StockQuantity)} cuốn";
-                statForSale.Text = $"{_allBooks.Count(b => b.IsForSale)} đầu sách";
-                statForRent.Text = $"{_allBooks.Count(b => b.IsForRent)} cho thuê ({_allBooks.Count(b => b.IsRentedOut)} đã thuê)";
-                statCategories.Text = $"{categoriesFromDb.Count} thể loại • {publishers.Count} NXB";
-
                 _isUpdatingFilters = false;
                 _isLoaded = true;
                 ApplyFiltersAndPagination();
