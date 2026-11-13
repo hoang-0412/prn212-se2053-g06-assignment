@@ -273,7 +273,7 @@
                             <Button x:Name="btnDetailExportInvoice" Content="💾 Xuất Hóa Đơn (.txt)" Style="{StaticResource SecondaryButtonStyle}" Margin="4,0,0,0" Click="btnDetailExportInvoice_Click" />
                         </UniformGrid>
 
-                        <Button x:Name="btnDetailCancelOrder" Content="✕ Hủy Đơn Hàng Này (Hoàn Tồn Kho)" Style="{StaticResource SecondaryButtonStyle}"
+                        <Button x:Name="btnDetailCancelOrder" Content="✕ Hủy đơn hàng" Style="{StaticResource SecondaryButtonStyle}"
                                 Foreground="#DC2626" BorderBrush="#FECACA" Background="#FEF2F2" Click="btnDetailCancelOrder_Click" />
                     </StackPanel>
                 </ScrollViewer>

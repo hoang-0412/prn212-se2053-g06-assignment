@@ -526,6 +526,7 @@ namespace BookStoreManagementSystem.ViewModels
         public string OrderStatus { get; set; } = string.Empty;
         public string PaymentMethod { get; set; } = string.Empty;
         public string PaymentStatus { get; set; } = string.Empty;
+        public string? CancelReason { get; set; }
         public DateTime CreatedAt { get; set; }
         public string FormattedCreatedAt => CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
         public string ItemsSummary { get; set; } = string.Empty;
@@ -535,6 +536,8 @@ namespace BookStoreManagementSystem.ViewModels
         public bool IsRentalOrder =>
             OrderStatus.Contains("Thuê", StringComparison.OrdinalIgnoreCase) ||
             OrderStatus.Equals("Renting", StringComparison.OrdinalIgnoreCase) ||
+            OrderStatus.Equals("ReturnPending", StringComparison.OrdinalIgnoreCase) ||
+            OrderStatus.Equals("Chờ xác nhận trả", StringComparison.OrdinalIgnoreCase) ||
             OrderStatus.Equals("Returned", StringComparison.OrdinalIgnoreCase) ||
             OrderStatus.Equals("Đã trả", StringComparison.OrdinalIgnoreCase) ||
             PaymentMethod.Contains("Thuê", StringComparison.OrdinalIgnoreCase) ||
@@ -551,9 +554,17 @@ namespace BookStoreManagementSystem.ViewModels
             "Completed" => "Hoàn thành",
             "Cancelled" => "Đã hủy",
             "Renting" or "Đang thuê" => "Đang thuê sách",
+            "ReturnPending" or "Chờ xác nhận trả" => "Chờ xác nhận trả",
             "Returned" or "Đã trả" => "Đã trả sách",
             "Overdue" or "Quá hạn" => "Quá hạn trả",
             _ => OrderStatus
+        };
+
+        public string PaymentStatusDisplay => PaymentStatus switch
+        {
+            "Paid" => "Đã thanh toán",
+            "Refunded" => "Đã hoàn tiền",
+            _ => "Chưa thanh toán"
         };
 
         public string StatusBadgeColor => OrderStatus switch
@@ -563,13 +574,17 @@ namespace BookStoreManagementSystem.ViewModels
             "Completed" => "#10B981",
             "Cancelled" => "#EF4444",
             "Renting" or "Đang thuê" => "#8B5CF6",
+            "ReturnPending" or "Chờ xác nhận trả" => "#D97706",
             "Returned" or "Đã trả" => "#059669",
             "Overdue" or "Quá hạn" => "#DC2626",
             _ => "#64748B"
         };
 
         public bool CanCancel =>
-            string.Equals(OrderStatus, "Pending", StringComparison.OrdinalIgnoreCase);
+            string.Equals(OrderStatus, "Pending", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(OrderStatus, "Processing", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(OrderStatus, "Renting", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(OrderStatus, "Đang thuê", StringComparison.OrdinalIgnoreCase);
 
         public bool CanReturnBook =>
             string.Equals(OrderStatus, "Renting", StringComparison.OrdinalIgnoreCase) ||

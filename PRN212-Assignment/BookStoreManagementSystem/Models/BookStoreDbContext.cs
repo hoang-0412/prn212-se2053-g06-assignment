@@ -207,6 +207,9 @@ public partial class BookStoreDbContext : DbContext
                 .HasMaxLength(50)
                 .HasDefaultValue("Unpaid")
                 .HasColumnName("paymentStatus");
+            entity.Property(e => e.CancelReason)
+                .HasMaxLength(500)
+                .HasColumnName("cancelReason");
             entity.Property(e => e.RecipientPhone)
                 .HasMaxLength(20)
                 .IsUnicode(false)

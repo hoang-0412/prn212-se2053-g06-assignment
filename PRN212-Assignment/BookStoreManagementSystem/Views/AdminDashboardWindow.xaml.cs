@@ -216,6 +216,7 @@ namespace BookStoreManagementSystem
                         OrderStatus = o.OrderStatus,
                         PaymentMethod = o.PaymentMethod,
                         PaymentStatus = o.PaymentStatus,
+                        CancelReason = o.CancelReason,
                         CreatedAt = o.CreatedAt,
                         TotalQuantity = o.OrderItems.Sum(i => i.Quantity),
                         ItemsSummary = string.Join(", ", o.OrderItems.Select(i => $"{i.Book?.Title} (x{i.Quantity})")),
@@ -1027,7 +1028,7 @@ namespace BookStoreManagementSystem
 
             if (cbAdminOrderStatusFilter?.SelectedItem is ComboBoxItem statusItem)
             {
-                var statusStr = statusItem.Content?.ToString();
+                var statusStr = (statusItem.Tag ?? statusItem.Content)?.ToString();
                 if (!string.IsNullOrEmpty(statusStr) && statusStr != "Tất cả trạng thái")
                 {
                     query = query.Where(o => string.Equals(o.OrderStatus, statusStr, StringComparison.OrdinalIgnoreCase));
@@ -1045,14 +1046,17 @@ namespace BookStoreManagementSystem
                 txtAdminOrderTitle.Text = $"🧾 Chi Tiết Đơn {order.OrderCode} ({order.OrderTypeDisplay})";
                 txtOrderCustomerInfo.Text = $"Khách hàng: {order.CustomerName} ({order.CustomerEmail})";
                 txtOrderPhoneInfo.Text = $"SĐT nhận sách: {order.RecipientPhone}";
-                txtOrderAddressInfo.Text = $"Địa chỉ / Kỳ hạn: {order.ShippingAddress}";
+                txtOrderAddressInfo.Text = string.IsNullOrWhiteSpace(order.CancelReason)
+                    ? $"Địa chỉ / Kỳ hạn: {order.ShippingAddress}"
+                    : $"Địa chỉ / Kỳ hạn: {order.ShippingAddress}\nLý do hủy đơn: {order.CancelReason}";
                 txtOrderPaymentMethodInfo.Text = $"Thanh toán: {order.PaymentMethod} • Tổng: {order.FormattedTotalAmount}";
 
                 dgAdminOrderItems.ItemsSource = order.Items;
 
                 foreach (ComboBoxItem item in cbAdminEditOrderStatus.Items)
                 {
-                    if (string.Equals(item.Content?.ToString(), order.OrderStatus, StringComparison.OrdinalIgnoreCase))
+                    var val = (item.Tag ?? item.Content)?.ToString();
+                    if (string.Equals(val, order.OrderStatus, StringComparison.OrdinalIgnoreCase))
                     {
                         cbAdminEditOrderStatus.SelectedItem = item;
                         break;
@@ -1061,7 +1065,8 @@ namespace BookStoreManagementSystem
 
                 foreach (ComboBoxItem item in cbAdminEditPaymentStatus.Items)
                 {
-                    if (string.Equals(item.Content?.ToString(), order.PaymentStatus, StringComparison.OrdinalIgnoreCase))
+                    var val = (item.Tag ?? item.Content)?.ToString();
+                    if (string.Equals(val, order.PaymentStatus, StringComparison.OrdinalIgnoreCase))
                     {
                         cbAdminEditPaymentStatus.SelectedItem = item;
                         break;
@@ -1078,8 +1083,10 @@ namespace BookStoreManagementSystem
                 return;
             }
 
-            var newOrderStatus = (cbAdminEditOrderStatus.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _selectedOrder.OrderStatus;
-            var newPaymentStatus = (cbAdminEditPaymentStatus.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _selectedOrder.PaymentStatus;
+            var selectedOrderItem = cbAdminEditOrderStatus.SelectedItem as ComboBoxItem;
+            var selectedPaymentItem = cbAdminEditPaymentStatus.SelectedItem as ComboBoxItem;
+            var newOrderStatus = (selectedOrderItem?.Tag ?? selectedOrderItem?.Content)?.ToString() ?? _selectedOrder.OrderStatus;
+            var newPaymentStatus = (selectedPaymentItem?.Tag ?? selectedPaymentItem?.Content)?.ToString() ?? _selectedOrder.PaymentStatus;
 
             try
             {
@@ -1158,7 +1165,7 @@ namespace BookStoreManagementSystem
                 }
 
                 context.SaveChanges();
-                MessageBox.Show($"📥 Đã xác nhận khách trả sách cho đơn #{order.OrderId:D4}! Số lượng sách đã được cộng lại vào kho và chuyển về trạng thái 'Cho thuê'.", "Hoàn trả sách thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"📥 Đã xác nhận khách trả sách cho đơn #{order.OrderId:D4}! Trạng thái chuyển thành 'Đã trả sách' và số lượng đã được cộng lại vào kho.", "Hoàn trả sách thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadAllDashboardData();
             }
             catch (Exception ex)

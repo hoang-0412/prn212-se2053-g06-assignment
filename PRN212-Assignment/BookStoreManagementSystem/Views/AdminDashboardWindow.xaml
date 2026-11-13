@@ -653,13 +653,14 @@
                                     <ComboBoxItem Content="Đơn Thuê Sách" />
                                 </ComboBox>
                                 <ComboBox x:Name="cbAdminOrderStatusFilter" Grid.Column="2" Margin="0,0,10,0" Padding="8,6" SelectionChanged="AdminOrderFilter_Changed">
-                                    <ComboBoxItem Content="Tất cả trạng thái" IsSelected="True" />
-                                    <ComboBoxItem Content="Pending" />
-                                    <ComboBoxItem Content="Processing" />
-                                    <ComboBoxItem Content="Renting" />
-                                    <ComboBoxItem Content="Returned" />
-                                    <ComboBoxItem Content="Completed" />
-                                    <ComboBoxItem Content="Cancelled" />
+                                    <ComboBoxItem Content="Tất cả trạng thái" Tag="" IsSelected="True" />
+                                    <ComboBoxItem Content="Chờ xác nhận" Tag="Pending" />
+                                    <ComboBoxItem Content="Đang giao" Tag="Processing" />
+                                    <ComboBoxItem Content="Đang thuê sách" Tag="Renting" />
+                                    <ComboBoxItem Content="Chờ xác nhận trả" Tag="ReturnPending" />
+                                    <ComboBoxItem Content="Đã trả sách" Tag="Returned" />
+                                    <ComboBoxItem Content="Hoàn thành" Tag="Completed" />
+                                    <ComboBoxItem Content="Đã hủy" Tag="Cancelled" />
                                 </ComboBox>
                                 <Button Grid.Column="3" Content="➕ Tạo Đơn Mua / Thuê Mới" Style="{StaticResource SuccessButtonStyle}" Padding="14,7" Click="btnOpenCreateOrderPos_Click" />
                             </Grid>
@@ -674,7 +675,7 @@
                                     <DataGridTextColumn Header="Loại" Binding="{Binding OrderTypeDisplay}" Width="120" />
                                     <DataGridTextColumn Header="Tổng Tiền" Binding="{Binding FormattedTotalAmount}" Width="105" FontWeight="Bold" />
                                     <DataGridTextColumn Header="Trạng Thái" Binding="{Binding StatusDisplay}" Width="115" />
-                                    <DataGridTextColumn Header="Thanh Toán" Binding="{Binding PaymentStatus}" Width="90" />
+                                    <DataGridTextColumn Header="Thanh Toán" Binding="{Binding PaymentStatusDisplay}" Width="110" />
                                     <DataGridTextColumn Header="Ngày Đặt" Binding="{Binding FormattedCreatedAt}" Width="*" />
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -716,21 +717,22 @@
                                     <StackPanel Grid.Column="0" Margin="0,0,6,0">
                                         <TextBlock Text="TRẠNG THÁI ĐƠN HÀNG" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
                                         <ComboBox x:Name="cbAdminEditOrderStatus" Padding="8,6">
-                                            <ComboBoxItem Content="Pending" />
-                                            <ComboBoxItem Content="Processing" />
-                                            <ComboBoxItem Content="Renting" />
-                                            <ComboBoxItem Content="Returned" />
-                                            <ComboBoxItem Content="Overdue" />
-                                            <ComboBoxItem Content="Completed" />
-                                            <ComboBoxItem Content="Cancelled" />
+                                            <ComboBoxItem Content="Chờ xác nhận" Tag="Pending" />
+                                            <ComboBoxItem Content="Đang giao" Tag="Processing" />
+                                            <ComboBoxItem Content="Đang thuê sách" Tag="Renting" />
+                                            <ComboBoxItem Content="Chờ xác nhận trả" Tag="ReturnPending" />
+                                            <ComboBoxItem Content="Đã trả sách" Tag="Returned" />
+                                            <ComboBoxItem Content="Quá hạn trả" Tag="Overdue" />
+                                            <ComboBoxItem Content="Hoàn thành" Tag="Completed" />
+                                            <ComboBoxItem Content="Đã hủy" Tag="Cancelled" />
                                         </ComboBox>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="6,0,0,0">
                                         <TextBlock Text="TRẠNG THÁI THANH TOÁN" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
                                         <ComboBox x:Name="cbAdminEditPaymentStatus" Padding="8,6">
-                                            <ComboBoxItem Content="Unpaid" />
-                                            <ComboBoxItem Content="Paid" />
-                                            <ComboBoxItem Content="Refunded" />
+                                            <ComboBoxItem Content="Chưa thanh toán" Tag="Unpaid" />
+                                            <ComboBoxItem Content="Đã thanh toán" Tag="Paid" />
+                                            <ComboBoxItem Content="Đã hoàn tiền" Tag="Refunded" />
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>

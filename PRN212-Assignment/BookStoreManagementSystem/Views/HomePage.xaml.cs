@@ -880,7 +880,7 @@ namespace BookStoreManagementSystem
 
             _selectedBookForRent = book;
             txtRentBookTitle.Text = book.Title;
-            txtRentBookOriginPrice.Text = $"Tác giả: {book.Author} • Giá bìa gốc: {book.FormattedPrice} • Kho còn: {book.StockQuantity} cuốn";
+            txtRentBookOriginPrice.Text = $"Tác giả: {book.Author} • Giá bìa gốc: {book.FormattedPrice}";
             rbRent7Days.IsChecked = true;
             UpdateRentalCalculationUI();
             gridRentModal.Visibility = Visibility.Visible;
@@ -952,7 +952,7 @@ namespace BookStoreManagementSystem
                 var dbBook = context.Books.FirstOrDefault(b => b.BookId == _selectedBookForRent.BookId);
                 if (dbBook == null || dbBook.StockQuantity <= 0)
                 {
-                    MessageBox.Show("Sách này vừa hết hàng trong kho!", "Không đủ tồn kho", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -1031,7 +1031,7 @@ namespace BookStoreManagementSystem
             var totalInCartForBook = _cartItems.Where(c => c.BookId == book.BookId).Sum(c => c.Quantity);
             if (totalInCartForBook >= book.StockQuantity)
             {
-                MessageBox.Show($"Số lượng trong giỏ hàng đã đạt giới hạn tồn kho ({book.StockQuantity} cuốn)!", "Giới hạn tồn kho", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1101,7 +1101,7 @@ namespace BookStoreManagementSystem
                 }
                 else
                 {
-                    MessageBox.Show($"Kho chỉ còn {maxStock} cuốn!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
         }
@@ -1379,23 +1379,13 @@ namespace BookStoreManagementSystem
 
                     if (order == null) return;
 
-                    order.OrderStatus = "Returned";
-                    order.PaymentStatus = "Paid";
-
-                    foreach (var item in order.OrderItems)
-                    {
-                        var book = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
-                        if (book != null)
-                        {
-                            book.StockQuantity += item.Quantity;
-                        }
-                    }
+                    order.OrderStatus = "ReturnPending";
 
                     context.SaveChanges();
                     LoadCustomerOrders();
                     LoadDataFromDatabase();
 
-                    MessageBox.Show($"📥 Đã trả sách thành công cho đơn {orderVm.OrderCode}! Cảm ơn bạn đã sử dụng dịch vụ thuê sách của BookStore.", "Hoàn trả thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"⏳ Đã gửi yêu cầu trả sách cho đơn {orderVm.OrderCode}.\nTrạng thái: Chờ xác nhận trả. Admin sẽ kiểm tra và xác nhận hoàn kho!", "Chờ xác nhận trả sách", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {

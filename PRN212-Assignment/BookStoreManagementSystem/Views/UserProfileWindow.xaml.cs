@@ -368,19 +368,10 @@ namespace BookStoreManagementSystem
 
                     if (order == null) return;
 
-                    order.OrderStatus = "Returned";
-                    foreach (var item in order.OrderItems)
-                    {
-                        var book = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
-                        if (book != null)
-                        {
-                            book.StockQuantity += item.Quantity;
-                        }
-                    }
-
+                    order.OrderStatus = "ReturnPending";
                     context.SaveChanges();
                     LoadProfileAndOrders();
-                    MessageBox.Show($"📥 Đã hoàn trả sách cho đơn {orderVm.OrderCode} thành công!", "Hoàn trả thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"⏳ Đã gửi yêu cầu trả sách cho đơn {orderVm.OrderCode}.\nTrạng thái: Chờ xác nhận trả. Admin sẽ kiểm tra và xác nhận hoàn kho!", "Chờ xác nhận trả sách", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {

@@ -283,7 +283,7 @@ namespace BookStoreManagementSystem
                 }
                 else
                 {
-                    MessageBox.Show($"Số lượng sách '{item.Title}' đã đạt giới hạn tồn kho ({maxStock} cuốn)!", "Giới hạn tồn kho", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -444,7 +444,7 @@ namespace BookStoreManagementSystem
                     var dbBook = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
                     if (dbBook == null || dbBook.StockQuantity < item.Quantity)
                     {
-                        MessageBox.Show($"Sách '{item.Title}' hiện chỉ còn {dbBook?.StockQuantity ?? 0} cuốn trong kho!", "Không đủ tồn kho", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
                 }
@@ -502,7 +502,7 @@ namespace BookStoreManagementSystem
                     OrderStatus = hasRental ? "Renting" : "Pending",
                     ShippingAddress = fullShippingAddress,
                     RecipientPhone = phone,
-                    PaymentMethod = hasRental ? $"{paymentMethod} (Có sách thuê)" : paymentMethod,
+                    PaymentMethod = paymentMethod,
                     PaymentStatus = isOnlinePaid ? "Paid" : "Unpaid",
                     CreatedAt = DateTime.UtcNow
                 };
