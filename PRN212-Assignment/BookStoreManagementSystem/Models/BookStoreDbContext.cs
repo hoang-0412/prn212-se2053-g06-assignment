@@ -34,6 +34,10 @@ public partial class BookStoreDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<Voucher> Vouchers { get; set; }
+
+    public virtual DbSet<UserVoucher> UserVouchers { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -297,6 +301,55 @@ public partial class BookStoreDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_User_Role");
+        });
+
+        modelBuilder.Entity<Voucher>(entity =>
+        {
+            entity.HasKey(e => e.VoucherId);
+
+            entity.ToTable("Voucher");
+
+            entity.HasIndex(e => e.Code).IsUnique();
+
+            entity.Property(e => e.VoucherId).HasColumnName("voucherId");
+            entity.Property(e => e.Name).HasMaxLength(150).HasColumnName("name");
+            entity.Property(e => e.Code).HasMaxLength(50).IsUnicode(false).HasColumnName("code");
+            entity.Property(e => e.DiscountType).HasMaxLength(20).IsUnicode(false).HasColumnName("discountType");
+            entity.Property(e => e.DiscountValue).HasColumnType("decimal(18, 2)").HasColumnName("discountValue");
+            entity.Property(e => e.StartAt).HasColumnName("startAt");
+            entity.Property(e => e.ExpiryAt).HasColumnName("expiryAt");
+            entity.Property(e => e.MaxUsagePerUser).HasColumnName("maxUsagePerUser");
+            entity.Property(e => e.TotalQuantity).HasColumnName("totalQuantity");
+            entity.Property(e => e.SavedCount).HasColumnName("savedCount");
+            entity.Property(e => e.UsedCount).HasColumnName("usedCount");
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+        });
+
+        modelBuilder.Entity<UserVoucher>(entity =>
+        {
+            entity.HasKey(e => e.UserVoucherId);
+
+            entity.ToTable("UserVoucher");
+
+            entity.HasIndex(e => new { e.UserId, e.VoucherId }).IsUnique();
+
+            entity.Property(e => e.UserVoucherId).HasColumnName("userVoucherId");
+            entity.Property(e => e.UserId).HasColumnName("userId");
+            entity.Property(e => e.VoucherId).HasColumnName("voucherId");
+            entity.Property(e => e.UsageCount).HasColumnName("usageCount");
+            entity.Property(e => e.SavedAt).HasColumnName("savedAt");
+            entity.Property(e => e.LastUsedAt).HasColumnName("lastUsedAt");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserVouchers)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_UserVoucher_User");
+
+            entity.HasOne(d => d.Voucher).WithMany(p => p.UserVouchers)
+                .HasForeignKey(d => d.VoucherId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_UserVoucher_Voucher");
         });
 
         OnModelCreatingPartial(modelBuilder);

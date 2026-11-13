@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="BookStore - Chi Tiết Sách (/books/detail)"
+        Title="BookStore - Chi Tiết Sách"
         Height="900" Width="1440"
         MinHeight="740" MinWidth="1120"
         WindowStartupLocation="CenterScreen"
@@ -133,35 +133,34 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="68" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- ==================== 1. TOP NAVIGATION BAR ==================== -->
         <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,0" Panel.ZIndex="10">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
                 <!-- Left: Back & Brand -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <WrapPanel Grid.Row="0" VerticalAlignment="Center">
                     <Button x:Name="btnBack" Content="⬅️ Quay Lại" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0" Click="btnBack_Click" />
                     <Button Content="🏠 Trang Chủ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnGoHome_Click" />
-                    <Button Content="📚 Danh Sách Sách (/books)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnGoBookList_Click" />
+                    <Button Content="📚 Danh Sách Sách" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnGoBookList_Click" />
 
                     <Border Width="1" Height="28" Background="#E2E8F0" Margin="0,0,16,0" />
 
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock x:Name="txtBreadcrumbRoute" Text="/books/detail" FontWeight="Bold" FontSize="11" Foreground="#4F46E5" />
+                        <TextBlock x:Name="txtBreadcrumbRoute" Text="Chi tiết sách" FontWeight="Bold" FontSize="11" Foreground="#4F46E5" />
                         <TextBlock x:Name="txtBreadcrumbTitle" Text="Chi tiết tác phẩm" FontWeight="Black" FontSize="15" Foreground="#0F172A" MaxWidth="360" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                </StackPanel>
+                </WrapPanel>
 
                 <!-- Right: User Info & Admin -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <WrapPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,12,0,0">
                     <Button x:Name="btnOpenAdmin" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="btnOpenAdmin_Click"
                             Background="#FEF3C7" BorderBrush="#FDE68A" Foreground="#B45309">
                         <StackPanel Orientation="Horizontal">
@@ -182,7 +181,7 @@
 
                     <Button x:Name="btnOpenProfile" Content="👤 Hồ Sơ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenProfile_Click" />
                     <Button x:Name="btnAuthAction" Content="🔄 Đổi TK / Thoát" Style="{StaticResource SecondaryButtonStyle}" Click="btnAuthAction_Click" />
-                </StackPanel>
+                </WrapPanel>
             </Grid>
         </Border>
 
@@ -484,7 +483,7 @@
                                 <TextBlock Text="📖 Sách Cùng Thể Loại &amp; Gợi Ý Cho Bạn" FontSize="18" FontWeight="Black" Foreground="#0F172A" />
                                 <TextBlock x:Name="txtRelatedSubtitle" Text="Khám phá thêm các đầu sách liên quan đang có sẵn tại BookStore" FontSize="12" Foreground="#64748B" Margin="0,2,0,0" />
                             </StackPanel>
-                            <Button Content="Xem tất cả sách (/books) →" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Click="btnGoBookList_Click" />
+                            <Button Content="Xem tất cả sách →" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Click="btnGoBookList_Click" />
                         </Grid>
 
                         <ItemsControl x:Name="icRelatedBooks">

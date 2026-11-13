@@ -18,11 +18,13 @@ namespace BookStoreManagementSystem
         private List<CategoryFilterItem> _allCategories = new();
         private List<OrderViewModel> _allOrders = new();
         private List<UserAdminViewModel> _allUsers = new();
+        private List<VoucherAdminViewModel> _allVouchers = new();
 
         private BookCardViewModel? _selectedBook;
         private CategoryFilterItem? _selectedCategory;
         private OrderViewModel? _selectedOrder;
         private UserAdminViewModel? _selectedUser;
+        private VoucherAdminViewModel? _selectedVoucher;
 
         private byte[]? _pendingBookImageData;
         private string? _pendingBookImageMimeType;
@@ -54,6 +56,7 @@ namespace BookStoreManagementSystem
             viewCategories.Visibility = tabName == "Categories" ? Visibility.Visible : Visibility.Collapsed;
             viewOrders.Visibility = tabName == "Orders" ? Visibility.Visible : Visibility.Collapsed;
             viewUsers.Visibility = tabName == "Users" ? Visibility.Visible : Visibility.Collapsed;
+            viewVouchers.Visibility = tabName == "Vouchers" ? Visibility.Visible : Visibility.Collapsed;
 
             var activeBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4F46E5"));
             var inactiveBrush = Brushes.Transparent;
@@ -63,6 +66,7 @@ namespace BookStoreManagementSystem
             navCategories.Background = tabName == "Categories" ? activeBrush : inactiveBrush;
             navOrders.Background = tabName == "Orders" ? activeBrush : inactiveBrush;
             navUsers.Background = tabName == "Users" ? activeBrush : inactiveBrush;
+            navVouchers.Background = tabName == "Vouchers" ? activeBrush : inactiveBrush;
 
             switch (tabName)
             {
@@ -86,6 +90,10 @@ namespace BookStoreManagementSystem
                     txtPageTitle.Text = "Quản Lý Tài Khoản & Phân Quyền";
                     txtPageSubtitle.Text = "Quản trị danh sách khách hàng và quản trị viên hệ thống";
                     break;
+                case "Vouchers":
+                    txtPageTitle.Text = "Quản Lý Voucher";
+                    txtPageSubtitle.Text = "Tạo mã giảm giá, giới hạn lượt lưu và số lần sử dụng theo người dùng";
+                    break;
             }
         }
 
@@ -94,6 +102,7 @@ namespace BookStoreManagementSystem
         private void navCategories_Click(object sender, RoutedEventArgs e) => SetActiveTab("Categories");
         private void navOrders_Click(object sender, RoutedEventArgs e) => SetActiveTab("Orders");
         private void navUsers_Click(object sender, RoutedEventArgs e) => SetActiveTab("Users");
+        private void navVouchers_Click(object sender, RoutedEventArgs e) => SetActiveTab("Vouchers");
 
         private void btnRefreshAll_Click(object sender, RoutedEventArgs e)
         {
@@ -250,6 +259,7 @@ namespace BookStoreManagementSystem
                 }).ToList();
 
                 dgAdminUsers.ItemsSource = _allUsers;
+                LoadVouchers(context);
 
                 _isLoaded = true;
                 UpdateOverviewTab(categories);
@@ -257,10 +267,35 @@ namespace BookStoreManagementSystem
                 ApplyOrderFilters();
                 ApplyUserFilters();
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"Không thể tải dữ liệu Admin Dashboard:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void LoadVouchers(BookStoreDbContext context)
+        {
+            _allVouchers = context.Vouchers
+                .AsNoTracking()
+                .OrderByDescending(v => v.CreatedAt)
+                .Select(v => new VoucherAdminViewModel
+                {
+                    VoucherId = v.VoucherId,
+                    Name = v.Name,
+                    Code = v.Code,
+                    DiscountType = v.DiscountType,
+                    DiscountValue = v.DiscountValue,
+                    StartAt = v.StartAt,
+                    ExpiryAt = v.ExpiryAt,
+                    MaxUsagePerUser = v.MaxUsagePerUser,
+                    TotalQuantity = v.TotalQuantity,
+                    SavedCount = v.SavedCount,
+                    UsedCount = v.UsedCount,
+                    IsActive = v.IsActive
+                }).ToList();
+
+            dgAdminVouchers.ItemsSource = _allVouchers;
         }
 
         private void UpdateOverviewTab(List<Category> categories)
@@ -306,6 +341,169 @@ namespace BookStoreManagementSystem
                 .Where(b => b.IsRentedOut || b.IsForRent || b.StockQuantity <= 5)
                 .OrderBy(b => b.StockQuantity)
                 .ToList();
+        }
+
+        // ==================== VOUCHER CRUD ====================
+        private void dgAdminVouchers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (dgAdminVouchers.SelectedItem is not VoucherAdminViewModel voucher) return;
+
+            _selectedVoucher = voucher;
+            txtVoucherName.Text = voucher.Name;
+            txtVoucherCode.Text = voucher.Code;
+            txtVoucherDiscountValue.Text = voucher.DiscountValue.ToString("0.##");
+            txtVoucherMaxUsage.Text = voucher.MaxUsagePerUser.ToString();
+            txtVoucherTotalQuantity.Text = voucher.TotalQuantity.ToString();
+            dpVoucherStart.SelectedDate = voucher.StartAt.ToLocalTime().Date;
+            dpVoucherExpiry.SelectedDate = voucher.ExpiryAt.ToLocalTime().Date;
+            chkVoucherActive.IsChecked = voucher.IsActive;
+            cbVoucherDiscountType.SelectedIndex = voucher.DiscountType == "Amount" ? 1 : 0;
+        }
+
+        private void btnRefreshVouchers_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using var context = new BookStoreDbContext();
+                LoadVouchers(context);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể tải voucher:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private bool TryReadVoucherForm(out string name, out string code, out string discountType, out decimal discountValue,
+            out DateTime startAt, out DateTime expiryAt, out int maxUsage, out int totalQuantity, out bool isActive)
+        {
+            name = txtVoucherName.Text.Trim();
+            code = txtVoucherCode.Text.Trim().ToUpperInvariant();
+            discountType = (cbVoucherDiscountType.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Percent";
+            discountValue = 0;
+            startAt = dpVoucherStart.SelectedDate?.Date ?? DateTime.Today;
+            expiryAt = dpVoucherExpiry.SelectedDate?.Date.AddDays(1).AddTicks(-1) ?? DateTime.Today.AddDays(1).AddTicks(-1);
+            maxUsage = 0;
+            totalQuantity = 0;
+            isActive = chkVoucherActive.IsChecked == true;
+
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(code) ||
+                !decimal.TryParse(txtVoucherDiscountValue.Text.Trim(), out discountValue) ||
+                !int.TryParse(txtVoucherMaxUsage.Text.Trim(), out maxUsage) ||
+                !int.TryParse(txtVoucherTotalQuantity.Text.Trim(), out totalQuantity))
+            {
+                MessageBox.Show("Vui lòng nhập đúng tên, mã, giá trị giảm và các giới hạn voucher.", "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (code.Length > 50 || discountValue <= 0 || (discountType == "Percent" && discountValue > 100) ||
+                maxUsage <= 0 || totalQuantity <= 0 || expiryAt <= startAt)
+            {
+                MessageBox.Show("Kiểm tra lại: giảm phần trăm phải từ 0 đến 100, giới hạn phải lớn hơn 0 và ngày hết hạn phải sau ngày bắt đầu.", "Dữ liệu không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void btnAddVoucher_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryReadVoucherForm(out var name, out var code, out var discountType, out var discountValue,
+                out var startAt, out var expiryAt, out var maxUsage, out var totalQuantity, out var isActive)) return;
+
+            try
+            {
+                using var context = new BookStoreDbContext();
+                if (context.Vouchers.Any(v => v.Code == code))
+                {
+                    MessageBox.Show("Mã voucher đã tồn tại.", "Trùng mã voucher", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                context.Vouchers.Add(new Voucher
+                {
+                    Name = name, Code = code, DiscountType = discountType, DiscountValue = discountValue,
+                    StartAt = startAt.ToUniversalTime(), ExpiryAt = expiryAt.ToUniversalTime(),
+                    MaxUsagePerUser = maxUsage, TotalQuantity = totalQuantity, IsActive = isActive,
+                    CreatedAt = DateTime.UtcNow
+                });
+                context.SaveChanges();
+                LoadVouchers(context);
+                ClearVoucherForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể tạo voucher:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btnUpdateVoucher_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedVoucher == null)
+            {
+                MessageBox.Show("Vui lòng chọn voucher cần cập nhật.", "Chưa chọn voucher", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (!TryReadVoucherForm(out var name, out var code, out var discountType, out var discountValue,
+                out var startAt, out var expiryAt, out var maxUsage, out var totalQuantity, out var isActive)) return;
+
+            try
+            {
+                using var context = new BookStoreDbContext();
+                var voucher = context.Vouchers.Find(_selectedVoucher.VoucherId);
+                if (voucher == null) return;
+                if (context.Vouchers.Any(v => v.Code == code && v.VoucherId != voucher.VoucherId))
+                {
+                    MessageBox.Show("Mã voucher đã tồn tại.", "Trùng mã voucher", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (totalQuantity < voucher.SavedCount)
+                {
+                    MessageBox.Show($"Tổng lượt lưu không thể nhỏ hơn số lượt đã lưu ({voucher.SavedCount}).", "Giới hạn voucher", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                voucher.Name = name; voucher.Code = code; voucher.DiscountType = discountType; voucher.DiscountValue = discountValue;
+                voucher.StartAt = startAt.ToUniversalTime(); voucher.ExpiryAt = expiryAt.ToUniversalTime();
+                voucher.MaxUsagePerUser = maxUsage; voucher.TotalQuantity = totalQuantity; voucher.IsActive = isActive;
+                context.SaveChanges();
+                LoadVouchers(context);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể cập nhật voucher:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btnDeleteVoucher_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedVoucher == null) return;
+            if (MessageBox.Show($"Xóa voucher '{_selectedVoucher.Code}'?", "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+            try
+            {
+                using var context = new BookStoreDbContext();
+                var voucher = context.Vouchers.Find(_selectedVoucher.VoucherId);
+                if (voucher != null) { context.Vouchers.Remove(voucher); context.SaveChanges(); }
+                LoadVouchers(context);
+                ClearVoucherForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Không thể xóa voucher:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btnClearVoucherForm_Click(object sender, RoutedEventArgs e) => ClearVoucherForm();
+
+        private void ClearVoucherForm()
+        {
+            _selectedVoucher = null;
+            dgAdminVouchers.SelectedItem = null;
+            txtVoucherName.Clear(); txtVoucherCode.Clear(); txtVoucherDiscountValue.Clear();
+            txtVoucherMaxUsage.Text = "1"; txtVoucherTotalQuantity.Text = "100";
+            dpVoucherStart.SelectedDate = DateTime.Today;
+            dpVoucherExpiry.SelectedDate = DateTime.Today.AddMonths(1);
+            cbVoucherDiscountType.SelectedIndex = 0;
+            chkVoucherActive.IsChecked = true;
         }
 
         // ==================== BOOKS CRUD ====================

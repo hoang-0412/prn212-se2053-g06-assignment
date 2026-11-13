@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BookStoreManagementSystem"
         mc:Ignorable="d"
-        Title="BookStore - Danh Sách Toàn Bộ Sách (/books)"
+        Title="BookStore - Danh Sách Toàn Bộ Sách"
         Height="880" Width="1400"
         MinHeight="720" MinWidth="1140"
         WindowStartupLocation="CenterScreen"
@@ -135,14 +135,17 @@
             <!-- ==================== 1. TOP HEADER BAR ==================== -->
             <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,12">
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <!-- Logo & Page Title -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Border Width="42" Height="42" CornerRadius="10" Background="#4F46E5" Margin="0,0,12,0">
                             <TextBlock Text="📚" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
@@ -150,16 +153,13 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="DANH MỤC" FontWeight="Black" FontSize="19" Foreground="#4F46E5" />
                                 <TextBlock Text=" TOÀN BỘ SÁCH" FontWeight="Black" FontSize="19" Foreground="#0F172A" />
-                                <Border Background="#EEF2FF" CornerRadius="4" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="/books" FontSize="11" FontWeight="SemiBold" Foreground="#4F46E5" />
-                                </Border>
                             </StackPanel>
                             <TextBlock Text="Tra cứu toàn bộ kho sách, hiển thị ảnh bìa &amp; quản lý ảnh sách (Admin)" FontSize="11" Foreground="#64748B" />
                         </StackPanel>
                     </StackPanel>
 
                     <!-- Global Search Input -->
-                    <Grid Grid.Column="1" HorizontalAlignment="Center" Width="430" Margin="16,0">
+                    <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="16,0">
                         <TextBox x:Name="txtSearch"
                                  Style="{StaticResource SearchTextBoxStyle}"
                                  Padding="36,8,30,8"
@@ -177,7 +177,7 @@
                     </Grid>
 
                     <!-- Right Navigation Actions -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <WrapPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="0,12,0,0">
                         <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,8,0" VerticalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="👤 " FontSize="13" VerticalAlignment="Center" />
@@ -194,7 +194,7 @@
                         <Button x:Name="btnOpenAdmin" Content="🛠️ Admin Dashboard" Style="{StaticResource RentButtonStyle}" Background="#0F172A" Margin="0,0,8,0" Click="btnOpenAdmin_Click" />
                         <Button x:Name="btnOpenProfile" Content="👤 Hồ Sơ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenProfile_Click" />
                         <Button x:Name="btnAuthAction" Content="🔐 Tài khoản" Style="{StaticResource SecondaryButtonStyle}" Click="btnAuthAction_Click" />
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
             </Border>
 

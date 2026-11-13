@@ -16,6 +16,7 @@ namespace BookStoreManagementSystem
     public partial class CartCheckoutWindow : Window
     {
         private readonly ObservableCollection<CartItemViewModel> _cartItems = new();
+        private readonly ObservableCollection<VoucherWalletViewModel> _savedVouchers = new();
         private readonly Dictionary<int, int> _bookStockMap = new();
         private string _appliedVoucher = string.Empty;
         private string _lastInvoiceText = string.Empty;
@@ -25,6 +26,7 @@ namespace BookStoreManagementSystem
         {
             InitializeComponent();
             icCartItems.ItemsSource = _cartItems;
+            cbSavedVouchers.ItemsSource = _savedVouchers;
             Loaded += CartCheckoutWindow_Loaded;
         }
 
@@ -115,6 +117,7 @@ namespace BookStoreManagementSystem
                     }
                 }
 
+                LoadSavedVouchers(context);
                 RecalculateSummary();
             }
             catch (Exception ex)
@@ -182,35 +185,14 @@ namespace BookStoreManagementSystem
             string code = _appliedVoucher.ToUpperInvariant();
             if (subtotal > 0 && !string.IsNullOrEmpty(code))
             {
-                switch (code)
+                using var context = new BookStoreDbContext();
+                var voucher = context.Vouchers.AsNoTracking().FirstOrDefault(v => v.Code == code);
+                if (voucher != null && voucher.IsActive && voucher.StartAt <= DateTime.UtcNow && voucher.ExpiryAt >= DateTime.UtcNow)
                 {
-                    case "BOOK10":
-                        discount = Math.Round(subtotal * 0.10m / 1000m, 0) * 1000m;
-                        txtSummaryDiscountLabel.Text = "Giảm giá (BOOK10 - 10%):";
-                        break;
-                    case "SINHVIEN":
-                        discount = Math.Round(subtotal * 0.15m / 1000m, 0) * 1000m;
-                        txtSummaryDiscountLabel.Text = "Giảm giá (SINHVIEN - 15%):";
-                        break;
-                    case "FREESHIP":
-                        discount = shipping;
-                        txtSummaryDiscountLabel.Text = "Giảm giá (FREESHIP):";
-                        break;
-                    case "VIP50K":
-                        if (subtotal >= 300000m)
-                        {
-                            discount = 50000m;
-                            txtSummaryDiscountLabel.Text = "Giảm giá (VIP50K):";
-                        }
-                        else
-                        {
-                            txtSummaryDiscountLabel.Text = "VIP50K (cần đơn ≥ 300K):";
-                        }
-                        break;
-                    default:
-                        txtSummaryDiscountLabel.Text = "Giảm giá Voucher:";
-                        break;
+                    discount = CalculateVoucherDiscount(voucher, subtotal, shipping);
+                    txtSummaryDiscountLabel.Text = $"Giảm giá ({voucher.Code}):";
                 }
+                else txtSummaryDiscountLabel.Text = "Voucher hết hạn hoặc không hoạt động:";
             }
             else
             {
@@ -329,13 +311,62 @@ namespace BookStoreManagementSystem
         }
 
         // ==================== VOUCHER & PAYMENT ====================
+        private void LoadSavedVouchers(BookStoreDbContext context)
+        {
+            _savedVouchers.Clear();
+            if (SessionManager.CurrentUser == null) return;
+
+            var now = DateTime.UtcNow;
+            var vouchers = context.UserVouchers
+                .AsNoTracking()
+                .Include(uv => uv.Voucher)
+                .Where(uv => uv.UserId == SessionManager.CurrentUser.UserId && uv.Voucher.IsActive && uv.Voucher.StartAt <= now && uv.Voucher.ExpiryAt >= now && uv.UsageCount < uv.Voucher.MaxUsagePerUser)
+                .OrderByDescending(uv => uv.Voucher.DiscountValue)
+                .ToList();
+
+            foreach (var item in vouchers)
+            {
+                _savedVouchers.Add(new VoucherWalletViewModel
+                {
+                    VoucherId = item.VoucherId, Name = item.Voucher.Name, Code = item.Voucher.Code,
+                    DiscountType = item.Voucher.DiscountType, DiscountValue = item.Voucher.DiscountValue,
+                    ExpiryAt = item.Voucher.ExpiryAt, UsageCount = item.UsageCount,
+                    MaxUsagePerUser = item.Voucher.MaxUsagePerUser
+                });
+            }
+
+            if (_savedVouchers.Count > 0 && string.IsNullOrEmpty(_appliedVoucher))
+            {
+                cbSavedVouchers.SelectedIndex = 0;
+                _appliedVoucher = _savedVouchers[0].Code;
+                txtVoucherCode.Text = _appliedVoucher;
+            }
+        }
+
+        private static decimal CalculateVoucherDiscount(Voucher voucher, decimal subtotal, decimal shipping)
+        {
+            decimal discount = voucher.DiscountType == "Percent"
+                ? Math.Round(subtotal * voucher.DiscountValue / 100m / 1000m, 0) * 1000m
+                : voucher.DiscountValue;
+            return Math.Min(discount, subtotal + shipping);
+        }
+
+        private void cbSavedVouchers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cbSavedVouchers.SelectedItem is VoucherWalletViewModel voucher)
+            {
+                txtVoucherCode.Text = voucher.Code;
+                _appliedVoucher = voucher.Code;
+                RecalculateSummary();
+            }
+        }
+
         private void btnQuickVoucher_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is string code)
             {
                 txtVoucherCode.Text = code;
-                _appliedVoucher = code;
-                RecalculateSummary();
+                btnApplyVoucher_Click(sender, e);
             }
         }
 
@@ -349,15 +380,33 @@ namespace BookStoreManagementSystem
                 return;
             }
 
-            if (code is "BOOK10" or "SINHVIEN" or "FREESHIP" or "VIP50K")
+            try
             {
-                _appliedVoucher = code;
+                using var context = new BookStoreDbContext();
+                if (SessionManager.CurrentUser == null) return;
+                var voucher = context.Vouchers.FirstOrDefault(v => v.Code == code);
+                var now = DateTime.UtcNow;
+                if (voucher == null || !voucher.IsActive || voucher.StartAt > now || voucher.ExpiryAt < now || voucher.SavedCount >= voucher.TotalQuantity)
+                {
+                    MessageBox.Show("Mã voucher không tồn tại, đã hết hạn hoặc đã hết lượt lưu.", "Voucher không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var saved = context.UserVouchers.FirstOrDefault(uv => uv.UserId == SessionManager.CurrentUser.UserId && uv.VoucherId == voucher.VoucherId);
+                if (saved == null)
+                {
+                    context.UserVouchers.Add(new UserVoucher { UserId = SessionManager.CurrentUser.UserId, VoucherId = voucher.VoucherId, SavedAt = now });
+                    voucher.SavedCount++;
+                    context.SaveChanges();
+                }
+                _appliedVoucher = voucher.Code;
+                LoadSavedVouchers(context);
                 RecalculateSummary();
-                MessageBox.Show($"🎟️ Đã áp dụng mã khuyến mãi '{code}' thành công!", "Áp mã thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"🎟️ Đã lưu và áp dụng voucher '{voucher.Code}' thành công!", "Áp mã thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Mã giảm giá không hợp lệ! Vui lòng chọn một trong các mã: BOOK10, SINHVIEN, FREESHIP, VIP50K.", "Mã không tồn tại", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Không thể áp dụng voucher:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -405,10 +454,30 @@ namespace BookStoreManagementSystem
                 decimal shipping = 25000m;
                 decimal discount = 0m;
                 string code = _appliedVoucher.ToUpperInvariant();
-                if (code == "BOOK10") discount = Math.Round(subtotal * 0.10m / 1000m, 0) * 1000m;
-                else if (code == "SINHVIEN") discount = Math.Round(subtotal * 0.15m / 1000m, 0) * 1000m;
-                else if (code == "FREESHIP") discount = shipping;
-                else if (code == "VIP50K" && subtotal >= 300000m) discount = 50000m;
+                Voucher? appliedVoucher = null;
+                UserVoucher? appliedUserVoucher = null;
+                if (!string.IsNullOrEmpty(code))
+                {
+                    appliedVoucher = context.Vouchers.FirstOrDefault(v => v.Code == code);
+                    appliedUserVoucher = appliedVoucher == null
+                        ? null
+                        : context.UserVouchers.FirstOrDefault(uv => uv.UserId == userId && uv.VoucherId == appliedVoucher.VoucherId);
+
+                    var now = DateTime.UtcNow;
+                    if (appliedVoucher == null || appliedUserVoucher == null || !appliedVoucher.IsActive ||
+                        appliedVoucher.StartAt > now || appliedVoucher.ExpiryAt < now ||
+                        appliedUserVoucher.UsageCount >= appliedVoucher.MaxUsagePerUser)
+                    {
+                        appliedVoucher = null;
+                        appliedUserVoucher = null;
+                        _appliedVoucher = string.Empty;
+                        code = string.Empty;
+                    }
+                    else
+                    {
+                        discount = CalculateVoucherDiscount(appliedVoucher, subtotal, shipping);
+                    }
+                }
 
                 decimal finalTotal = Math.Max(0m, subtotal + shipping - discount);
                 bool hasRental = _cartItems.Any(i => i.OrderType == "Thuê");
@@ -441,6 +510,14 @@ namespace BookStoreManagementSystem
 
                 context.Orders.Add(newOrder);
                 context.SaveChanges();
+
+                if (appliedVoucher != null && appliedUserVoucher != null)
+                {
+                    appliedUserVoucher.UsageCount++;
+                    appliedUserVoucher.LastUsedAt = DateTime.UtcNow;
+                    appliedVoucher.UsedCount++;
+                    context.SaveChanges();
+                }
 
                 foreach (var item in _cartItems)
                 {

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="BookStore - Hồ Sơ Cá Nhân &amp; Bảo Mật Tài Khoản (/profile)"
+        Title="BookStore - Hồ Sơ Cá Nhân &amp; Bảo Mật Tài Khoản"
         Height="860" Width="1360"
         MinHeight="720" MinWidth="1080"
         WindowStartupLocation="CenterScreen"
@@ -136,12 +136,13 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="⬅️ Quay Lại" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="btnBack_Click" />
                     <Button Content="🏠 Trang Chủ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnGoHome_Click" />
-                    <Button Content="📚 Danh Sách Sách (/books)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnGoBookList_Click" />
+                    <Button Content="📚 Danh Sách Sách" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnGoBookList_Click" />
+                    <Button Content="🎟️ Voucher Của Tôi" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnOpenVouchers_Click" />
 
                     <Border Width="1" Height="28" Background="#E2E8F0" Margin="0,0,16,0" />
 
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="/profile • Bảo Mật &amp; Cá Nhân Hóa" FontWeight="Bold" FontSize="11" Foreground="#4F46E5" />
+                        <TextBlock Text="Bảo Mật &amp; Cá Nhân Hóa" FontWeight="Bold" FontSize="11" Foreground="#4F46E5" />
                         <TextBlock Text="Hồ Sơ Cá Nhân, Đổi Mật Khẩu &amp; Quản Lý Sách Thuê" FontWeight="Black" FontSize="15" Foreground="#0F172A" />
                     </StackPanel>
                 </StackPanel>
@@ -270,6 +271,7 @@
                             </Grid>
 
                             <DataGrid x:Name="dgProfileOrders" AutoGenerateColumns="False" IsReadOnly="True" Height="450"
+                                      SelectionMode="Single" SelectionChanged="dgProfileOrders_SelectionChanged"
                                       HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
                                       BorderBrush="#E2E8F0" BorderThickness="1" RowHeight="46" Background="White">
                                 <DataGrid.Columns>
@@ -308,6 +310,37 @@
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
+
+                            <Border x:Name="panelProfileOrderDetail" Visibility="Collapsed" Background="#F8FAFC"
+                                    BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,16,0,0">
+                                <StackPanel>
+                                    <TextBlock x:Name="txtProfileDetailOrderHeader" Text="🧾 Chi Tiết Đơn Hàng"
+                                               FontSize="16" FontWeight="Black" Foreground="#0F172A" Margin="0,0,0,8" />
+                                    <TextBlock x:Name="txtProfileDetailStatus" FontSize="12" FontWeight="Bold" Foreground="#4F46E5" />
+                                    <TextBlock x:Name="txtProfileDetailCreatedAt" FontSize="12" Foreground="#475569" Margin="0,4,0,0" />
+                                    <TextBlock x:Name="txtProfileDetailPhone" FontSize="12" Foreground="#475569" Margin="0,4,0,0" />
+                                    <TextBlock x:Name="txtProfileDetailAddress" FontSize="12" Foreground="#475569" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                    <TextBlock x:Name="txtProfileDetailPayment" FontSize="12" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,4,0,12" />
+
+                                    <TextBlock Text="SÁCH TRONG ĐƠN" FontSize="11" FontWeight="Black" Foreground="#334155" Margin="0,0,0,6" />
+                                    <DataGrid x:Name="dgProfileOrderItems" AutoGenerateColumns="False" IsReadOnly="True" Height="150"
+                                              HeadersVisibility="Column" GridLinesVisibility="Horizontal" BorderBrush="#E2E8F0"
+                                              BorderThickness="1" RowHeight="32" Background="White" Margin="0,0,0,12">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Tên sách" Binding="{Binding BookTitle}" Width="*" />
+                                            <DataGridTextColumn Header="SL" Binding="{Binding Quantity}" Width="45" />
+                                            <DataGridTextColumn Header="Đơn giá" Binding="{Binding FormattedUnitPrice}" Width="95" />
+                                            <DataGridTextColumn Header="Thành tiền" Binding="{Binding FormattedSubTotal}" Width="105" FontWeight="Bold" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <Grid>
+                                        <TextBlock Text="TỔNG THANH TOÁN:" FontSize="13" FontWeight="Bold" Foreground="#334155" />
+                                        <TextBlock x:Name="txtProfileDetailTotal" Text="0 đ" HorizontalAlignment="Right"
+                                                   FontSize="18" FontWeight="Black" Foreground="#4F46E5" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Border>
                 </StackPanel>

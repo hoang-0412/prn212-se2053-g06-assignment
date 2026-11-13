@@ -13,6 +13,7 @@ namespace BookStoreManagementSystem
     {
         private readonly string _returnScreen;
         private List<OrderViewModel> _myOrders = new();
+        private OrderViewModel? _selectedProfileOrder;
         private bool _isLoaded = false;
 
         public UserProfileWindow() : this("Home")
@@ -104,7 +105,16 @@ namespace BookStoreManagementSystem
                     PaymentStatus = o.PaymentStatus,
                     CreatedAt = o.CreatedAt,
                     TotalQuantity = o.OrderItems.Sum(i => i.Quantity),
-                    ItemsSummary = string.Join(", ", o.OrderItems.Select(i => $"{i.Book?.Title} (x{i.Quantity})"))
+                    ItemsSummary = string.Join(", ", o.OrderItems.Select(i => $"{i.Book?.Title} (x{i.Quantity})")),
+                    Items = o.OrderItems.Select(i => new OrderItemDetailViewModel
+                    {
+                        OrderItemId = i.OrderItemId,
+                        BookId = i.BookId,
+                        BookTitle = i.Book?.Title ?? $"Sách #{i.BookId}",
+                        Author = i.Book?.Author ?? string.Empty,
+                        Quantity = i.Quantity,
+                        UnitPrice = i.UnitPrice
+                    }).ToList()
                 }).ToList();
 
                 int rentCount = _myOrders.Count(o => o.IsRentalOrder);
@@ -149,12 +159,42 @@ namespace BookStoreManagementSystem
             }
 
             dgProfileOrders.ItemsSource = query.ToList();
+
+            if (_selectedProfileOrder != null && !query.Contains(_selectedProfileOrder))
+            {
+                BindSelectedProfileOrder(null);
+            }
         }
 
         private void cbProfileOrderFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!_isLoaded) return;
             ApplyOrderFilter();
+        }
+
+        private void dgProfileOrders_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BindSelectedProfileOrder(dgProfileOrders.SelectedItem as OrderViewModel);
+        }
+
+        private void BindSelectedProfileOrder(OrderViewModel? order)
+        {
+            _selectedProfileOrder = order;
+            if (order == null)
+            {
+                panelProfileOrderDetail.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            txtProfileDetailOrderHeader.Text = $"🧾 Chi Tiết Đơn {order.OrderCode}";
+            txtProfileDetailStatus.Text = $"{order.OrderTypeDisplay} • Trạng thái: {order.StatusDisplay}";
+            txtProfileDetailCreatedAt.Text = $"Ngày đặt: {order.FormattedCreatedAt}";
+            txtProfileDetailPhone.Text = $"SĐT nhận: {order.RecipientPhone}";
+            txtProfileDetailAddress.Text = $"Địa chỉ: {order.ShippingAddress}";
+            txtProfileDetailPayment.Text = $"Thanh toán: {order.PaymentMethod} ({order.PaymentStatus})";
+            txtProfileDetailTotal.Text = order.FormattedTotalAmount;
+            dgProfileOrderItems.ItemsSource = order.Items;
+            panelProfileOrderDetail.Visibility = Visibility.Visible;
         }
 
         // ==================== SAVE PROFILE & CHANGE PASSWORD ====================
@@ -431,6 +471,15 @@ namespace BookStoreManagementSystem
             var listWin = new BookListWindow();
             listWin.Show();
             Close();
+        }
+
+        private void btnOpenVouchers_Click(object sender, RoutedEventArgs e)
+        {
+            var voucherWin = new UserVouchersWindow
+            {
+                Owner = this
+            };
+            voucherWin.ShowDialog();
         }
 
         private void btnOpenAdmin_Click(object sender, RoutedEventArgs e)

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="BookStore - Admin Dashboard (/admin/dashboard)"
+        Title="BookStore - Admin Dashboard"
         Height="860" Width="1380"
         MinHeight="720" MinWidth="1150"
         WindowStartupLocation="CenterScreen"
@@ -190,7 +190,6 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="ADMIN PORTAL" FontWeight="Black" FontSize="17" Foreground="White" />
-                        <TextBlock Text="/admin/dashboard" FontSize="11" Foreground="#818CF8" FontWeight="SemiBold" />
                     </StackPanel>
                 </StackPanel>
 
@@ -214,6 +213,7 @@
                     <Button x:Name="navCategories" Content="🗂️  Quản Lý Thể Loại" Style="{StaticResource SidebarNavButtonStyle}" Click="navCategories_Click" />
                     <Button x:Name="navOrders" Content="🧾  Đơn Mua &amp; Thuê Sách" Style="{StaticResource SidebarNavButtonStyle}" Click="navOrders_Click" />
                     <Button x:Name="navUsers" Content="👥  Quản Lý Người Dùng" Style="{StaticResource SidebarNavButtonStyle}" Click="navUsers_Click" />
+                    <Button x:Name="navVouchers" Content="🎟️  Quản Lý Voucher" Style="{StaticResource SidebarNavButtonStyle}" Click="navVouchers_Click" />
 
                     <Separator Background="#1E293B" Margin="0,16" />
 
@@ -226,7 +226,7 @@
 
                 <!-- Bottom Actions -->
                 <StackPanel Grid.Row="3">
-                    <Button Content="📚 Mở Trang Toàn Bộ Sách (/books)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8" Click="btnOpenAllBooks_Click" />
+                    <Button Content="📚 Mở Trang Toàn Bộ Sách" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8" Click="btnOpenAllBooks_Click" />
                     <Button Content="🏪 Mở Trang Chủ Cửa Hàng" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,8" Click="btnOpenStorefront_Click" />
                     <Button Content="🚪 Đăng Xuất Tài Khoản" Style="{StaticResource DangerButtonStyle}" Click="btnLogout_Click" />
                 </StackPanel>
@@ -239,17 +239,21 @@
             <!-- TOP HEADER BAR -->
             <Border DockPanel.Dock="Top" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="26,14">
                 <Grid>
-                    <StackPanel VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" VerticalAlignment="Center">
                         <TextBlock x:Name="txtPageTitle" Text="Tổng Quan Hệ Thống (Dashboard)" FontWeight="Black" FontSize="20" Foreground="#0F172A" />
                         <TextBlock x:Name="txtPageSubtitle" Text="Theo dõi số liệu kinh doanh, sách bán, sách cho thuê và tồn kho theo thời gian thực" FontSize="12" Foreground="#64748B" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <WrapPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,12,0,0">
                         <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,10,0" VerticalAlignment="Center">
                             <TextBlock Text="🟢 SQL Server: BookStoreDB Connected" FontSize="12" FontWeight="SemiBold" Foreground="#15803D" />
                         </Border>
                         <Button Content="➕ Tạo Đơn Mua / Thuê Mới" Style="{StaticResource SuccessButtonStyle}" Margin="0,0,10,0" Click="btnOpenCreateOrderPos_Click" />
                         <Button Content="🏪 Xem Giao Diện Khách Hàng" Style="{StaticResource SecondaryButtonStyle}" Click="btnOpenStorefront_Click" />
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
             </Border>
 
@@ -741,7 +745,121 @@
                     </Border>
                 </Grid>
 
-                <!-- ==================== TAB 5: USERS MANAGEMENT ==================== -->
+                <!-- ==================== TAB 5: VOUCHER MANAGEMENT ==================== -->
+                <Grid x:Name="viewVouchers" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="380" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="White" CornerRadius="14" Padding="18" Margin="0,0,14,0"
+                            Effect="{StaticResource CardShadow}" BorderBrush="#E2E8F0" BorderThickness="1">
+                        <DockPanel LastChildFill="True">
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
+                                <TextBlock Text="🎟️ Danh Sách Voucher" FontWeight="Bold" FontSize="16" Foreground="#0F172A" />
+                                <Button Content="🔄 Làm Mới" HorizontalAlignment="Right"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Click="btnRefreshVouchers_Click" />
+                            </Grid>
+                            <DataGrid x:Name="dgAdminVouchers" AutoGenerateColumns="False" IsReadOnly="True"
+                                      SelectionMode="Single" SelectionChanged="dgAdminVouchers_SelectionChanged"
+                                      HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#F1F5F9" BorderBrush="#E2E8F0"
+                                      BorderThickness="1" RowHeight="42" Background="White">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Mã" Binding="{Binding Code}" Width="110" FontWeight="Bold" />
+                                    <DataGridTextColumn Header="Tên voucher" Binding="{Binding Name}" Width="*" />
+                                    <DataGridTextColumn Header="Giảm giá" Binding="{Binding DiscountDisplay}" Width="100" />
+                                    <DataGridTextColumn Header="Đã lưu / Tổng" Binding="{Binding QuantityDisplay}" Width="110" />
+                                    <DataGridCheckBoxColumn Header="Hoạt động" Binding="{Binding IsActive}" Width="85" />
+                                    <DataGridTextColumn Header="Hết hạn" Binding="{Binding ExpiryAt, StringFormat=dd/MM/yyyy}" Width="100" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="White" CornerRadius="14" Padding="18"
+                            Effect="{StaticResource CardShadow}" BorderBrush="#E2E8F0" BorderThickness="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="🎟️ Thông Tin Voucher" FontWeight="Bold" FontSize="16"
+                                           Foreground="#0F172A" Margin="0,0,0,16" />
+
+                                <TextBlock Text="TÊN VOUCHER *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                <TextBox x:Name="txtVoucherName" Style="{StaticResource FormTextBoxStyle}" Margin="0,0,0,10" />
+
+                                <TextBlock Text="MÃ VOUCHER *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                <TextBox x:Name="txtVoucherCode" Style="{StaticResource FormTextBoxStyle}" Margin="0,0,0,10" />
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="110" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                        <TextBlock Text="LOẠI GIẢM *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                        <ComboBox x:Name="cbVoucherDiscountType" Padding="8,6">
+                                            <ComboBoxItem Content="Phần trăm (%)" Tag="Percent" IsSelected="True" />
+                                            <ComboBoxItem Content="Số tiền (VNĐ)" Tag="Amount" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <TextBlock Text="GIÁ TRỊ *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                        <TextBox x:Name="txtVoucherDiscountValue" Style="{StaticResource FormTextBoxStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                        <TextBlock Text="BẮT ĐẦU" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                        <DatePicker x:Name="dpVoucherStart" Padding="8,6" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <TextBlock Text="HẾT HẠN" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                        <DatePicker x:Name="dpVoucherExpiry" Padding="8,6" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                        <TextBlock Text="TỐI ĐA / NGƯỜI" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                        <TextBox x:Name="txtVoucherMaxUsage" Text="1" Style="{StaticResource FormTextBoxStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <TextBlock Text="TỔNG SỐ LƯỢNG" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                                        <TextBox x:Name="txtVoucherTotalQuantity" Text="100" Style="{StaticResource FormTextBoxStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <CheckBox x:Name="chkVoucherActive" Content="Voucher đang hoạt động" IsChecked="True"
+                                          FontWeight="SemiBold" Foreground="#15803D" Margin="0,0,0,16" />
+
+                                <UniformGrid Columns="2" Margin="0,0,0,8">
+                                    <Button Content="➕ Thêm Mới" Style="{StaticResource SuccessButtonStyle}"
+                                            Margin="0,0,4,0" Click="btnAddVoucher_Click" />
+                                    <Button Content="💾 Cập Nhật" Style="{StaticResource PrimaryButtonStyle}"
+                                            Margin="4,0,0,0" Click="btnUpdateVoucher_Click" />
+                                </UniformGrid>
+                                <UniformGrid Columns="2">
+                                    <Button Content="🗑️ Xóa Voucher" Style="{StaticResource DangerButtonStyle}"
+                                            Margin="0,0,4,0" Click="btnDeleteVoucher_Click" />
+                                    <Button Content="✖ Làm Trống" Style="{StaticResource SecondaryButtonStyle}"
+                                            Margin="4,0,0,0" Click="btnClearVoucherForm_Click" />
+                                </UniformGrid>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+
+                <!-- ==================== TAB 6: USERS MANAGEMENT ==================== -->
                 <Grid x:Name="viewUsers" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -843,7 +961,7 @@
                             <TextBlock x:Name="lblAdminUserPassword" Text="MẬT KHẨU ĐĂNG NHẬP *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
                             <TextBox x:Name="txtAdminUserPassword" Style="{StaticResource FormTextBoxStyle}" Margin="0,0,0,10" />
                             <Button Content="🧾 Tạo Đơn Mua / Thuê Cho Tài Khoản Đang Chọn" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8" Click="btnCreateOrderForSelectedUser_Click" />
-                            <Button x:Name="btnOpenMyProfileFromAdmin" Content="🔐 Đổi Mật Khẩu &amp; Hồ Sơ Cá Nhân Của Tôi (/profile)" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,10" Click="btnOpenMyProfile_Click" />
+                            <Button x:Name="btnOpenMyProfileFromAdmin" Content="🔐 Đổi Mật Khẩu &amp; Hồ Sơ Cá Nhân Của Tôi" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,10" Click="btnOpenMyProfile_Click" />
 
                             <UniformGrid Columns="3">
                                 <Button Content="➕ Tạo Mới" Style="{StaticResource SuccessButtonStyle}" Margin="0,0,4,0" Click="btnAddUser_Click" />
