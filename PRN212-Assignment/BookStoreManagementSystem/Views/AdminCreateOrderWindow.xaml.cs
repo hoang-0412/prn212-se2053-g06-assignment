@@ -594,10 +594,6 @@ namespace BookStoreManagementSystem
                     if (dbBook != null)
                     {
                         dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - item.Quantity);
-                        if (item.OrderType == "Thuê" && dbBook.StockQuantity == 0)
-                        {
-                            dbBook.BookStatus = "Đã thuê";
-                        }
                     }
                 }
 

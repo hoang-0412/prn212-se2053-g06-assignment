@@ -295,10 +295,6 @@ namespace BookStoreManagementSystem
                     if (book != null)
                     {
                         book.StockQuantity += item.Quantity;
-                        if (string.Equals(book.BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase))
-                        {
-                            book.BookStatus = "Cho thuê";
-                        }
                     }
                 }
 

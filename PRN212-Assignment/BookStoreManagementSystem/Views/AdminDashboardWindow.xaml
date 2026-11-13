@@ -437,7 +437,6 @@
                                     <ComboBoxItem Content="Tất cả hình thức" IsSelected="True" />
                                     <ComboBoxItem Content="Bán" />
                                     <ComboBoxItem Content="Cho thuê" />
-                                    <ComboBoxItem Content="Đã thuê" />
                                 </ComboBox>
                             </Grid>
 
@@ -565,7 +564,6 @@
                                         <ComboBox x:Name="cbBookFormStatus" Padding="8,6">
                                             <ComboBoxItem Content="Bán" IsSelected="True" />
                                             <ComboBoxItem Content="Cho thuê" />
-                                            <ComboBoxItem Content="Đã thuê" />
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>

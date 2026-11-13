@@ -42,16 +42,15 @@ namespace BookStoreManagementSystem.ViewModels
         public decimal Price { get; set; }
         public string FormattedPrice => Price.ToString("N0") + " đ";
         public int StockQuantity { get; set; }
-        public string StockStatusText => IsRentedOut ? "Đang được thuê" : (StockQuantity > 0 ? $"Còn {StockQuantity} cuốn" : "Hết hàng");
-        public bool IsInStock => StockQuantity > 0 && !IsRentedOut;
+        public string StockStatusText => StockQuantity > 0 ? $"Còn {StockQuantity} cuốn" : "Hết hàng";
+        public bool IsInStock => StockQuantity > 0;
         public string StockBadgeColor => IsInStock ? "#DCFCE7" : "#FEE2E2";
         public string StockTextColor => IsInStock ? "#15803D" : "#DC2626";
         public string? Description { get; set; }
         public string BookStatus { get; set; } = "Bán";
 
         public bool IsForRent => string.Equals(BookStatus, "Cho thuê", StringComparison.OrdinalIgnoreCase);
-        public bool IsRentedOut => string.Equals(BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase);
-        public bool IsForSale => !IsForRent && !IsRentedOut;
+        public bool IsForSale => !IsForRent;
 
         public decimal RentalPrice7Days => Math.Max(10000m, Math.Round(Price * 0.15m / 1000m, 0) * 1000m);
         public decimal RentalPrice14Days => Math.Max(18000m, Math.Round(Price * 0.25m / 1000m, 0) * 1000m);
@@ -65,17 +64,16 @@ namespace BookStoreManagementSystem.ViewModels
 
         public string SecondaryPriceDisplay => IsForRent
             ? $"Giá bìa: {FormattedPrice}"
-            : (IsRentedOut ? $"Giá bìa: {FormattedPrice}" : $"Thuê từ: {RentalPrice7Days:N0} đ");
+            : $"Thuê từ: {RentalPrice7Days:N0} đ";
 
-        public string PrimaryActionText => IsRentedOut
-            ? "⏳ Đã Thuê"
+        public string PrimaryActionText => StockQuantity <= 0
+            ? "❌ Hết Hàng"
             : (IsForRent ? "📅 Thuê Sách" : "🛒 Mua Sách");
 
         public string StatusBadgeColor => BookStatus switch
         {
             "Bán" => "#10B981",
             "Cho thuê" => "#F59E0B",
-            "Đã thuê" => "#6B7280",
             _ => "#6366F1"
         };
 

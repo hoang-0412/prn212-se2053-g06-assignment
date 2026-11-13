@@ -200,7 +200,6 @@
                                 <ComboBoxItem Content="Tất cả hình thức" IsSelected="True" />
                                 <ComboBoxItem Content="Bán" />
                                 <ComboBoxItem Content="Cho thuê" />
-                                <ComboBoxItem Content="Đã thuê" />
                             </ComboBox>
 
                             <!-- 3. Price Range Filter -->
@@ -268,8 +267,7 @@
 
                                 <Button x:Name="btnPillAll" Content="Tất Cả" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Margin="0,0,6,0" Click="btnPillAll_Click" />
                                 <Button x:Name="btnPillForSale" Content="🛍️ Sách Bán" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Margin="0,0,6,0" Click="btnPillForSale_Click" />
-                                <Button x:Name="btnPillForRent" Content="📅 Cho Thuê" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Margin="0,0,6,0" Click="btnPillForRent_Click" />
-                                <Button x:Name="btnPillRentedOut" Content="⏳ Đã Thuê" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Click="btnPillRentedOut_Click" />
+                                <Button x:Name="btnPillForRent" Content="📅 Cho Thuê" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Margin="0,0,10,0" Click="btnPillForRent_Click" />
                             </StackPanel>
 
                             <!-- Right: Sorting + View Mode Switcher -->

@@ -979,14 +979,7 @@ namespace BookStoreManagementSystem
                     UnitPrice = fee
                 });
 
-                dbBook.StockQuantity -= 1;
-                if (dbBook.StockQuantity == 0 || string.Equals(dbBook.BookStatus, "Cho thuê", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (dbBook.StockQuantity == 0)
-                    {
-                        dbBook.BookStatus = "Đã thuê";
-                    }
-                }
+                dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - 1);
 
                 context.SaveChanges();
 
@@ -1258,10 +1251,6 @@ namespace BookStoreManagementSystem
                     if (dbBook != null)
                     {
                         dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - item.Quantity);
-                        if (item.OrderType == "Thuê" && dbBook.StockQuantity == 0)
-                        {
-                            dbBook.BookStatus = "Đã thuê";
-                        }
                     }
                 }
 
@@ -1399,10 +1388,6 @@ namespace BookStoreManagementSystem
                         if (book != null)
                         {
                             book.StockQuantity += item.Quantity;
-                            if (string.Equals(book.BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase))
-                            {
-                                book.BookStatus = "Cho thuê";
-                            }
                         }
                     }
 

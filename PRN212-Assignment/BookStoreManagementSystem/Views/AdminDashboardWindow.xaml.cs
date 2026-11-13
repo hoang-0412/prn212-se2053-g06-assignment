@@ -76,7 +76,7 @@ namespace BookStoreManagementSystem
                     break;
                 case "Books":
                     txtPageTitle.Text = "Quản Lý Kho Sách (Mua Bán & Cho Thuê)";
-                    txtPageSubtitle.Text = "Thêm mới, chỉnh sửa thông tin sách, tải ảnh bìa và chuyển đổi hình thức Bán / Cho thuê / Đã thuê";
+                    txtPageSubtitle.Text = "Thêm mới, chỉnh sửa thông tin sách, tải ảnh bìa và chuyển đổi hình thức Bán / Cho thuê";
                     break;
                 case "Categories":
                     txtPageTitle.Text = "Quản Lý Thể Loại Sách";
@@ -313,9 +313,9 @@ namespace BookStoreManagementSystem
             kpiBookSub.Text = $"Tổng tồn kho: {totalStock} cuốn ({_allCategories.Count} thể loại)";
 
             var forRentCount = _allBooks.Count(b => b.IsForRent);
-            var rentedOutCount = _allBooks.Count(b => b.IsRentedOut);
-            kpiRentalBooks.Text = $"{forRentCount + rentedOutCount} sách thuê";
-            kpiRentalSub.Text = $"Sẵn sàng thuê: {forRentCount} | Đang thuê: {rentedOutCount}";
+            var forSaleCount = _allBooks.Count(b => b.IsForSale);
+            kpiRentalBooks.Text = $"{forRentCount} sách thuê";
+            kpiRentalSub.Text = $"Sách cho thuê: {forRentCount} | Sách bán: {forSaleCount}";
 
             kpiTotalOrders.Text = $"{_allOrders.Count} đơn hàng";
             kpiOrderSub.Text = $"{_allUsers.Count} tài khoản trên hệ thống";
@@ -338,7 +338,7 @@ namespace BookStoreManagementSystem
 
             // Watchlist Books (Rental books or low stock <= 5)
             dgWatchlistBooks.ItemsSource = _allBooks
-                .Where(b => b.IsRentedOut || b.IsForRent || b.StockQuantity <= 5)
+                .Where(b => b.IsForRent || b.StockQuantity <= 5)
                 .OrderBy(b => b.StockQuantity)
                 .ToList();
         }
@@ -1108,10 +1108,6 @@ namespace BookStoreManagementSystem
                         if (book != null)
                         {
                             book.StockQuantity += item.Quantity;
-                            if (string.Equals(book.BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase))
-                            {
-                                book.BookStatus = "Cho thuê";
-                            }
                         }
                     }
                 }
@@ -1158,10 +1154,6 @@ namespace BookStoreManagementSystem
                     if (book != null)
                     {
                         book.StockQuantity += item.Quantity;
-                        if (string.Equals(book.BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase))
-                        {
-                            book.BookStatus = "Cho thuê";
-                        }
                     }
                 }
 

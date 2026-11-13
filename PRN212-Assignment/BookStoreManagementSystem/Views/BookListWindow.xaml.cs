@@ -360,11 +360,6 @@ namespace BookStoreManagementSystem
             if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 2; // "Cho thuê"
         }
 
-        private void btnPillRentedOut_Click(object sender, RoutedEventArgs e)
-        {
-            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 3; // "Đã thuê"
-        }
-
         private void btnResetFilters_Click(object sender, RoutedEventArgs e)
         {
             _isUpdatingFilters = true;

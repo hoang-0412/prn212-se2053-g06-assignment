@@ -548,11 +548,7 @@ namespace BookStoreManagementSystem
                     UnitPrice = fee
                 });
 
-                dbBook.StockQuantity -= 1;
-                if (dbBook.StockQuantity == 0)
-                {
-                    dbBook.BookStatus = "Đã thuê";
-                }
+                dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - 1);
 
                 context.SaveChanges();
 

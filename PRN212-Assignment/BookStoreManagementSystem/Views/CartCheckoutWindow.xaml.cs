@@ -531,11 +531,7 @@ namespace BookStoreManagementSystem
                     var dbBook = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
                     if (dbBook != null)
                     {
-                        dbBook.StockQuantity -= item.Quantity;
-                        if (dbBook.StockQuantity == 0 && item.OrderType == "Thuê")
-                        {
-                            dbBook.BookStatus = "Đã thuê";
-                        }
+                        dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - item.Quantity);
                     }
                 }
 
