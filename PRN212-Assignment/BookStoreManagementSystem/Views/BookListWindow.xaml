@@ -263,10 +263,6 @@
                         <Grid>
                             <!-- Left: Result Count + Quick Status Tabs -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Background="#EEF2FF" CornerRadius="8" Padding="10,5" Margin="0,0,12,0">
-                                    <TextBlock x:Name="txtResultSummary" Text="Hiển thị: 0 / 0 đầu sách" FontSize="12" FontWeight="Bold" Foreground="#4F46E5" />
-                                </Border>
-
                                 <Button x:Name="btnPillAll" Content="Tất Cả" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Margin="0,0,6,0" Click="btnPillAll_Click" />
                                 <Button x:Name="btnPillForSale" Content="🛍️ Sách Bán" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Margin="0,0,6,0" Click="btnPillForSale_Click" />
                                 <Button x:Name="btnPillForRent" Content="📅 Cho Thuê" Style="{StaticResource SecondaryButtonStyle}" Padding="10,5" FontSize="12" Margin="0,0,10,0" Click="btnPillForRent_Click" />

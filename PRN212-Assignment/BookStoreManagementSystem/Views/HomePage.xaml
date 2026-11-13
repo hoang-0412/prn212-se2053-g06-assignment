@@ -313,43 +313,6 @@
                         </Grid>
                     </Border>
 
-                    <!-- ==================== B. CATEGORY FILTER PILLS STRIP ==================== -->
-                    <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,14">
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MaxWidth="1180">
-                            <ItemsControl x:Name="icCategoryPills">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Margin="0,0,10,0" Cursor="Hand" Tag="{Binding}" Click="btnCategoryPill_Click" BorderThickness="1" BorderBrush="#E2E8F0" Background="#F8FAFC" Padding="14,7">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="pillBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="18" Padding="{TemplateBinding Padding}">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Foreground="#1E293B" VerticalAlignment="Center" />
-                                                            <Border Background="#E2E8F0" CornerRadius="10" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                                                                <TextBlock Text="{Binding Count}" FontSize="10.5" FontWeight="Bold" Foreground="#475569" />
-                                                            </Border>
-                                                        </StackPanel>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="pillBorder" Property="Background" Value="#EEF2FF" />
-                                                            <Setter TargetName="pillBorder" Property="BorderBrush" Value="#818CF8" />
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Border>
-
                     <!-- ==================== C. FEATURED BESTSELLERS (4 BOOKS) ==================== -->
                     <StackPanel x:Name="panelFeaturedSection" MaxWidth="1180" Margin="24,28,24,10" HorizontalAlignment="Center" Width="1180">
                         <StackPanel Margin="8,0,8,14">
@@ -541,45 +504,6 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- ==================== E. NEWSLETTER BANNER ==================== -->
-                    <Border MaxWidth="1164" Width="1164" HorizontalAlignment="Center" Margin="24,0,24,36" CornerRadius="16" Padding="36,30">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#1E1B4B" Offset="0" />
-                                <GradientStop Color="#312E81" Offset="0.6" />
-                                <GradientStop Color="#4C1D95" Offset="1" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="420" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="Đăng Ký Nhận Bản Tin Tri Thức" FontWeight="Black" FontSize="22" Foreground="White" Margin="0,0,0,6" />
-                                <TextBlock Text="Nhận ngay mã giảm giá 10% cho đơn hàng đầu tiên cùng những gợi ý sách hay tuyển chọn hàng tuần." FontSize="12.5" Foreground="#CBD5E1" TextWrapping="Wrap" />
-                            </StackPanel>
-                            <Border Grid.Column="1" Background="#334155" CornerRadius="24" Padding="14,5,5,5" VerticalAlignment="Center">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="txtNewsletterEmail" Grid.Column="0" Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White" FontSize="12.5" VerticalContentAlignment="Center" Margin="6,0" />
-                                    <Button Grid.Column="1" Content="Đăng Ký" Background="#10B981" Foreground="White" FontWeight="Bold" FontSize="12.5" Padding="18,9" Cursor="Hand" Click="btnNewsletterSubscribe_Click">
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}" CornerRadius="18" Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </Border>
-
                     <!-- ==================== F. DARK FOOTER ==================== -->
                     <Border Background="#0B1120" Padding="40,42,40,24">
                         <StackPanel MaxWidth="1180" HorizontalAlignment="Stretch">
@@ -598,48 +522,20 @@
                                         <TextBlock Text=" BookStore" FontWeight="Black" FontSize="20" Foreground="#60A5FA" />
                                     </StackPanel>
                                     <TextBlock Text="TIỆM SÁCH TRỰC TUYẾN • MUA &amp; THUÊ SÁCH" FontSize="11.5" Foreground="#94A3B8" Margin="0,0,0,14" />
-                                    <WrapPanel>
-                                        <Border BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="8,3" Margin="0,0,6,6"><TextBlock Text="VISA" FontSize="10" Foreground="#CBD5E1" FontWeight="Bold" /></Border>
-                                        <Border BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="8,3" Margin="0,0,6,6"><TextBlock Text="Mastercard" FontSize="10" Foreground="#CBD5E1" FontWeight="Bold" /></Border>
-                                        <Border BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="8,3" Margin="0,0,6,6"><TextBlock Text="VNPay" FontSize="10" Foreground="#CBD5E1" FontWeight="Bold" /></Border>
-                                        <Border BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="8,3" Margin="0,0,6,6"><TextBlock Text="MoMo" FontSize="10" Foreground="#CBD5E1" FontWeight="Bold" /></Border>
-                                        <Border BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="8,3" Margin="0,0,6,6"><TextBlock Text="COD" FontSize="10" Foreground="#CBD5E1" FontWeight="Bold" /></Border>
-                                    </WrapPanel>
-                                </StackPanel>
-
-                                <!-- Col 2: Thể Loại Nổi Bật -->
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="Thể Loại Nổi Bật" FontWeight="Bold" FontSize="13.5" Foreground="White" Margin="0,0,0,12" />
-                                    <TextBlock Text="Công nghệ thông tin" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Kinh tế - Khởi nghiệp" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Văn học - Tiểu thuyết" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Kỹ năng sống - Tâm lý" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Khoa học - Lịch sử" FontSize="12" Foreground="#94A3B8" />
-                                </StackPanel>
-
-                                <!-- Col 3: Chính Sách & Hỗ Trợ -->
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Chính Sách &amp; Hỗ Trợ" FontWeight="Bold" FontSize="13.5" Foreground="White" Margin="0,0,0,12" />
-                                    <TextBlock Text="Điều khoản sử dụng" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Chính sách bảo mật" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Chính sách đổi trả hoàn tiền" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Phương thức vận chuyển" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Hướng dẫn mua hàng" FontSize="12" Foreground="#94A3B8" />
                                 </StackPanel>
 
                                 <!-- Col 4: Thông Tin Liên Hệ -->
                                 <StackPanel Grid.Column="3">
                                     <TextBlock Text="Thông Tin Liên Hệ" FontWeight="Bold" FontSize="13.5" Foreground="White" Margin="0,0,0,12" />
                                     <TextBlock Text="Địa chỉ: FPT UNIVERSITY, HÀ NỘI, VIỆT NAM" FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6" />
-                                    <TextBlock Text="Hotline: 0945 101 804" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Email: contact@g07bookstore.vn" FontSize="12" Foreground="#94A3B8" />
+                                    <TextBlock Text="Hotline: 0965 551 664" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
+                                    <TextBlock Text="Email: prn212.se2053.g06@gmail.com" FontSize="12" Foreground="#94A3B8" />
                                 </StackPanel>
                             </Grid>
 
                             <Border BorderBrush="#1E293B" BorderThickness="0,1,0,0" Padding="0,16,0,0">
                                 <Grid>
-                                    <TextBlock Text="© 2026 G07 BookStore Inc. Mọi quyền được bảo lưu. Dự án môn học PRN212." FontSize="11" Foreground="#64748B" />
-                                    <TextBlock Text="Designed for Vietnamese Book Lovers" FontSize="11" Foreground="#64748B" HorizontalAlignment="Right" />
+                                    <TextBlock Text="© 2026 G07 BookStore Inc." FontSize="11" Foreground="#64748B" />
                                 </Grid>
                             </Border>
                         </StackPanel>

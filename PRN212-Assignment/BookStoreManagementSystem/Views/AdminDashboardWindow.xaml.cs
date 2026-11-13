@@ -39,11 +39,6 @@ namespace BookStoreManagementSystem
 
         private void AdminDashboardWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            if (SessionManager.CurrentUser != null)
-            {
-                txtAdminName.Text = SessionManager.CurrentUser.FullName;
-                txtAdminEmail.Text = SessionManager.CurrentUser.Email;
-            }
             HomePage.EnsureRichSampleCatalogIfNeeded();
             SetActiveTab("Overview");
             LoadAllDashboardData();
@@ -103,11 +98,6 @@ namespace BookStoreManagementSystem
         private void navOrders_Click(object sender, RoutedEventArgs e) => SetActiveTab("Orders");
         private void navUsers_Click(object sender, RoutedEventArgs e) => SetActiveTab("Users");
         private void navVouchers_Click(object sender, RoutedEventArgs e) => SetActiveTab("Vouchers");
-
-        private void btnRefreshAll_Click(object sender, RoutedEventArgs e)
-        {
-            LoadAllDashboardData();
-        }
 
         public void LoadAllDashboardData()
         {
@@ -336,12 +326,6 @@ namespace BookStoreManagementSystem
 
             // Recent Orders
             dgRecentOrders.ItemsSource = _allOrders.Take(8).ToList();
-
-            // Watchlist Books (Rental books or low stock <= 5)
-            dgWatchlistBooks.ItemsSource = _allBooks
-                .Where(b => b.IsForRent || b.StockQuantity <= 5)
-                .OrderBy(b => b.StockQuantity)
-                .ToList();
         }
 
         // ==================== VOUCHER CRUD ====================
@@ -572,7 +556,6 @@ namespace BookStoreManagementSystem
                 }
 
                 imgBookPreview.Source = book.CoverImage;
-                txtCoverImageStatus.Text = book.HasCoverImage ? "Đang có ảnh bìa trong CSDL" : "Chưa có ảnh bìa";
             }
         }
 
@@ -596,7 +579,6 @@ namespace BookStoreManagementSystem
             txtBookDescription.Text = "";
             cbBookFormStatus.SelectedIndex = 0;
             imgBookPreview.Source = null;
-            txtCoverImageStatus.Text = "Chưa chọn ảnh bìa";
         }
 
         private void btnUploadBookCover_Click(object sender, RoutedEventArgs e)
@@ -623,7 +605,6 @@ namespace BookStoreManagementSystem
                     _pendingBookImageData = bytes;
                     _removeBookImageRequested = false;
                     imgBookPreview.Source = BookCardViewModel.LoadImageSafe(bytes);
-                    txtCoverImageStatus.Text = $"Đã chọn: {Path.GetFileName(dlg.FileName)}";
                 }
                 catch (Exception ex)
                 {
@@ -638,7 +619,6 @@ namespace BookStoreManagementSystem
             _pendingBookImageMimeType = null;
             _removeBookImageRequested = true;
             imgBookPreview.Source = null;
-            txtCoverImageStatus.Text = "Sẽ xóa ảnh bìa khi lưu";
         }
 
         private bool TryValidateBookForm(out string title, out string author, out int categoryId, out decimal price, out int stock, out int? year, out string? isbn, out string status)
@@ -1044,7 +1024,9 @@ namespace BookStoreManagementSystem
             {
                 _selectedOrder = order;
                 txtAdminOrderTitle.Text = $"🧾 Chi Tiết Đơn {order.OrderCode} ({order.OrderTypeDisplay})";
-                txtOrderCustomerInfo.Text = $"Khách hàng: {order.CustomerName} ({order.CustomerEmail})";
+                txtOrderCustomerInfo.Text = order.CustomerEmail == "Khách vãng lai (Không TK)"
+                    ? $"Khách hàng: {order.CustomerName} ({order.CustomerEmail})"
+                    : $"Khách hàng: {order.CustomerName}";
                 txtOrderPhoneInfo.Text = $"SĐT nhận sách: {order.RecipientPhone}";
                 txtOrderAddressInfo.Text = string.IsNullOrWhiteSpace(order.CancelReason)
                     ? $"Địa chỉ / Kỳ hạn: {order.ShippingAddress}"
@@ -1228,7 +1210,7 @@ namespace BookStoreManagementSystem
             {
                 query = query.Where(u =>
                     u.FullName.ToLower().Contains(keyword) ||
-                    u.Email.ToLower().Contains(keyword) ||
+                    (u.IsAdminRole && u.Email.ToLower().Contains(keyword)) ||
                     (u.PhoneNumber != null && u.PhoneNumber.ToLower().Contains(keyword)) ||
                     (u.Address != null && u.Address.ToLower().Contains(keyword)));
             }
@@ -1264,15 +1246,18 @@ namespace BookStoreManagementSystem
             if (dgAdminUsers.SelectedItem is UserAdminViewModel u)
             {
                 _selectedUser = u;
+                bool isOtherAccount = SessionManager.CurrentUser == null || u.UserId != SessionManager.CurrentUser.UserId;
+
                 txtAdminUserFullName.Text = u.FullName;
-                txtAdminUserEmail.Text = u.Email;
+                txtAdminUserEmail.Text = isOtherAccount ? "" : u.Email;
                 txtAdminUserPhone.Text = u.PhoneNumber ?? "";
                 txtAdminUserAddress.Text = u.Address ?? "";
                 cbAdminUserRole.SelectedValue = u.RoleId;
                 txtAdminUserPassword.Text = "";
 
-                bool isOtherAccount = SessionManager.CurrentUser == null || u.UserId != SessionManager.CurrentUser.UserId;
                 borderUserSecurityNotice.Visibility = isOtherAccount ? Visibility.Visible : Visibility.Collapsed;
+                lblAdminUserEmail.Visibility = isOtherAccount ? Visibility.Collapsed : Visibility.Visible;
+                txtAdminUserEmail.Visibility = isOtherAccount ? Visibility.Collapsed : Visibility.Visible;
                 txtAdminUserEmail.IsReadOnly = isOtherAccount;
                 txtAdminUserEmail.IsEnabled = !isOtherAccount;
                 lblAdminUserPassword.Visibility = isOtherAccount ? Visibility.Collapsed : Visibility.Visible;
@@ -1299,6 +1284,8 @@ namespace BookStoreManagementSystem
             txtAdminUserAddress.Text = "";
             if (cbAdminUserRole.Items.Count > 0) cbAdminUserRole.SelectedIndex = 0;
             borderUserSecurityNotice.Visibility = Visibility.Collapsed;
+            lblAdminUserEmail.Visibility = Visibility.Visible;
+            txtAdminUserEmail.Visibility = Visibility.Visible;
             txtAdminUserEmail.IsReadOnly = false;
             txtAdminUserEmail.IsEnabled = true;
             lblAdminUserPassword.Visibility = Visibility.Visible;
@@ -1308,7 +1295,6 @@ namespace BookStoreManagementSystem
             txtAdminUserPassword.Text = "";
             dgAdminSelectedUserOrders.ItemsSource = null;
             txtSelectedUserOrdersHeader.Text = "📦 Lịch Sử Đơn Mua & Thuê Của Tài Khoản Đang Chọn (Chọn 1 tài khoản ở bảng trên)";
-            txtAdminUserPassword.Text = "";
         }
 
         private void btnAddUser_Click(object sender, RoutedEventArgs e)
@@ -1374,9 +1360,11 @@ namespace BookStoreManagementSystem
             var pwd = txtAdminUserPassword.Text.Trim();
             int roleId = cbAdminUserRole.SelectedValue is int rid ? rid : _selectedUser.RoleId;
 
-            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(email))
+            bool isOtherAccount = SessionManager.CurrentUser == null || _selectedUser.UserId != SessionManager.CurrentUser.UserId;
+
+            if (string.IsNullOrEmpty(fullName) || (!isOtherAccount && string.IsNullOrEmpty(email)))
             {
-                MessageBox.Show("Họ tên và Email không được để trống!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(isOtherAccount ? "Họ tên không được để trống!" : "Họ tên và Email không được để trống!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1386,22 +1374,9 @@ namespace BookStoreManagementSystem
                 var user = context.Users.FirstOrDefault(u => u.UserId == _selectedUser.UserId);
                 if (user == null) return;
 
-                if (context.Users.Any(u => u.Email.ToLower() == email.ToLower() && u.UserId != user.UserId))
+                if (!isOtherAccount && context.Users.Any(u => u.Email.ToLower() == email.ToLower() && u.UserId != user.UserId))
                 {
                     MessageBox.Show("Email này đã thuộc về người dùng khác!", "Trùng Email", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                bool isOtherAccount = SessionManager.CurrentUser == null || user.UserId != SessionManager.CurrentUser.UserId;
-                if (isOtherAccount && (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase) || !string.IsNullOrEmpty(pwd)))
-                {
-                    MessageBox.Show(
-                        "🔒 Bảo mật hệ thống: Admin không được phép thay đổi thông tin đăng nhập (Email hoặc Mật khẩu) của tài khoản khác!",
-                        "Chặn sửa thông tin đăng nhập",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    txtAdminUserEmail.Text = user.Email;
-                    txtAdminUserPassword.Text = "";
                     return;
                 }
 
@@ -1410,14 +1385,9 @@ namespace BookStoreManagementSystem
                 {
                     user.Email = email;
                 }
-                // Email is only updated for own account above
                 user.PhoneNumber = string.IsNullOrEmpty(phone) ? null : phone;
                 user.Address = string.IsNullOrEmpty(addr) ? null : addr;
                 user.RoleId = roleId;
-                if (!isOtherAccount && !string.IsNullOrEmpty(pwd))
-                {
-                    user.PasswordHash = pwd;
-                }
                 if (!isOtherAccount && !string.IsNullOrEmpty(pwd))
                 {
                     user.PasswordHash = pwd;
@@ -1473,168 +1443,6 @@ namespace BookStoreManagementSystem
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi khi xóa người dùng:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        // ==================== SEED SAMPLE BOOKS ====================
-        private void btnSeedSampleData_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                using var context = new BookStoreDbContext();
-
-                // Đảm bảo các thể loại phong phú
-                var extraCategories = new (string Name, string Desc)[]
-                {
-                    ("Văn học - Tiểu thuyết", "Tác phẩm văn học kinh điển trong nước và quốc tế"),
-                    ("Kỹ năng sống - Tâm lý", "Sách phát triển bản thân, tư duy phản biện và tâm lý học"),
-                    ("Khoa học - Lịch sử", "Khám phá vũ trụ, lịch sử nhân loại và tri thức khoa học")
-                };
-
-                foreach (var c in extraCategories)
-                {
-                    if (!context.Categories.Any(x => x.CategoryName == c.Name))
-                    {
-                        context.Categories.Add(new Category { CategoryName = c.Name, Description = c.Desc });
-                    }
-                }
-                context.SaveChanges();
-
-                var catMap = context.Categories.ToDictionary(c => c.CategoryName, c => c.CategoryId);
-                int defaultCatId = catMap.Values.FirstOrDefault();
-
-                var sampleBooks = new[]
-                {
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Công nghệ thông tin", defaultCatId),
-                        Title = "The Pragmatic Programmer (20th Anniversary Edition)",
-                        Author = "Andrew Hunt & David Thomas",
-                        Publisher = "Addison-Wesley",
-                        PublicationYear = 2019,
-                        Isbn = "9780135957059",
-                        Price = 520000m,
-                        StockQuantity = 18,
-                        BookStatus = "Bán",
-                        Description = "Cuốn sách gối đầu giường giúp lập trình viên rèn luyện tư duy thực용, thiết kế kiến trúc phần mềm bền vững."
-                    },
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Công nghệ thông tin", defaultCatId),
-                        Title = "Designing Data-Intensive Applications",
-                        Author = "Martin Kleppmann",
-                        Publisher = "O'Reilly Media",
-                        PublicationYear = 2017,
-                        Isbn = "9781449373320",
-                        Price = 650000m,
-                        StockQuantity = 8,
-                        BookStatus = "Cho thuê",
-                        Description = "Kiến thức chuyên sâu về hệ thống phân tán, cơ sở dữ liệu lớn, khả năng mở rộng và độ tin cậy cao."
-                    },
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Kinh tế - Khởi nghiệp", defaultCatId),
-                        Title = "Khởi Nghiệp Tinh Gọn (The Lean Startup)",
-                        Author = "Eric Ries",
-                        Publisher = "NXB Trẻ",
-                        PublicationYear = 2021,
-                        Isbn = "9786041182011",
-                        Price = 155000m,
-                        StockQuantity = 25,
-                        BookStatus = "Bán",
-                        Description = "Phương pháp xây dựng startup hiện đại: thử nghiệm nhanh, đo lường thực tế và tối ưu hóa mô hình kinh doanh."
-                    },
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Kinh tế - Khởi nghiệp", defaultCatId),
-                        Title = "Tâm Lý Học Về Tiền (The Psychology of Money)",
-                        Author = "Morgan Housel",
-                        Publisher = "NXB Dân Trí",
-                        PublicationYear = 2022,
-                        Isbn = "9786043317015",
-                        Price = 189000m,
-                        StockQuantity = 12,
-                        BookStatus = "Cho thuê",
-                        Description = "19 câu chuyện ngắn khám phá cách con người suy nghĩ về tiền bạc và đưa ra quyết định tài chính thông minh."
-                    },
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Văn học - Tiểu thuyết", defaultCatId),
-                        Title = "Nhà Giả Kim (The Alchemist)",
-                        Author = "Paulo Coelho",
-                        Publisher = "NXB Hội Nhà Văn",
-                        PublicationYear = 2020,
-                        Isbn = "9786049916441",
-                        Price = 85000m,
-                        StockQuantity = 35,
-                        BookStatus = "Bán",
-                        Description = "Hành trình đi tìm kho báu và theo đuổi vận mệnh của chàng chăn cừu Santiago."
-                    },
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Văn học - Tiểu thuyết", defaultCatId),
-                        Title = "Trăm Năm Cô Đơn",
-                        Author = "Gabriel García Márquez",
-                        Publisher = "NXB Văn Học",
-                        PublicationYear = 2019,
-                        Isbn = "9786049698019",
-                        Price = 165000m,
-                        StockQuantity = 10,
-                        BookStatus = "Cho thuê",
-                        Description = "Kiệt tác văn học hiện thực huyền ảo đạt giải Nobel Văn học về gia tộc Buendía."
-                    },
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Kỹ năng sống - Tâm lý", defaultCatId),
-                        Title = "Tư Duy Nhanh Và Chậm (Thinking, Fast and Slow)",
-                        Author = "Daniel Kahneman",
-                        Publisher = "NXB Thế Giới",
-                        PublicationYear = 2021,
-                        Isbn = "9786047791026",
-                        Price = 245000m,
-                        StockQuantity = 14,
-                        BookStatus = "Cho thuê",
-                        Description = "Khám phá hai hệ thống tư duy chi phối nhận thức, phán đoán và quyết định của con người."
-                    },
-                    new Book
-                    {
-                        CategoryId = catMap.GetValueOrDefault("Khoa học - Lịch sử", defaultCatId),
-                        Title = "Sapiens: Lược Sử Loài Người",
-                        Author = "Yuval Noah Harari",
-                        Publisher = "NXB Tri Thức",
-                        PublicationYear = 2021,
-                        Isbn = "9786049436253",
-                        Price = 260000m,
-                        StockQuantity = 22,
-                        BookStatus = "Bán",
-                        Description = "Bức tranh toàn cảnh về lịch sử tiến hóa, cách mạng nhận thức, nông nghiệp và khoa học của loài người."
-                    }
-                };
-
-                int addedCount = 0;
-                foreach (var b in sampleBooks)
-                {
-                    if (!context.Books.Any(x => x.Isbn == b.Isbn || x.Title == b.Title))
-                    {
-                        context.Books.Add(b);
-                        addedCount++;
-                    }
-                }
-
-                context.SaveChanges();
-                LoadAllDashboardData();
-
-                MessageBox.Show(
-                    addedCount > 0
-                        ? $"🌱 Đã nạp thêm {addedCount} đầu sách mẫu (gồm cả Sách Bán & Sách Cho Thuê) vào CSDL thành công!"
-                        : "✅ Kho sách mẫu đã có đầy đủ trong CSDL!",
-                    "Nạp dữ liệu mẫu",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi khi nạp dữ liệu mẫu:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

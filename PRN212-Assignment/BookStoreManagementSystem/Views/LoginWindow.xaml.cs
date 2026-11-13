@@ -79,7 +79,7 @@ namespace BookStoreManagementSystem
             bool looksLikeEmail = rawInput.Contains('@');
             if (!looksLikeEmail && !IsLikelyPhoneNumber(rawInput))
             {
-                MessageBox.Show("Vui lòng nhập số điện thoại hợp lệ (9–11 chữ số) hoặc địa chỉ email đúng định dạng!", "Định dạng chưa đúng", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Vui lòng nhập số điện thoại hợp lệ (10 chữ số) hoặc địa chỉ email đúng định dạng!", "Định dạng chưa đúng", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtIdentifier.Focus();
                 return;
             }
@@ -111,7 +111,6 @@ namespace BookStoreManagementSystem
                 {
                     // Account exists -> go to Step 2 (Enter Password)
                     _matchedUser = existingUser;
-                    txtMatchedAccountHint.Text = $"Tài khoản: {existingUser.FullName} ({rawInput})";
                     ClearLoginPasswordInputs();
                     panelStepIdentifier.Visibility = Visibility.Collapsed;
                     panelStepPassword.Visibility = Visibility.Visible;
@@ -271,7 +270,7 @@ namespace BookStoreManagementSystem
             if (SessionManager.IsAdmin)
             {
                 var choice = MessageBox.Show(
-                    $"Xin chào Quản trị viên {_matchedUser.FullName}!\n\nBạn muốn mở thẳng Admin Dashboard (Yes) hay vào Trang Chủ Cửa Hàng (No)?",
+                    $"Xin chào !\n\nBạn có muốn trực tiếp truy cập vào Admin Dashboard không?",
                     "Đăng nhập Admin thành công",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
@@ -567,7 +566,7 @@ namespace BookStoreManagementSystem
         private static bool IsLikelyPhoneNumber(string input)
         {
             var digits = Regex.Replace(input, @"\D", "");
-            return digits.Length >= 9 && digits.Length <= 11;
+            return digits.Length == 10;
         }
 
         private static string NormalizePhoneDigits(string phone)

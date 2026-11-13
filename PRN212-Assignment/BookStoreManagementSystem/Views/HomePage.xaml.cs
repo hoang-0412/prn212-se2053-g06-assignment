@@ -340,8 +340,6 @@ namespace BookStoreManagementSystem
                     });
                 }
 
-                icCategoryPills.ItemsSource = _categoryItems;
-
                 // 2. Load Books with category and cover image
                 EnsureValidBookCoversInDatabase(context);
                 var booksFromDb = context.Books
@@ -586,18 +584,6 @@ namespace BookStoreManagementSystem
             }
         }
 
-        private void btnCategoryPill_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.Tag is CategoryFilterItem cat)
-            {
-                _selectedCategoryId = cat.CategoryId;
-                _onlyRentalsFilter = false;
-                _homeCurrentPage = 1;
-                ApplyFilters();
-                panelCatalogSection?.BringIntoView();
-            }
-        }
-
         private void cardBook_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (sender is FrameworkElement fe && fe.Tag is BookCardViewModel book)
@@ -621,24 +607,6 @@ namespace BookStoreManagementSystem
                     btnAddToCart_Click(sender, e);
                 }
             }
-        }
-
-        private void btnNewsletterSubscribe_Click(object sender, RoutedEventArgs e)
-        {
-            var email = txtNewsletterEmail?.Text?.Trim() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(email) || !email.Contains('@') || !email.Contains('.'))
-            {
-                MessageBox.Show("Vui lòng nhập địa chỉ email hợp lệ để nhận ưu đãi.", "Email không hợp lệ", MessageBoxButton.OK, MessageBoxImage.Warning);
-                txtNewsletterEmail?.Focus();
-                return;
-            }
-
-            MessageBox.Show(
-                $"🎉 Đăng ký thành công cho {email}!\n\nSử dụng mã BOOK10 để được giảm 10% cho đơn hàng đầu tiên tại G07 BookStore.",
-                "Đăng Ký Bản Tin Thành Công",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-            if (txtNewsletterEmail != null) txtNewsletterEmail.Text = string.Empty;
         }
 
         // --- Filter Event Handlers ---

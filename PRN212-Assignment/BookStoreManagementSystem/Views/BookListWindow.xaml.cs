@@ -241,7 +241,6 @@ namespace BookStoreManagementSystem
             icBooksGrid.ItemsSource = pagedBooks;
             dgBooksTable.ItemsSource = pagedBooks;
 
-            txtResultSummary.Text = $"Tìm thấy: {totalFiltered} / {_allBooks.Count} đầu sách";
             txtPageIndicator.Text = $"Trang {_currentPage} / {_totalPages}";
 
             btnFirstPage.IsEnabled = _currentPage > 1;

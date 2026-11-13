@@ -98,18 +98,6 @@ namespace BookStoreManagementSystem
                     }).ToList()
                 }).ToList();
 
-                int rentCount = _allOrders.Count(o => o.IsRentalOrder);
-                int buyCount = _allOrders.Count - rentCount;
-                int activeRentCount = _allOrders.Count(o => o.CanReturnBook);
-                decimal totalSpent = _allOrders
-                    .Where(o => !string.Equals(o.OrderStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
-                    .Sum(o => o.TotalAmount);
-
-                kpiTotalOrders.Text = $"{_allOrders.Count} đơn";
-                kpiPurchaseOrders.Text = $"{buyCount} đơn mua";
-                kpiActiveRentals.Text = $"{activeRentCount} đơn đang thuê";
-                kpiTotalSpent.Text = $"{totalSpent:N0} đ";
-
                 ApplyFilters();
 
                 if (dgCustomerOrders.Items.Count > 0)

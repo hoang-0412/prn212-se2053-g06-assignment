@@ -130,43 +130,14 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- ==================== 1. TOP NAVIGATION BAR ==================== -->
         <local:StoreHeaderControl x:Name="headerControl" Grid.Row="0" ActiveNav="" />
 
-        <!-- ==================== 2. KPI SUMMARY STRIP ==================== -->
-        <UniformGrid Grid.Row="1" Columns="4" Margin="24,16,24,0">
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="0,0,10,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="📦 TỔNG SỐ ĐƠN HÀNG" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiTotalOrders" Text="0 đơn" FontSize="22" FontWeight="Black" Foreground="#0F172A" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="5,0,5,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="🛍️ ĐƠN MUA SỞ HỮU" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiPurchaseOrders" Text="0 đơn" FontSize="22" FontWeight="Black" Foreground="#4F46E5" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="5,0,5,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="📅 ĐƠN ĐANG THUÊ SÁCH" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiActiveRentals" Text="0 đơn" FontSize="22" FontWeight="Black" Foreground="#D97706" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="10,0,0,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="💰 TỔNG CHI TIÊU HỢP LỆ" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiTotalSpent" Text="0 đ" FontSize="22" FontWeight="Black" Foreground="#10B981" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-        </UniformGrid>
-
-        <!-- ==================== 3. MASTER-DETAIL ORDERS VIEW ==================== -->
-        <Grid Grid.Row="2" Margin="24,16,24,22">
+        <!-- ==================== 2. MASTER-DETAIL ORDERS VIEW ==================== -->
+        <Grid Grid.Row="1" Margin="24,16,24,22">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="20" />

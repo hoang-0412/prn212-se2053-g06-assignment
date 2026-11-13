@@ -608,7 +608,9 @@ namespace BookStoreManagementSystem.ViewModels
         public string FormattedTotalSpent => $"{TotalSpent:N0} đ";
         public DateTime CreatedAt { get; set; }
         public string FormattedCreatedAt => CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
-        public string RoleBadgeColor => RoleId == 2 || string.Equals(RoleName, "Admin", StringComparison.OrdinalIgnoreCase)
+        public bool IsAdminRole => RoleId == 2 || string.Equals(RoleName, "Admin", StringComparison.OrdinalIgnoreCase);
+        public string DisplayEmail => IsAdminRole ? Email : "🔒 Ẩn bảo mật";
+        public string RoleBadgeColor => IsAdminRole
             ? "#7C3AED"
             : "#0284C7";
     }

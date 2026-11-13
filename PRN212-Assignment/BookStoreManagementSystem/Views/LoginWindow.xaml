@@ -128,7 +128,7 @@
                         <Button Content="Tiếp tục →" Style="{StaticResource PrimaryPillButtonStyle}"
                                 Click="btnContinueIdentifier_Click" Margin="0,0,0,12" />
 
-                        <Button Content="Tiếp tục xem cửa hàng với tư cách Khách"
+                        <Button Content="Quay lại"
                                 Background="Transparent" BorderThickness="0" Foreground="#64748B" FontSize="12"
                                 Cursor="Hand" HorizontalAlignment="Center" Click="btnContinueAsGuest_Click" />
                     </StackPanel>
@@ -136,8 +136,6 @@
                     <!-- STEP 2: PASSWORD (WHEN ACCOUNT EXISTS) -->
                     <StackPanel x:Name="panelStepPassword" Visibility="Collapsed">
                         <TextBlock Text="Đăng nhập" FontSize="20" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,0,0,4" />
-                        <TextBlock x:Name="txtMatchedAccountHint" Text="" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center" Margin="0,0,0,16" />
-
                         <TextBlock Text="Nhập mật khẩu" FontSize="12.5" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,6" />
                         <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="44" Padding="14,0,10,0" Margin="0,0,0,8" Background="#FFFFFF">
                             <Grid>
@@ -289,7 +287,7 @@
 
                         <Border x:Name="borderRegStreet" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0" Margin="0,0,0,22" Background="#F1F5F9">
                             <Grid>
-                                <TextBlock x:Name="phRegStreet" Text="Nhập địa chỉ cụ thể (tick 'Tùy chỉnh' để nhập)..."
+                                <TextBlock x:Name="phRegStreet" Text="Nhập địa chỉ cụ thể ..."
                                            Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
                                 <TextBox x:Name="txtRegStreetAddress" Style="{StaticResource CleanTextBoxStyle}" IsEnabled="False" TextChanged="RegField_TextChanged" />
                             </Grid>

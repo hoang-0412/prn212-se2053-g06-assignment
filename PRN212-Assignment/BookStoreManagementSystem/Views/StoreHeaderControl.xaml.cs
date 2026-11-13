@@ -63,10 +63,6 @@ namespace BookStoreManagementSystem
             btnNavCategories.FontWeight = navKey == "Categories" ? FontWeights.Bold : FontWeights.SemiBold;
             indNavCategories.Visibility = navKey == "Categories" ? Visibility.Visible : Visibility.Collapsed;
 
-            btnNavRentals.Foreground = navKey == "Rentals" ? activeColor : inactiveColor;
-            btnNavRentals.FontWeight = navKey == "Rentals" ? FontWeights.Bold : FontWeights.SemiBold;
-            indNavRentals.Visibility = navKey == "Rentals" ? Visibility.Visible : Visibility.Collapsed;
-
             btnNavPromotions.Foreground = navKey == "Promotions" ? activeColor : inactiveColor;
             btnNavPromotions.FontWeight = navKey == "Promotions" ? FontWeights.Bold : FontWeights.SemiBold;
             indNavPromotions.Visibility = navKey == "Promotions" ? Visibility.Visible : Visibility.Collapsed;
