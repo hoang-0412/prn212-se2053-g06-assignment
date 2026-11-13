@@ -117,18 +117,6 @@ namespace BookStoreManagementSystem
                     }).ToList()
                 }).ToList();
 
-                int rentCount = _myOrders.Count(o => o.IsRentalOrder);
-                int buyCount = _myOrders.Count - rentCount;
-                int activeRentCount = _myOrders.Count(o => o.CanReturnBook);
-                decimal totalSpent = _myOrders
-                    .Where(o => !string.Equals(o.OrderStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
-                    .Sum(o => o.TotalAmount);
-
-                txtStatTotalOrders.Text = $"{_myOrders.Count} đơn";
-                txtStatOrderBreakdown.Text = $"{buyCount} đơn mua • {rentCount} đơn thuê";
-                txtStatActiveRentals.Text = $"{activeRentCount} đơn đang thuê";
-                txtStatTotalSpent.Text = $"{totalSpent:N0} đ";
-
                 ApplyOrderFilter();
             }
             catch (Exception ex)

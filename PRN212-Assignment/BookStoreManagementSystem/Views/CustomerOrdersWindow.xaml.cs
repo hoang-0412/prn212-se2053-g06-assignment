@@ -378,16 +378,24 @@ namespace BookStoreManagementSystem
         {
             if (_selectedOrder == null) return;
 
+            var cleanPaymentMethod = (_selectedOrder.PaymentMethod ?? string.Empty)
+                .Replace(" (Có sách thuê)", "", StringComparison.OrdinalIgnoreCase)
+                .Trim();
+
             var sb = new StringBuilder();
             sb.AppendLine("================================================");
-            sb.AppendLine($"        HÓA ĐƠN BOOKSTORE ({_selectedOrder.OrderCode})");
+            sb.AppendLine($"      HÓA ĐƠN G07 BOOKSTORE ({_selectedOrder.OrderCode})");
             sb.AppendLine("================================================");
             sb.AppendLine($"Khách hàng:     {_selectedOrder.CustomerName}");
             sb.AppendLine($"Số điện thoại:  {_selectedOrder.RecipientPhone}");
             sb.AppendLine($"Địa chỉ nhận:   {_selectedOrder.ShippingAddress}");
             sb.AppendLine($"Ngày đặt:       {_selectedOrder.FormattedCreatedAt}");
             sb.AppendLine($"Hình thức:      {_selectedOrder.OrderTypeDisplay} ({_selectedOrder.StatusDisplay})");
-            sb.AppendLine($"Thanh toán:     {_selectedOrder.PaymentMethod} ({_selectedOrder.PaymentStatus})");
+            if (!string.IsNullOrWhiteSpace(_selectedOrder.CancelReason))
+            {
+                sb.AppendLine($"Lý do hủy:      {_selectedOrder.CancelReason}");
+            }
+            sb.AppendLine($"Thanh toán:     {cleanPaymentMethod} - {_selectedOrder.PaymentStatusDisplay}");
             sb.AppendLine("------------------------------------------------");
             foreach (var item in _selectedOrder.Items)
             {

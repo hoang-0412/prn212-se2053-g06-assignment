@@ -199,33 +199,8 @@
                     </Border>
                 </StackPanel>
 
-                <!-- RIGHT COLUMN: PERSONAL KPI STATS + MY ORDERS & RENTAL EXTENSION -->
+                <!-- RIGHT COLUMN: MY ORDERS & RENTAL EXTENSION -->
                 <StackPanel Grid.Column="2">
-                    <!-- 3 KPI Cards -->
-                    <UniformGrid Columns="3" Margin="0,0,0,20">
-                        <Border Background="White" CornerRadius="14" Padding="18" Margin="0,0,10,0" Effect="{StaticResource CardShadow}">
-                            <StackPanel>
-                                <TextBlock Text="🛍️ TỔNG ĐƠN ĐÃ ĐẶT" FontSize="11" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="txtStatTotalOrders" Text="0 đơn" FontSize="24" FontWeight="Black" Foreground="#0F172A" Margin="0,6,0,2" />
-                                <TextBlock x:Name="txtStatOrderBreakdown" Text="0 đơn mua • 0 đơn thuê" FontSize="11" Foreground="#4F46E5" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Border>
-                        <Border Background="White" CornerRadius="14" Padding="18" Margin="5,0,5,0" Effect="{StaticResource CardShadow}">
-                            <StackPanel>
-                                <TextBlock Text="📅 SÁCH ĐANG THUÊ" FontSize="11" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="txtStatActiveRentals" Text="0 đơn" FontSize="24" FontWeight="Black" Foreground="#D97706" Margin="0,6,0,2" />
-                                <TextBlock Text="Có thể gia hạn hoặc trả sách ngay" FontSize="11" Foreground="#B45309" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Border>
-                        <Border Background="White" CornerRadius="14" Padding="18" Margin="10,0,0,0" Effect="{StaticResource CardShadow}">
-                            <StackPanel>
-                                <TextBlock Text="💰 TỔNG CHI TIÊU HỢP LỆ" FontSize="11" FontWeight="Bold" Foreground="#64748B" />
-                                <TextBlock x:Name="txtStatTotalSpent" Text="0 đ" FontSize="24" FontWeight="Black" Foreground="#10B981" Margin="0,6,0,2" />
-                                <TextBlock Text="Tích lũy mua &amp; thuê sách" FontSize="11" Foreground="#059669" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Border>
-                    </UniformGrid>
-
                     <!-- My Orders & Active Rentals Management Card -->
                     <Border Background="White" CornerRadius="16" Padding="22" Effect="{StaticResource CardShadow}">
                         <StackPanel>
