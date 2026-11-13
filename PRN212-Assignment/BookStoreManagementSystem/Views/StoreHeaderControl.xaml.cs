@@ -79,16 +79,27 @@ namespace BookStoreManagementSystem
         public void RefreshAuthAndCart()
         {
             bool isLoggedIn = SessionManager.IsLoggedIn;
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
+            txtDropdownUserName.Text = SessionManager.DisplayName;
 
-            borderCurrentUserChip.Visibility = isLoggedIn ? Visibility.Visible : Visibility.Collapsed;
-            btnOpenMyOrders.Visibility = isLoggedIn ? Visibility.Visible : Visibility.Collapsed;
-            btnOpenProfile.Visibility = isLoggedIn ? Visibility.Visible : Visibility.Collapsed;
+            if (btnUserMenu.Template != null)
+            {
+                btnUserMenu.ApplyTemplate();
+                if (btnUserMenu.Template.FindName("txtCurrentUserName", btnUserMenu) is TextBlock nameBlock)
+                {
+                    nameBlock.Text = SessionManager.DisplayName;
+                }
+            }
+
+            gridUserMenu.Visibility = isLoggedIn ? Visibility.Visible : Visibility.Collapsed;
             btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
-            btnAuthAction.Content = isLoggedIn ? "🔄 Đăng Xuất" : "👤 Đăng Nhập";
+            btnAuthAction.Visibility = isLoggedIn ? Visibility.Collapsed : Visibility.Visible;
 
             RefreshCartBadgeFromDb();
+        }
+
+        private void btnUserMenu_Click(object sender, RoutedEventArgs e)
+        {
+            popupUserMenu.IsOpen = !popupUserMenu.IsOpen;
         }
 
         public void SetCartCount(int count)
@@ -213,24 +224,28 @@ namespace BookStoreManagementSystem
 
         private void btnOpenMyOrders_Click(object sender, RoutedEventArgs e)
         {
+            popupUserMenu.IsOpen = false;
             if (Window.GetWindow(this) is CustomerOrdersWindow) return;
             NavigateToWindow(new CustomerOrdersWindow());
         }
 
         private void btnOpenProfile_Click(object sender, RoutedEventArgs e)
         {
+            popupUserMenu.IsOpen = false;
             if (Window.GetWindow(this) is UserProfileWindow) return;
             NavigateToWindow(new UserProfileWindow("Home"));
         }
 
         private void btnOpenAdmin_Click(object sender, RoutedEventArgs e)
         {
+            popupUserMenu.IsOpen = false;
             if (Window.GetWindow(this) is AdminDashboardWindow) return;
             NavigateToWindow(new AdminDashboardWindow());
         }
 
         private void btnAuthAction_Click(object sender, RoutedEventArgs e)
         {
+            popupUserMenu.IsOpen = false;
             SessionManager.Logout();
             NavigateToWindow(new LoginWindow());
         }

@@ -185,20 +185,71 @@
                     </Border>
                 </Grid>
 
-                <!-- Logged-in quick links -->
-                <Button x:Name="btnOpenMyOrders" Content="📦 Đơn Hàng" Style="{StaticResource HeaderSecondaryButtonStyle}" Margin="0,0,6,0" Click="btnOpenMyOrders_Click" />
-                <Button x:Name="btnOpenProfile" Content="Hồ Sơ" Style="{StaticResource HeaderSecondaryButtonStyle}" Margin="0,0,6,0" Click="btnOpenProfile_Click" />
-                <Button x:Name="btnOpenAdmin" Content="🛠️ Admin" Style="{StaticResource HeaderAdminButtonStyle}" Margin="0,0,6,0" Click="btnOpenAdmin_Click" />
+                <!-- Logged-in User Dropdown Container -->
+                <Grid x:Name="gridUserMenu" Visibility="Collapsed">
+                    <Button x:Name="btnUserMenu" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"
+                            Padding="12,7" Cursor="Hand" Click="btnUserMenu_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="18" Padding="{TemplateBinding Padding}">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="22" Height="22" CornerRadius="11" Background="#EEF2FF" Margin="0,0,8,0">
+                                            <TextBlock Text="👤" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock x:Name="txtCurrentUserName" Text="Người dùng" FontWeight="SemiBold" FontSize="12.5" Foreground="#0F172A" VerticalAlignment="Center" />
+                                        <TextBlock Text=" ▾" FontSize="11" Foreground="#64748B" VerticalAlignment="Center" Margin="4,0,0,0" />
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#EEF2FF" />
+                                        <Setter TargetName="border" Property="BorderBrush" Value="#C7D2FE" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
 
-                <!-- Current User Chip -->
-                <Border x:Name="borderCurrentUserChip" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="9,4" Margin="0,0,8,0" VerticalAlignment="Center" Visibility="Collapsed">
-                    <StackPanel>
-                        <TextBlock x:Name="txtCurrentUserName" Text="Khách vãng lai" FontWeight="Bold" FontSize="11" Foreground="#0F172A" />
-                        <TextBlock x:Name="txtCurrentUserRole" Text="Khách (Guest)" FontSize="9" Foreground="#64748B" />
-                    </StackPanel>
-                </Border>
+                    <Popup x:Name="popupUserMenu" PlacementTarget="{Binding ElementName=btnUserMenu}"
+                           Placement="Bottom" HorizontalOffset="-40" VerticalOffset="8"
+                           StaysOpen="False" AllowsTransparency="True">
+                        <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="8" MinWidth="205">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18" Direction="270" ShadowDepth="4" Opacity="0.12" Color="#0F172A" />
+                            </Border.Effect>
+                            <StackPanel>
+                                <!-- User Name Header (No Role) -->
+                                <Border Padding="10,8" Margin="0,0,0,4" BorderBrush="#F1F5F9" BorderThickness="0,0,0,1">
+                                    <TextBlock x:Name="txtDropdownUserName" Text="Người dùng" FontWeight="Bold" FontSize="13" Foreground="#0F172A" TextTrimming="CharacterEllipsis" />
+                                </Border>
 
-                <!-- Primary Login / Logout Button -->
+                                <!-- Admin Dashboard (Admin only) -->
+                                <Button x:Name="btnOpenAdmin" Content="🛠️ Admin Dashboard" HorizontalContentAlignment="Left"
+                                        Background="Transparent" BorderThickness="0" Padding="10,8" FontSize="12.5" FontWeight="SemiBold" Foreground="#0F172A"
+                                        Cursor="Hand" Click="btnOpenAdmin_Click" />
+
+                                <!-- Orders -->
+                                <Button x:Name="btnOpenMyOrders" Content="📦 Đơn Hàng" HorizontalContentAlignment="Left"
+                                        Background="Transparent" BorderThickness="0" Padding="10,8" FontSize="12.5" FontWeight="SemiBold" Foreground="#334155"
+                                        Cursor="Hand" Click="btnOpenMyOrders_Click" />
+
+                                <!-- Profile -->
+                                <Button x:Name="btnOpenProfile" Content="👤 Hồ Sơ" HorizontalContentAlignment="Left"
+                                        Background="Transparent" BorderThickness="0" Padding="10,8" FontSize="12.5" FontWeight="SemiBold" Foreground="#334155"
+                                        Cursor="Hand" Click="btnOpenProfile_Click" />
+
+                                <Border Height="1" Background="#F1F5F9" Margin="6,4" />
+
+                                <!-- Logout -->
+                                <Button x:Name="btnLogoutMenuItem" Content="🚪 Đăng Xuất" HorizontalContentAlignment="Left"
+                                        Background="Transparent" BorderThickness="0" Padding="10,8" FontSize="12.5" FontWeight="SemiBold" Foreground="#DC2626"
+                                        Cursor="Hand" Click="btnAuthAction_Click" />
+                            </StackPanel>
+                        </Border>
+                    </Popup>
+                </Grid>
+
+                <!-- Guest Login Button -->
                 <Button x:Name="btnAuthAction" Content="👤 Đăng Nhập" Style="{StaticResource HeaderPrimaryButtonStyle}" Click="btnAuthAction_Click" />
             </StackPanel>
         </Grid>
