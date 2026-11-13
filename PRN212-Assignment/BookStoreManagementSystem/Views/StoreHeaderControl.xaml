@@ -160,10 +160,6 @@
                     <Border x:Name="indNavRentals" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
                 </StackPanel>
                 <StackPanel Margin="4,0">
-                    <Button x:Name="btnNavFeatured" Content="Sách Nổi Bật" Style="{StaticResource HeaderNavButtonStyle}" Click="btnNavFeatured_Click" />
-                    <Border x:Name="indNavFeatured" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
-                </StackPanel>
-                <StackPanel Margin="4,0">
                     <Button x:Name="btnNavPromotions" Content="Khuyến Mãi" Style="{StaticResource HeaderNavButtonStyle}" Click="btnNavPromotions_Click" />
                     <Border x:Name="indNavPromotions" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
                 </StackPanel>

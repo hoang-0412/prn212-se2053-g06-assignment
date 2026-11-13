@@ -194,16 +194,8 @@
                                 </ListBox>
                             </Border>
 
-                            <!-- 2. Transaction Status Filter -->
-                            <TextBlock Text="2. HÌNH THỨC GIAO DỊCH" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
-                            <ComboBox x:Name="cbStatusFilter" Margin="0,0,0,14" Padding="10,6" SelectionChanged="FilterSelection_Changed">
-                                <ComboBoxItem Content="Tất cả hình thức" IsSelected="True" />
-                                <ComboBoxItem Content="Bán" />
-                                <ComboBoxItem Content="Cho thuê" />
-                            </ComboBox>
-
-                            <!-- 3. Price Range Filter -->
-                            <TextBlock Text="3. KHOẢNG GIÁ BÌA (VNĐ)" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
+                            <!-- 2. Price Range Filter -->
+                            <TextBlock Text="2. KHOẢNG GIÁ BÌA (VNĐ)" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
                             <StackPanel Margin="0,0,0,8">
                                 <RadioButton x:Name="rbPriceAll" Content="Tất cả mức giá" IsChecked="True" Margin="0,3" Checked="FilterCheck_Changed" />
                                 <RadioButton x:Name="rbPriceUnder100" Content="Dưới 100.000 đ" Margin="0,3" Checked="FilterCheck_Changed" />
@@ -229,17 +221,27 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- 4. Publisher Filter -->
-                            <TextBlock Text="4. NHÀ XUẤT BẢN" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
+                            <!-- 3. Publisher Filter -->
+                            <TextBlock Text="3. NHÀ XUẤT BẢN" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
                             <ComboBox x:Name="cbPublisherFilter" Margin="0,0,0,14" Padding="10,6" SelectionChanged="FilterSelection_Changed" />
 
-                            <!-- 5. Publication Year Filter -->
-                            <TextBlock Text="5. NĂM XUẤT BẢN" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
-                            <ComboBox x:Name="cbYearFilter" Margin="0,0,0,14" Padding="10,6" SelectionChanged="FilterSelection_Changed" />
-
-                            <!-- 6. Stock Availability -->
-                            <TextBlock Text="6. TÌNH TRẠNG TỒN KHO" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
-                            <CheckBox x:Name="chkInStockOnly" Content="Chỉ hiện sách còn tồn kho (&gt; 0)" Margin="0,0,0,16" Checked="FilterCheck_Changed" Unchecked="FilterCheck_Changed" />
+                            <!-- 4. Publication Year Range Filter -->
+                            <TextBlock Text="4. NĂM XUẤT BẢN" FontWeight="Bold" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="Nhập khoảng năm xuất bản:" FontSize="11" Foreground="#64748B" Margin="0,0,0,6" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="txtMinYear" Grid.Column="0" Style="{StaticResource SearchTextBoxStyle}" Padding="6,4" FontSize="12" ToolTip="Từ năm" TextChanged="CustomPrice_TextChanged" />
+                                        <TextBlock Grid.Column="1" Text="-" VerticalAlignment="Center" Margin="6,0" Foreground="#64748B" />
+                                        <TextBox x:Name="txtMaxYear" Grid.Column="2" Style="{StaticResource SearchTextBoxStyle}" Padding="6,4" FontSize="12" ToolTip="Đến năm" TextChanged="CustomPrice_TextChanged" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
 
                             <!-- Reset & Refresh -->
                             <Button x:Name="btnResetFilters" Content="🧹 Đặt Lại Bộ Lọc" Style="{StaticResource SecondaryButtonStyle}" Click="btnResetFilters_Click" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
@@ -274,15 +276,12 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                 <TextBlock Text="Sắp xếp:" FontSize="12" FontWeight="SemiBold" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0" />
                                 <ComboBox x:Name="cbSortBy" Width="195" Padding="10,5" Margin="0,0,14,0" SelectionChanged="cbSortBy_SelectionChanged">
-                                    <ComboBoxItem Content="Mới nhất (Mặc định)" IsSelected="True" />
-                                    <ComboBoxItem Content="Mã sách: Tăng dần" />
-                                    <ComboBoxItem Content="Mã sách: Giảm dần" />
+                                    <ComboBoxItem Content="Mặc định" IsSelected="True" />
                                     <ComboBoxItem Content="Giá bìa: Thấp đến Cao" />
                                     <ComboBoxItem Content="Giá bìa: Cao đến Thấp" />
                                     <ComboBoxItem Content="Tên sách: A → Z" />
                                     <ComboBoxItem Content="Tên sách: Z → A" />
                                     <ComboBoxItem Content="Năm xuất bản: Mới → Cũ" />
-                                    <ComboBoxItem Content="Tồn kho: Nhiều → Ít" />
                                 </ComboBox>
 
                                 <!-- View Mode Switcher -->

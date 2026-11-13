@@ -22,6 +22,7 @@ namespace BookStoreManagementSystem
         private bool _isTableView = false;
         private bool _isLoaded = false;
         private bool _isUpdatingFilters = false;
+        private string _statusFilterMode = "All";
 
         private int _currentPage = 1;
         private int _pageSize = 10;
@@ -120,19 +121,6 @@ namespace BookStoreManagementSystem
                 cbPublisherFilter.ItemsSource = publisherOptions;
                 if (cbPublisherFilter.SelectedIndex < 0) cbPublisherFilter.SelectedIndex = 0;
 
-                var years = _allBooks
-                    .Where(b => b.PublicationYear.HasValue)
-                    .Select(b => b.PublicationYear!.Value)
-                    .Distinct()
-                    .OrderByDescending(y => y)
-                    .Select(y => y.ToString())
-                    .ToList();
-
-                var yearOptions = new List<string> { "Tất cả năm xuất bản" };
-                yearOptions.AddRange(years);
-                cbYearFilter.ItemsSource = yearOptions;
-                if (cbYearFilter.SelectedIndex < 0) cbYearFilter.SelectedIndex = 0;
-
                 _isUpdatingFilters = false;
                 _isLoaded = true;
                 ApplyFiltersAndPagination();
@@ -179,14 +167,10 @@ namespace BookStoreManagementSystem
                 query = query.Where(b => b.CategoryId == selectedCat.CategoryId.Value);
             }
 
-            // 3. Transaction Status Filter
-            if (cbStatusFilter?.SelectedItem is ComboBoxItem statusItem)
+            // 3. Transaction Status Filter (Top Pills)
+            if (_statusFilterMode != "All")
             {
-                var statusText = statusItem.Content?.ToString();
-                if (!string.IsNullOrEmpty(statusText) && statusText != "Tất cả hình thức")
-                {
-                    query = query.Where(b => b.BookStatus.Equals(statusText, StringComparison.OrdinalIgnoreCase));
-                }
+                query = query.Where(b => b.BookStatus.Equals(_statusFilterMode, StringComparison.OrdinalIgnoreCase));
             }
 
             // 4. Price Filter
@@ -216,30 +200,27 @@ namespace BookStoreManagementSystem
                 query = query.Where(b => string.Equals(b.Publisher?.Trim(), selectedPublisher, StringComparison.OrdinalIgnoreCase));
             }
 
-            // 6. Publication Year Filter
-            if (cbYearFilter?.SelectedItem is string selectedYearStr && selectedYearStr != "Tất cả năm xuất bản" && int.TryParse(selectedYearStr, out int selectedYear))
+            // 6. Publication Year Range Filter
+            bool hasMinYear = int.TryParse(txtMinYear?.Text?.Trim(), out int minYear) && minYear > 0;
+            bool hasMaxYear = int.TryParse(txtMaxYear?.Text?.Trim(), out int maxYear) && maxYear > 0;
+            if (hasMinYear)
             {
-                query = query.Where(b => b.PublicationYear == selectedYear);
+                query = query.Where(b => b.PublicationYear.HasValue && b.PublicationYear.Value >= minYear);
+            }
+            if (hasMaxYear)
+            {
+                query = query.Where(b => b.PublicationYear.HasValue && b.PublicationYear.Value <= maxYear);
             }
 
-            // 7. Stock Filter
-            if (chkInStockOnly?.IsChecked == true)
-            {
-                query = query.Where(b => b.IsInStock);
-            }
-
-            // 8. Sorting
+            // 7. Sorting
             int sortIndex = cbSortBy?.SelectedIndex ?? 0;
             query = sortIndex switch
             {
-                1 => query.OrderBy(b => b.BookId),
-                2 => query.OrderByDescending(b => b.BookId),
-                3 => query.OrderBy(b => b.Price),
-                4 => query.OrderByDescending(b => b.Price),
-                5 => query.OrderBy(b => b.Title),
-                6 => query.OrderByDescending(b => b.Title),
-                7 => query.OrderByDescending(b => b.PublicationYear ?? 0),
-                8 => query.OrderByDescending(b => b.StockQuantity),
+                1 => query.OrderBy(b => b.Price),
+                2 => query.OrderByDescending(b => b.Price),
+                3 => query.OrderBy(b => b.Title),
+                4 => query.OrderByDescending(b => b.Title),
+                5 => query.OrderByDescending(b => b.PublicationYear ?? 0),
                 _ => query.OrderByDescending(b => b.CreatedAt).ThenByDescending(b => b.BookId)
             };
 
@@ -347,17 +328,20 @@ namespace BookStoreManagementSystem
 
         private void btnPillAll_Click(object sender, RoutedEventArgs e)
         {
-            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 0;
+            _statusFilterMode = "All";
+            ApplyFiltersAndPagination(resetPage: true);
         }
 
         private void btnPillForSale_Click(object sender, RoutedEventArgs e)
         {
-            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 1; // "Bán"
+            _statusFilterMode = "Bán";
+            ApplyFiltersAndPagination(resetPage: true);
         }
 
         private void btnPillForRent_Click(object sender, RoutedEventArgs e)
         {
-            if (cbStatusFilter != null) cbStatusFilter.SelectedIndex = 2; // "Cho thuê"
+            _statusFilterMode = "Cho thuê";
+            ApplyFiltersAndPagination(resetPage: true);
         }
 
         private void btnResetFilters_Click(object sender, RoutedEventArgs e)
@@ -367,14 +351,14 @@ namespace BookStoreManagementSystem
             txtSearchPlaceholder.Visibility = Visibility.Visible;
             btnClearSearch.Visibility = Visibility.Collapsed;
 
+            _statusFilterMode = "All";
             if (lstCategories.Items.Count > 0) lstCategories.SelectedIndex = 0;
-            if (cbStatusFilter.Items.Count > 0) cbStatusFilter.SelectedIndex = 0;
             if (rbPriceAll != null) rbPriceAll.IsChecked = true;
             txtMinPrice.Text = string.Empty;
             txtMaxPrice.Text = string.Empty;
             if (cbPublisherFilter.Items.Count > 0) cbPublisherFilter.SelectedIndex = 0;
-            if (cbYearFilter.Items.Count > 0) cbYearFilter.SelectedIndex = 0;
-            if (chkInStockOnly != null) chkInStockOnly.IsChecked = false;
+            if (txtMinYear != null) txtMinYear.Text = string.Empty;
+            if (txtMaxYear != null) txtMaxYear.Text = string.Empty;
             if (cbSortBy != null) cbSortBy.SelectedIndex = 0;
             _isUpdatingFilters = false;
 
