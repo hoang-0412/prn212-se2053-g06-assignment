@@ -270,7 +270,12 @@
                         </Border>
 
                         <!-- Address -->
-                        <TextBlock Text="Địa chỉ" FontSize="13" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,6" />
+                        <Grid Margin="0,0,0,6">
+                            <TextBlock Text="Địa chỉ" FontSize="13" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                            <CheckBox x:Name="chkCustomAddress" Content="Tùy chỉnh" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      FontSize="12.5" FontWeight="SemiBold" Foreground="#475569" Cursor="Hand"
+                                      Checked="chkCustomAddress_Changed" Unchecked="chkCustomAddress_Changed" />
+                        </Grid>
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -282,11 +287,11 @@
                             <ComboBox x:Name="cbWard" Grid.Column="2" Height="40" Padding="10,8" FontSize="13" />
                         </Grid>
 
-                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0" Margin="0,0,0,22" Background="#FFFFFF">
+                        <Border x:Name="borderRegStreet" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0" Margin="0,0,0,22" Background="#F1F5F9">
                             <Grid>
-                                <TextBlock x:Name="phRegStreet" Text="Nhập địa chỉ cụ thể. Số nhà, tên đường..."
+                                <TextBlock x:Name="phRegStreet" Text="Nhập địa chỉ cụ thể (tick 'Tùy chỉnh' để nhập)..."
                                            Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
-                                <TextBox x:Name="txtRegStreetAddress" Style="{StaticResource CleanTextBoxStyle}" TextChanged="RegField_TextChanged" />
+                                <TextBox x:Name="txtRegStreetAddress" Style="{StaticResource CleanTextBoxStyle}" IsEnabled="False" TextChanged="RegField_TextChanged" />
                             </Grid>
                         </Border>
 

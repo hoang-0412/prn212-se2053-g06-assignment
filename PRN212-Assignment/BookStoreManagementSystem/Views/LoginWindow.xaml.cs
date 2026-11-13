@@ -514,12 +514,32 @@ namespace BookStoreManagementSystem
             }
         }
 
+        private void chkCustomAddress_Changed(object sender, RoutedEventArgs e)
+        {
+            if (cbProvince == null || cbWard == null || txtRegStreetAddress == null || borderRegStreet == null) return;
+
+            bool isCustom = chkCustomAddress.IsChecked == true;
+            cbProvince.IsEnabled = !isCustom;
+            cbWard.IsEnabled = !isCustom;
+            txtRegStreetAddress.IsEnabled = isCustom;
+            borderRegStreet.Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(isCustom ? "#FFFFFF" : "#F1F5F9"));
+
+            if (isCustom)
+            {
+                txtRegStreetAddress.Focus();
+            }
+        }
+
         private string? BuildFullAddress()
         {
-            var parts = new List<string>();
-            var street = txtRegStreetAddress.Text.Trim();
-            if (!string.IsNullOrEmpty(street)) parts.Add(street);
+            if (chkCustomAddress.IsChecked == true)
+            {
+                var customAddress = txtRegStreetAddress.Text.Trim();
+                return string.IsNullOrEmpty(customAddress) ? null : customAddress;
+            }
 
+            var parts = new List<string>();
             if (cbWard.SelectedItem is string ward && ward != "Chọn Phường/Xã")
                 parts.Add(ward);
 
