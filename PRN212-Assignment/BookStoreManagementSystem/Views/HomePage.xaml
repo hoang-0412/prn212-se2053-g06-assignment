@@ -442,7 +442,6 @@
                         <!-- Controls Strip -->
                         <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="16,10" Margin="8,0,8,14" Effect="{StaticResource CardShadow}">
                             <Grid>
-                                <TextBlock x:Name="txtCatalogCountSummary" Text="Hiển thị 0 trên tổng số 0 cuốn sách" FontSize="12.5" Foreground="#475569" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                     <TextBlock Text="Sắp xếp:" FontSize="12.5" Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0" />
                                     <ComboBox x:Name="cbSortBy" Width="165" Padding="10,5" SelectionChanged="cbSortBy_SelectionChanged">

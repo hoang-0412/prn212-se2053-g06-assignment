@@ -534,11 +534,6 @@ namespace BookStoreManagementSystem
 
             icBooks.ItemsSource = pagedList;
 
-            if (txtCatalogCountSummary != null)
-            {
-                txtCatalogCountSummary.Text = $"Hiển thị {pagedList.Count} trên tổng số {totalFiltered} cuốn sách";
-            }
-
             if (txtHomePageIndicator != null && btnHomePrevPage != null && btnHomeNextPage != null)
             {
                 txtHomePageIndicator.Text = $"{_homeCurrentPage} / {_homeTotalPages}";
