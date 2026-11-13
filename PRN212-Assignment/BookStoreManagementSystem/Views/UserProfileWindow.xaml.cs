@@ -58,7 +58,7 @@ namespace BookStoreManagementSystem
 
         private void LoadProfileAndOrders()
         {
-            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            headerControl?.RefreshAuthAndCart();
 
             if (SessionManager.CurrentUser == null) return;
 

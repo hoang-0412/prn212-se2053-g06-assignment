@@ -43,10 +43,7 @@ namespace BookStoreManagementSystem
 
         private void UpdateUserHeaderUI()
         {
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
-            btnAuthAction.Content = SessionManager.IsLoggedIn ? "🔄 Đổi TK / Thoát" : "🔐 Đăng Nhập";
-            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            headerControl?.RefreshAuthAndCart();
 
             if (SessionManager.CurrentUser != null)
             {
@@ -60,6 +57,58 @@ namespace BookStoreManagementSystem
                     txtCheckoutAddress.Text = SessionManager.CurrentUser.Address;
                     txtRentAddress.Text = SessionManager.CurrentUser.Address;
                 }
+            }
+        }
+
+        private void headerControl_HomeClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Home");
+            _homeCurrentPage = 1;
+            btnResetFilters_Click(this, new RoutedEventArgs());
+        }
+
+        private void headerControl_RentalsClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Rentals");
+            _homeCurrentPage = 1;
+            if (cbBookStatus != null) cbBookStatus.SelectedIndex = 2; // "Cho thuê"
+        }
+
+        private void headerControl_FeaturedClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Featured");
+            _homeCurrentPage = 1;
+            if (cbBookStatus != null) cbBookStatus.SelectedIndex = 0;
+            if (cbSortBy != null) cbSortBy.SelectedIndex = 2; // Giá: Cao đến thấp
+        }
+
+        private void headerControl_PromotionsClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Promotions");
+            _homeCurrentPage = 1;
+            if (rbPriceUnder100 != null) rbPriceUnder100.IsChecked = true;
+            MessageBox.Show(
+                "🎁 ƯU ĐÃI ĐANG ÁP DỤNG TẠI G07 BOOKSTORE:\n\n" +
+                "• Mã BOOK10: Giảm 10% cho mọi đơn hàng\n" +
+                "• Mã SINHVIEN: Giảm 15% cho đơn thuê sách\n" +
+                "• Mã VIP50K: Giảm trực tiếp 50.000 đ cho đơn từ 300.000 đ\n" +
+                "• Mã FREESHIP: Miễn phí giao hàng toàn quốc\n\n" +
+                "Nhập mã trực tiếp tại màn hình Giỏ Hàng & Thanh Toán!",
+                "Chương Trình Khuyến Mãi",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+        private void headerControl_SearchClicked(object? sender, EventArgs e)
+        {
+            if (gridHeaderSearchBar.Visibility == Visibility.Visible)
+            {
+                gridHeaderSearchBar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                gridHeaderSearchBar.Visibility = Visibility.Visible;
+                txtSearch.Focus();
             }
         }
 
@@ -969,7 +1018,7 @@ namespace BookStoreManagementSystem
         private void UpdateCartBadge()
         {
             var totalCount = _cartItems.Sum(x => x.Quantity);
-            txtCartBadge.Text = $"Giỏ hàng ({totalCount})";
+            headerControl?.SetCartCount(totalCount);
 
             var totalAmount = _cartItems.Sum(x => x.SubTotal);
             txtCartTotalAmount.Text = totalAmount.ToString("N0") + " đ";

@@ -1,0 +1,206 @@
+<UserControl x:Class="BookStoreManagementSystem.StoreHeaderControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="68" d:DesignWidth="1280"
+             FontFamily="Segoe UI, Inter, Arial">
+
+    <UserControl.Resources>
+        <Style x:Key="HeaderPrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#4F46E5" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="16,8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#4338CA" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HeaderSecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#EEF2FF" />
+            <Setter Property="Foreground" Value="#4F46E5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#C7D2FE" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E0E7FF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HeaderAdminButtonStyle" TargetType="Button" BasedOn="{StaticResource HeaderPrimaryButtonStyle}">
+            <Setter Property="Background" Value="#0F172A" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1E293B" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HeaderNavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#475569" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Margin" Value="4,0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="#4F46E5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="HeaderIconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="#334155" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="18">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F8FAFC" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#CBD5E1" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="28,10">
+        <Grid MinHeight="44">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Brand Logo -->
+            <Button Grid.Column="0" Background="Transparent" BorderThickness="0" Padding="0" Cursor="Hand" Click="btnNavHome_Click" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="G07" FontWeight="Black" FontSize="20" Foreground="#0F172A" />
+                    <TextBlock Text=" BookStore" FontWeight="Black" FontSize="20" Foreground="#4F46E5" />
+                </StackPanel>
+            </Button>
+
+            <!-- Center: Navigation Links -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Margin="4,0">
+                    <Button x:Name="btnNavHome" Content="Trang Chủ" Style="{StaticResource HeaderNavButtonStyle}" Click="btnNavHome_Click" />
+                    <Border x:Name="indNavHome" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
+                </StackPanel>
+                <StackPanel Margin="4,0">
+                    <Button x:Name="btnNavCategories" Content="Tất Cả Danh Mục" Style="{StaticResource HeaderNavButtonStyle}" Click="btnNavCategories_Click" />
+                    <Border x:Name="indNavCategories" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
+                </StackPanel>
+                <StackPanel Margin="4,0">
+                    <Button x:Name="btnNavRentals" Content="Sách Cho Thuê" Style="{StaticResource HeaderNavButtonStyle}" Click="btnNavRentals_Click" />
+                    <Border x:Name="indNavRentals" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
+                </StackPanel>
+                <StackPanel Margin="4,0">
+                    <Button x:Name="btnNavFeatured" Content="Sách Nổi Bật" Style="{StaticResource HeaderNavButtonStyle}" Click="btnNavFeatured_Click" />
+                    <Border x:Name="indNavFeatured" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
+                </StackPanel>
+                <StackPanel Margin="4,0">
+                    <Button x:Name="btnNavPromotions" Content="Khuyến Mãi" Style="{StaticResource HeaderNavButtonStyle}" Click="btnNavPromotions_Click" />
+                    <Border x:Name="indNavPromotions" Height="2" Background="#4F46E5" CornerRadius="1" Margin="10,-2,10,0" Visibility="Collapsed" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Right: Search Icon, Cart Icon, User / Login Actions -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Search Icon -->
+                <Button x:Name="btnToggleSearch" Content="🔍" Style="{StaticResource HeaderIconButtonStyle}" Margin="0,0,8,0"
+                        ToolTip="Tìm kiếm sách" Click="btnToggleSearch_Click" />
+
+                <!-- Cart Icon Button with Badge -->
+                <Grid Margin="0,0,10,0">
+                    <Button x:Name="btnOpenCart" Content="🛒" Style="{StaticResource HeaderIconButtonStyle}"
+                            ToolTip="Mở giỏ hàng" Click="btnOpenCart_Click" />
+                    <Border x:Name="badgeCartCount" Background="#4F46E5" CornerRadius="8" MinWidth="16" Height="16" Padding="4,0"
+                            HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-4,0" IsHitTestVisible="False" Visibility="Collapsed">
+                        <TextBlock x:Name="txtCartBadge" Text="0" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+
+                <!-- Logged-in quick links -->
+                <Button x:Name="btnOpenMyOrders" Content="📦 Đơn Hàng" Style="{StaticResource HeaderSecondaryButtonStyle}" Margin="0,0,6,0" Click="btnOpenMyOrders_Click" />
+                <Button x:Name="btnOpenProfile" Content="Hồ Sơ" Style="{StaticResource HeaderSecondaryButtonStyle}" Margin="0,0,6,0" Click="btnOpenProfile_Click" />
+                <Button x:Name="btnOpenAdmin" Content="🛠️ Admin" Style="{StaticResource HeaderAdminButtonStyle}" Margin="0,0,6,0" Click="btnOpenAdmin_Click" />
+
+                <!-- Current User Chip -->
+                <Border x:Name="borderCurrentUserChip" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="9,4" Margin="0,0,8,0" VerticalAlignment="Center" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock x:Name="txtCurrentUserName" Text="Khách vãng lai" FontWeight="Bold" FontSize="11" Foreground="#0F172A" />
+                        <TextBlock x:Name="txtCurrentUserRole" Text="Khách (Guest)" FontSize="9" Foreground="#64748B" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Primary Login / Logout Button -->
+                <Button x:Name="btnAuthAction" Content="👤 Đăng Nhập" Style="{StaticResource HeaderPrimaryButtonStyle}" Click="btnAuthAction_Click" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

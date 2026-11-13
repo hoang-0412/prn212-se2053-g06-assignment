@@ -40,10 +40,7 @@ namespace BookStoreManagementSystem
 
         private void UpdateHeaderAuthUI()
         {
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
-            btnAuthAction.Content = SessionManager.IsLoggedIn ? "🔄 Đổi TK / Thoát" : "🔐 Đăng Nhập";
-            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            headerControl?.RefreshAuthAndCart();
 
             panelAdminImageManager.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
             panelAdminQuickBookActions.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;

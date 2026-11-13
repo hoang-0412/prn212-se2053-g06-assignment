@@ -42,10 +42,20 @@ namespace BookStoreManagementSystem
 
         private void UpdateUserHeaderUI()
         {
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
-            btnAuthAction.Content = SessionManager.IsLoggedIn ? "🔄 Đổi TK / Thoát" : "🔐 Đăng Nhập";
-            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            headerControl?.RefreshAuthAndCart();
+        }
+
+        private void headerControl_SearchClicked(object? sender, EventArgs e)
+        {
+            if (gridHeaderSearchBar.Visibility == Visibility.Visible)
+            {
+                gridHeaderSearchBar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                gridHeaderSearchBar.Visibility = Visibility.Visible;
+                txtSearch.Focus();
+            }
         }
 
         public void LoadAllBooksFromDatabase()
@@ -691,41 +701,6 @@ namespace BookStoreManagementSystem
         {
             var cartWin = new CartCheckoutWindow();
             cartWin.Show();
-            Close();
-        }
-
-        private void btnOpenOrders_Click(object sender, RoutedEventArgs e)
-        {
-            var ordersWin = new CustomerOrdersWindow();
-            ordersWin.Show();
-            Close();
-        }
-
-        private void btnOpenAdmin_Click(object sender, RoutedEventArgs e)
-        {
-            if (!SessionManager.IsAdmin)
-            {
-                MessageBox.Show("Chỉ tài khoản Admin mới có thể truy cập Admin Dashboard!", "Phân quyền", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var adminWin = new AdminDashboardWindow();
-            adminWin.Show();
-            Close();
-        }
-
-        private void btnOpenProfile_Click(object sender, RoutedEventArgs e)
-        {
-            var profileWin = new UserProfileWindow("BookList");
-            profileWin.Show();
-            Close();
-        }
-
-        private void btnAuthAction_Click(object sender, RoutedEventArgs e)
-        {
-            SessionManager.Logout();
-            var loginWin = new LoginWindow();
-            loginWin.Show();
             Close();
         }
     }

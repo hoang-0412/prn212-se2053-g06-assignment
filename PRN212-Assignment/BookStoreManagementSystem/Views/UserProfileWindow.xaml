@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BookStoreManagementSystem"
         mc:Ignorable="d"
         Title="BookStore - Hồ Sơ Cá Nhân &amp; Bảo Mật Tài Khoản"
         Height="860" Width="1360"
@@ -125,35 +126,7 @@
         </Grid.RowDefinitions>
 
         <!-- ==================== 1. TOP NAVIGATION BAR ==================== -->
-        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="⬅️ Quay Lại" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,10,0" Click="btnBack_Click" />
-                    <Button Content="🏠 Trang Chủ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnGoHome_Click" />
-                    <Button Content="📚 Danh Sách Sách" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnGoBookList_Click" />
-                    <Button Content="🎟️ Voucher Của Tôi" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnOpenVouchers_Click" />
-
-                    <Border Width="1" Height="28" Background="#E2E8F0" Margin="0,0,16,0" />
-
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Bảo Mật &amp; Cá Nhân Hóa" FontWeight="Bold" FontSize="11" Foreground="#4F46E5" />
-                        <TextBlock Text="Hồ Sơ Cá Nhân, Đổi Mật Khẩu &amp; Quản Lý Sách Thuê" FontWeight="Black" FontSize="15" Foreground="#0F172A" />
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="btnOpenAdmin" Content="🛠️ Admin Dashboard" Style="{StaticResource SecondaryButtonStyle}"
-                            Background="#FEF3C7" BorderBrush="#FDE68A" Foreground="#B45309" Margin="0,0,10,0" Click="btnOpenAdmin_Click" />
-                    <Button Content="🔄 Đăng Xuất" Style="{StaticResource SecondaryButtonStyle}" Click="btnLogout_Click" />
-                </StackPanel>
-            </Grid>
-        </Border>
+        <local:StoreHeaderControl x:Name="headerControl" Grid.Row="0" ActiveNav="" />
 
         <!-- ==================== 2. MAIN CONTENT ==================== -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="28,22">

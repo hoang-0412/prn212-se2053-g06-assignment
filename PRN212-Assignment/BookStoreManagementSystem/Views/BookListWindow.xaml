@@ -133,33 +133,10 @@
         <DockPanel LastChildFill="True">
 
             <!-- ==================== 1. TOP HEADER BAR ==================== -->
-            <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,12">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Logo & Page Title -->
-                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="42" Height="42" CornerRadius="10" Background="#4F46E5" Margin="0,0,12,0">
-                            <TextBlock Text="📚" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="DANH MỤC" FontWeight="Black" FontSize="19" Foreground="#4F46E5" />
-                                <TextBlock Text=" TOÀN BỘ SÁCH" FontWeight="Black" FontSize="19" Foreground="#0F172A" />
-                            </StackPanel>
-                            <TextBlock Text="Tra cứu toàn bộ kho sách, hiển thị ảnh bìa &amp; quản lý ảnh sách (Admin)" FontSize="11" Foreground="#64748B" />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <!-- Global Search Input -->
-                    <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="16,0">
+            <StackPanel DockPanel.Dock="Top">
+                <local:StoreHeaderControl x:Name="headerControl" ActiveNav="Categories" SearchClicked="headerControl_SearchClicked" />
+                <Border x:Name="gridHeaderSearchBar" Visibility="Collapsed" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,10">
+                    <Grid MaxWidth="560" HorizontalAlignment="Center" Width="560">
                         <TextBox x:Name="txtSearch"
                                  Style="{StaticResource SearchTextBoxStyle}"
                                  Padding="36,8,30,8"
@@ -175,28 +152,8 @@
                                 Background="Transparent" BorderThickness="0" Foreground="#94A3B8"
                                 Cursor="Hand" Click="btnClearSearch_Click" Visibility="Collapsed" />
                     </Grid>
-
-                    <!-- Right Navigation Actions -->
-                    <WrapPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="0,12,0,0">
-                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,8,0" VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="👤 " FontSize="13" VerticalAlignment="Center" />
-                                <StackPanel>
-                                    <TextBlock x:Name="txtCurrentUserName" Text="Khách vãng lai" FontWeight="Bold" FontSize="12" Foreground="#0F172A" />
-                                    <TextBlock x:Name="txtCurrentUserRole" Text="Khách (Guest)" FontSize="10" Foreground="#64748B" />
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-
-                        <Button x:Name="btnBackHome" Content="🏠 Trang Chủ" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" Click="btnBackHome_Click" />
-                        <Button x:Name="btnOpenCart" Content="🛒 Giỏ Hàng" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenCart_Click" />
-                        <Button x:Name="btnOpenOrders" Content="📦 Đơn Của Tôi" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenOrders_Click" />
-                        <Button x:Name="btnOpenAdmin" Content="🛠️ Admin Dashboard" Style="{StaticResource RentButtonStyle}" Background="#0F172A" Margin="0,0,8,0" Click="btnOpenAdmin_Click" />
-                        <Button x:Name="btnOpenProfile" Content="👤 Hồ Sơ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnOpenProfile_Click" />
-                        <Button x:Name="btnAuthAction" Content="🔐 Tài khoản" Style="{StaticResource SecondaryButtonStyle}" Click="btnAuthAction_Click" />
-                    </WrapPanel>
-                </Grid>
-            </Border>
+                </Border>
+            </StackPanel>
 
             <!-- ==================== 2. TOP KPI SUMMARY STRIP ==================== -->
             <Border DockPanel.Dock="Top" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,10">

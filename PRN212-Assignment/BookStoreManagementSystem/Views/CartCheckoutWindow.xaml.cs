@@ -56,8 +56,7 @@ namespace BookStoreManagementSystem
                 }
             }
 
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
+            headerControl?.RefreshAuthAndCart();
 
             if (SessionManager.CurrentUser != null)
             {
