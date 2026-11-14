@@ -144,8 +144,6 @@
             <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="28,8">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Button x:Name="btnBack" Content="⬅️ Quay Lại" Style="{StaticResource SecondaryButtonStyle}" Padding="10,4" FontSize="12" Margin="0,0,12,0" Click="btnBack_Click" />
-                    <TextBlock x:Name="txtBreadcrumbRoute" Text="/books/detail" FontWeight="Bold" FontSize="12" Foreground="#4F46E5" VerticalAlignment="Center" Margin="0,0,8,0" />
-                    <TextBlock Text="›" FontSize="13" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,8,0" />
                     <TextBlock x:Name="txtBreadcrumbTitle" Text="Chi tiết tác phẩm" FontWeight="Bold" FontSize="13" Foreground="#0F172A" VerticalAlignment="Center" MaxWidth="500" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
             </Border>

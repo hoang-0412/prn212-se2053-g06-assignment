@@ -243,6 +243,8 @@ namespace BookStoreManagementSystem
                     PhoneNumber = u.PhoneNumber,
                     Address = u.Address,
                     RoleName = u.Role?.RoleName ?? "Customer",
+                    UserStatus = string.IsNullOrWhiteSpace(u.UserStatus) ? "active" : u.UserStatus,
+                    BanReason = u.BanReason,
                     OrderCount = u.Orders.Count,
                     ActiveRentalCount = u.Orders.Count(o => string.Equals(o.OrderStatus, "Renting", StringComparison.OrdinalIgnoreCase) || string.Equals(o.OrderStatus, "Đang thuê", StringComparison.OrdinalIgnoreCase) || string.Equals(o.OrderStatus, "Overdue", StringComparison.OrdinalIgnoreCase)),
                     TotalSpent = u.Orders.Where(o => !string.Equals(o.OrderStatus, "Cancelled", StringComparison.OrdinalIgnoreCase)).Sum(o => o.TotalAmount),
@@ -1054,7 +1056,28 @@ namespace BookStoreManagementSystem
                         break;
                     }
                 }
+
+                bool isLocked = IsOrderLocked(order.OrderStatus, order.PaymentStatus);
+                cbAdminEditOrderStatus.IsEnabled = !isLocked;
+                cbAdminEditPaymentStatus.IsEnabled = !isLocked;
+                btnUpdateOrderStatus.IsEnabled = !isLocked;
+                btnConfirmBookReturn.IsEnabled = !isLocked;
             }
+        }
+
+        private static bool IsOrderLocked(string? orderStatus, string? paymentStatus)
+        {
+            bool isFinalOrderStatus = string.Equals(orderStatus, "Cancelled", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(orderStatus, "Returned", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(orderStatus, "Completed", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(orderStatus, "Đã hủy", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(orderStatus, "Đã trả sách", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(orderStatus, "Hoàn thành", StringComparison.OrdinalIgnoreCase);
+
+            bool isPaid = string.Equals(paymentStatus, "Paid", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(paymentStatus, "Đã thanh toán", StringComparison.OrdinalIgnoreCase);
+
+            return isFinalOrderStatus || isPaid;
         }
 
         private void btnUpdateOrderStatus_Click(object sender, RoutedEventArgs e)
@@ -1062,6 +1085,12 @@ namespace BookStoreManagementSystem
             if (_selectedOrder == null)
             {
                 MessageBox.Show("Vui lòng chọn một đơn hàng từ danh sách bên trái!", "Chưa chọn đơn", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (IsOrderLocked(_selectedOrder.OrderStatus, _selectedOrder.PaymentStatus))
+            {
+                MessageBox.Show("Đơn hàng đã ở trạng thái khóa (Đã hủy / Đã trả sách / Hoàn thành / Đã thanh toán), không thể chỉnh sửa!", "Không thể chỉnh sửa", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1078,6 +1107,12 @@ namespace BookStoreManagementSystem
                     .FirstOrDefault(o => o.OrderId == _selectedOrder.OrderId);
 
                 if (order == null) return;
+
+                if (IsOrderLocked(order.OrderStatus, order.PaymentStatus))
+                {
+                    MessageBox.Show("Đơn hàng đã ở trạng thái khóa (Đã hủy / Đã trả sách / Hoàn thành / Đã thanh toán), không thể chỉnh sửa!", "Không thể chỉnh sửa", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
                 string oldStatus = order.OrderStatus;
                 order.OrderStatus = newOrderStatus;
@@ -1119,9 +1154,9 @@ namespace BookStoreManagementSystem
                 return;
             }
 
-            if (string.Equals(_selectedOrder.OrderStatus, "Returned", StringComparison.OrdinalIgnoreCase))
+            if (IsOrderLocked(_selectedOrder.OrderStatus, _selectedOrder.PaymentStatus))
             {
-                MessageBox.Show("Đơn thuê sách này đã được xác nhận trả trước đó!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Đơn hàng đã ở trạng thái khóa (Đã hủy / Đã trả sách / Hoàn thành / Đã thanh toán), không thể chỉnh sửa!", "Không thể chỉnh sửa", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -1133,6 +1168,12 @@ namespace BookStoreManagementSystem
                     .FirstOrDefault(o => o.OrderId == _selectedOrder.OrderId);
 
                 if (order == null) return;
+
+                if (IsOrderLocked(order.OrderStatus, order.PaymentStatus))
+                {
+                    MessageBox.Show("Đơn hàng đã ở trạng thái khóa (Đã hủy / Đã trả sách / Hoàn thành / Đã thanh toán), không thể chỉnh sửa!", "Không thể chỉnh sửa", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
                 order.OrderStatus = "Returned";
                 order.PaymentStatus = "Paid";
@@ -1255,7 +1296,6 @@ namespace BookStoreManagementSystem
                 cbAdminUserRole.SelectedValue = u.RoleId;
                 txtAdminUserPassword.Text = "";
 
-                borderUserSecurityNotice.Visibility = isOtherAccount ? Visibility.Visible : Visibility.Collapsed;
                 lblAdminUserEmail.Visibility = isOtherAccount ? Visibility.Collapsed : Visibility.Visible;
                 txtAdminUserEmail.Visibility = isOtherAccount ? Visibility.Collapsed : Visibility.Visible;
                 txtAdminUserEmail.IsReadOnly = isOtherAccount;
@@ -1283,7 +1323,6 @@ namespace BookStoreManagementSystem
             txtAdminUserPhone.Text = "";
             txtAdminUserAddress.Text = "";
             if (cbAdminUserRole.Items.Count > 0) cbAdminUserRole.SelectedIndex = 0;
-            borderUserSecurityNotice.Visibility = Visibility.Collapsed;
             lblAdminUserEmail.Visibility = Visibility.Visible;
             txtAdminUserEmail.Visibility = Visibility.Visible;
             txtAdminUserEmail.IsReadOnly = false;
@@ -1426,24 +1465,102 @@ namespace BookStoreManagementSystem
 
                 if (user == null) return;
 
-                if (user.Orders.Any())
+                if (string.Equals(user.UserStatus, "deActive", StringComparison.OrdinalIgnoreCase))
                 {
-                    MessageBox.Show($"Tài khoản '{user.FullName}' đã có {user.Orders.Count} đơn hàng trong lịch sử nên không thể xóa khỏi CSDL!", "Ràng buộc đơn hàng", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Tài khoản '{user.FullName}' đã ở trạng thái deActive!\nLý do: {user.BanReason}", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
-                if (MessageBox.Show($"Xác nhận xóa tài khoản '{user.FullName}'?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    context.Users.Remove(user);
-                    context.SaveChanges();
-                    btnClearUserForm_Click(sender, e);
-                    LoadAllDashboardData();
-                }
+                string? reason = PromptBanReason(user.FullName);
+                if (string.IsNullOrWhiteSpace(reason)) return;
+
+                user.UserStatus = "deActive";
+                user.BanReason = reason.Trim();
+                context.SaveChanges();
+                btnClearUserForm_Click(sender, e);
+                LoadAllDashboardData();
+                MessageBox.Show($"✅ Đã chuyển tài khoản '{user.FullName}' sang trạng thái deActive!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi xóa người dùng:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lỗi khi vô hiệu hóa người dùng:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private string? PromptBanReason(string fullName)
+        {
+            var dlg = new Window
+            {
+                Title = $"Khóa tài khoản {fullName}",
+                Width = 420,
+                Height = 250,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize,
+                Background = System.Windows.Media.Brushes.White
+            };
+
+            var root = new StackPanel { Margin = new Thickness(20) };
+            root.Children.Add(new TextBlock
+            {
+                Text = $"Nhập lý do vô hiệu hóa tài khoản '{fullName}' *",
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 10)
+            });
+
+            var txtReason = new TextBox
+            {
+                Height = 84,
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+                Padding = new Thickness(10, 8, 10, 8),
+                FontSize = 13,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            root.Children.Add(txtReason);
+
+            var btnRow = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 16, 0, 0)
+            };
+
+            string? result = null;
+            var btnCancel = new Button { Content = "Đóng", Width = 85, Height = 34, Margin = new Thickness(0, 0, 8, 0) };
+            btnCancel.Click += (_, _) => { dlg.DialogResult = false; dlg.Close(); };
+
+            var btnConfirm = new Button
+            {
+                Content = "Xác nhận",
+                Width = 110,
+                Height = 34,
+                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#DC2626")),
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.Bold,
+                BorderThickness = new Thickness(0)
+            };
+            btnConfirm.Click += (_, _) =>
+            {
+                if (string.IsNullOrWhiteSpace(txtReason.Text))
+                {
+                    MessageBox.Show("Vui lòng nhập lý do vô hiệu hóa tài khoản!", "Thiếu lý do", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    txtReason.Focus();
+                    return;
+                }
+                result = txtReason.Text.Trim();
+                dlg.DialogResult = true;
+                dlg.Close();
+            };
+
+            btnRow.Children.Add(btnCancel);
+            btnRow.Children.Add(btnConfirm);
+            root.Children.Add(btnRow);
+            dlg.Content = root;
+
+            return dlg.ShowDialog() == true ? result : null;
         }
 
         // ==================== NAVIGATION & REPORT EXPORT ====================

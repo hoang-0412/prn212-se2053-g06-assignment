@@ -602,6 +602,8 @@ namespace BookStoreManagementSystem.ViewModels
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
         public string RoleName { get; set; } = string.Empty;
+        public string UserStatus { get; set; } = "active";
+        public string? BanReason { get; set; }
         public int OrderCount { get; set; }
         public int ActiveRentalCount { get; set; }
         public decimal TotalSpent { get; set; }

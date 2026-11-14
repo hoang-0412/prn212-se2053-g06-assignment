@@ -25,8 +25,9 @@ namespace BookStoreManagementSystem
         private string _statusFilterMode = "All";
 
         private int _currentPage = 1;
-        private int _pageSize = 10;
+        private int _pageSize = 8;
         private int _totalPages = 1;
+        private System.Windows.Controls.Primitives.UniformGrid? _booksUniformGrid;
 
         public BookListWindow()
         {
@@ -266,6 +267,30 @@ namespace BookStoreManagementSystem
                 panelEmptyState.Visibility = Visibility.Collapsed;
                 scrollGridView.Visibility = _isTableView ? Visibility.Collapsed : Visibility.Visible;
                 borderTableView.Visibility = _isTableView ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        private void BooksUniformGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            _booksUniformGrid = sender as System.Windows.Controls.Primitives.UniformGrid;
+            UpdateBooksGridColumns();
+        }
+
+        private void scrollGridView_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateBooksGridColumns();
+        }
+
+        private void UpdateBooksGridColumns()
+        {
+            if (_booksUniformGrid == null || scrollGridView == null) return;
+            double availWidth = scrollGridView.ViewportWidth > 0 ? scrollGridView.ViewportWidth : scrollGridView.ActualWidth;
+            if (availWidth <= 0) return;
+
+            int cols = Math.Max(2, (int)Math.Floor(availWidth / 250.0));
+            if (_booksUniformGrid.Columns != cols)
+            {
+                _booksUniformGrid.Columns = cols;
             }
         }
 

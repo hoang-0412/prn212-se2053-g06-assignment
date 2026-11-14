@@ -299,6 +299,13 @@ public partial class BookStoreDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("phoneNumber");
             entity.Property(e => e.RoleId).HasColumnName("roleId");
+            entity.Property(e => e.UserStatus)
+                .HasMaxLength(20)
+                .HasDefaultValue("active")
+                .HasColumnName("userStatus");
+            entity.Property(e => e.BanReason)
+                .HasMaxLength(500)
+                .HasColumnName("banReason");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)

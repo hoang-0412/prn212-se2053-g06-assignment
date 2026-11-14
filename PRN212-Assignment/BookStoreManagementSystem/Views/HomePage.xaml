@@ -529,7 +529,7 @@
                                     <TextBlock Text="Thông Tin Liên Hệ" FontWeight="Bold" FontSize="13.5" Foreground="White" Margin="0,0,0,12" />
                                     <TextBlock Text="Địa chỉ: FPT UNIVERSITY, HÀ NỘI, VIỆT NAM" FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6" />
                                     <TextBlock Text="Hotline: 0965 551 664" FontSize="12" Foreground="#94A3B8" Margin="0,0,0,6" />
-                                    <TextBlock Text="Email: prn212.se2053.g06@gmail.com" FontSize="12" Foreground="#94A3B8" />
+                                    <TextBlock Text="Email: prn212.se2053.g07@gmail.com" FontSize="12" Foreground="#94A3B8" />
                                 </StackPanel>
                             </Grid>
 

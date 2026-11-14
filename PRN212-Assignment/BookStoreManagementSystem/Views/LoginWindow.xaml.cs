@@ -225,7 +225,7 @@ namespace BookStoreManagementSystem
         private void btnForgotPassword_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(
-                "Vui lòng liên hệ quản trị viên G07 BookStore (Hotline: 0985 101 804) để được hỗ trợ cấp lại mật khẩu tài khoản của bạn.",
+                "Vui lòng liên hệ quản trị viên G07 BookStore (Hotline: 0965 551 664) để được hỗ trợ cấp lại mật khẩu tài khoản của bạn.",
                 "Quên mật khẩu",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);

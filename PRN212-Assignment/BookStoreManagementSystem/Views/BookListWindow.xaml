@@ -308,16 +308,16 @@
                         </Border>
 
                         <!-- MODE 1: CARD GRID VIEW -->
-                        <ScrollViewer x:Name="scrollGridView" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer x:Name="scrollGridView" VerticalScrollBarVisibility="Auto" SizeChanged="scrollGridView_SizeChanged">
                             <ItemsControl x:Name="icBooksGrid">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" />
+                                        <UniformGrid Columns="4" VerticalAlignment="Top" Loaded="BooksUniformGrid_Loaded" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Width="252" Height="422" Margin="0,0,14,14" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Effect="{StaticResource CardShadow}">
+                                        <Border Height="422" Margin="7" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Effect="{StaticResource CardShadow}">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="182" />

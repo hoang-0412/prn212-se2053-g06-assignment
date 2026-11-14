@@ -685,7 +685,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <Button Content="💾 Cập Nhật Trạng Thái Đơn Hàng" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,8" Click="btnUpdateOrderStatus_Click" />
+                                <Button x:Name="btnUpdateOrderStatus" Content="💾 Cập Nhật Trạng Thái Đơn Hàng" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,8" Click="btnUpdateOrderStatus_Click" />
                                 <Button x:Name="btnConfirmBookReturn" Content="📥 Xác Nhận Khách Đã Trả Sách (Hoàn Kho)" Style="{StaticResource SuccessButtonStyle}" Margin="0,0,0,8" Click="btnConfirmBookReturn_Click" />
                                 <Button Content="➕ Tạo Đơn Mua / Thuê Mới (Chọn User hoặc Khách lẻ)" Style="{StaticResource SecondaryButtonStyle}" Click="btnOpenCreateOrderPos_Click" />
                             </StackPanel>
@@ -863,6 +863,7 @@
                                     <DataGridTextColumn Header="Email" Binding="{Binding DisplayEmail}" Width="190" />
                                     <DataGridTextColumn Header="Số ĐT" Binding="{Binding PhoneNumber}" Width="110" />
                                     <DataGridTextColumn Header="Vai Trò" Binding="{Binding RoleName}" Width="95" FontWeight="Bold" />
+                                    <DataGridTextColumn Header="Trạng Thái" Binding="{Binding UserStatus}" Width="85" FontWeight="SemiBold" />
                                     <DataGridTextColumn Header="Số Đơn" Binding="{Binding OrderCount}" Width="65" />
                                     <DataGridTextColumn Header="Đang Thuê" Binding="{Binding ActiveRentalCount}" Width="80" />
                                     <DataGridTextColumn Header="Tổng Chi Tiêu" Binding="{Binding FormattedTotalSpent}" Width="115" FontWeight="SemiBold" />
@@ -880,9 +881,6 @@
                             </Grid>
 
                             <TextBlock Text="HỌ VÀ TÊN *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                            <Border x:Name="borderUserSecurityNotice" Visibility="Collapsed" Background="#FFFBEB" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,12">
-                                <TextBlock x:Name="txtUserSecurityNotice" Text="🔒 Bảo mật: Admin không thể xem hoặc sửa thông tin đăng nhập (Email, Mật khẩu) của khách hàng / tài khoản khác." FontSize="11" FontWeight="SemiBold" Foreground="#B45309" TextWrapping="Wrap" />
-                            </Border>
                             <TextBox x:Name="txtAdminUserFullName" Style="{StaticResource FormTextBoxStyle}" Margin="0,0,0,10" />
 
                             <TextBlock x:Name="lblAdminUserEmail" Text="EMAIL ĐĂNG NHẬP *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />

@@ -110,8 +110,7 @@ namespace BookStoreManagementSystem
         {
             if (_currentBook == null) return;
 
-            Title = $"BookStore - {_currentBook.Title} (/books/detail/{_currentBook.BookId})";
-            txtBreadcrumbRoute.Text = $"/books/detail/{_currentBook.BookId}";
+            Title = $"BookStore - {_currentBook.Title}";
             txtBreadcrumbTitle.Text = _currentBook.Title;
 
             txtCategoryBadge.Text = $"📚 {_currentBook.CategoryName}";
