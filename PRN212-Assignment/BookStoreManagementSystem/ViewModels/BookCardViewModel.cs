@@ -486,6 +486,8 @@ namespace BookStoreManagementSystem.ViewModels
         public int Quantity { get; set; }
         public string OrderType { get; set; } = "Mua"; // "Mua" hoặc "Thuê"
         public int RentalDays { get; set; } = 0; // 0 nếu Mua, 7/14/30 nếu Thuê
+        public bool IsForRent { get; set; }
+        public bool IsForSale => !IsForRent;
         public ImageSource? CoverImage { get; set; }
         public bool HasCoverImage => CoverImage != null;
         public bool HasNoCoverImage => CoverImage == null;
