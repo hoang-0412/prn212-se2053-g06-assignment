@@ -180,10 +180,10 @@ namespace BookStoreManagementSystem
             txtProfileDetailPhone.Text = $"SĐT nhận: {order.RecipientPhone}";
             txtProfileDetailAddress.Text = $"Địa chỉ: {order.ShippingAddress}";
             txtProfileDetailPayment.Text = $"Thanh toán: {order.PaymentMethod} ({order.PaymentStatus})";
-            txtProfileDetailTotal.Text = $"Tiền sách: {order.FormattedItemsSubtotal}\n" +
-                                         $"Phí vận chuyển: {order.FormattedShippingFee}\n" +
-                                         $"Giảm giá voucher: {order.FormattedDiscountAmount}\n" +
-                                         $"Tổng phải trả: {order.FormattedTotalAmount}";
+            txtProfileDetailItemsSubtotal.Text = order.FormattedItemsSubtotal;
+            txtProfileDetailShippingFee.Text = order.FormattedShippingFee;
+            txtProfileDetailDiscountAmount.Text = order.FormattedDiscountAmount;
+            txtProfileDetailTotal.Text = order.FormattedTotalAmount;
             dgProfileOrderItems.ItemsSource = order.Items;
             panelProfileOrderDetail.Visibility = Visibility.Visible;
         }

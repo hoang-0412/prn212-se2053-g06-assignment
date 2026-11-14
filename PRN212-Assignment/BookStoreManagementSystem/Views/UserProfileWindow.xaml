@@ -283,12 +283,27 @@
                                         </DataGrid.Columns>
                                     </DataGrid>
 
-                                    <Border BorderBrush="#C7D2FE" BorderThickness="0,1,0,0" Padding="0,7,0,0">
-                                        <Grid>
-                                            <TextBlock Text="TỔNG THANH TOÁN:" FontSize="13" FontWeight="Bold" Foreground="#334155" />
-                                            <TextBlock x:Name="txtProfileDetailTotal" Text="0 đ" HorizontalAlignment="Right"
-                                                       TextAlignment="Right" TextWrapping="Wrap" FontSize="16" FontWeight="Black" Foreground="#4F46E5" />
-                                        </Grid>
+                                    <Border Background="#EEF2FF" CornerRadius="10" Padding="14,10">
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,4">
+                                                <TextBlock Text="Tiền sách:" FontSize="12" Foreground="#475569" />
+                                                <TextBlock x:Name="txtProfileDetailItemsSubtotal" Text="0 đ" FontSize="12" Foreground="#334155" HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <Grid Margin="0,0,0,4">
+                                                <TextBlock Text="Phí vận chuyển:" FontSize="12" Foreground="#475569" />
+                                                <TextBlock x:Name="txtProfileDetailShippingFee" Text="0 đ" FontSize="12" Foreground="#334155" HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <TextBlock Text="Giảm giá voucher:" FontSize="12" Foreground="#475569" />
+                                                <TextBlock x:Name="txtProfileDetailDiscountAmount" Text="-0 đ" FontSize="12" Foreground="#10B981" HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <Border BorderBrush="#C7D2FE" BorderThickness="0,1,0,0" Padding="0,7,0,0">
+                                                <Grid>
+                                                    <TextBlock Text="TỔNG CỘNG ĐƠN HÀNG:" FontSize="13" FontWeight="Bold" Foreground="#334155" VerticalAlignment="Center" />
+                                                    <TextBlock x:Name="txtProfileDetailTotal" Text="0 đ" FontSize="18" FontWeight="Black" Foreground="#4F46E5" HorizontalAlignment="Right" />
+                                                </Grid>
+                                            </Border>
+                                        </StackPanel>
                                     </Border>
                                 </StackPanel>
                             </Border>
