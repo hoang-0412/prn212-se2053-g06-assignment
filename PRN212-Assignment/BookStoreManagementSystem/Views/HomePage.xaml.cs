@@ -700,8 +700,8 @@ namespace BookStoreManagementSystem
             btnDetailSetSelectedAsCover.IsEnabled = _selectedGalleryImage != null;
             btnDetailDeleteSelectedImage.IsEnabled = _selectedGalleryImage != null;
 
-            btnDetailAddToCart.IsEnabled = book.IsInStock;
-            btnDetailRentBook.IsEnabled = book.IsInStock;
+            btnDetailAddToCart.IsEnabled = book.IsInStock && book.IsForSale;
+            btnDetailRentBook.IsEnabled = book.IsInStock && book.IsForRent;
 
             gridDetailModal.Visibility = Visibility.Visible;
         }
@@ -978,8 +978,7 @@ namespace BookStoreManagementSystem
             {
                 if (book.IsForRent)
                 {
-                    // Sách đang để chế độ Cho thuê nhưng khách bấm nút Mua -> vẫn cho phép mua theo giá bìa
-                    AddToCart(book, orderType: "Mua", rentalDays: 0, unitPrice: book.Price);
+                    AddToCart(book, orderType: "Thuê", rentalDays: 7, unitPrice: book.RentalPrice7Days);
                 }
                 else
                 {

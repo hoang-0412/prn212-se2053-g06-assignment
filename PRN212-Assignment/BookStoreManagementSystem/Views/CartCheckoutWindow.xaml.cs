@@ -111,6 +111,7 @@ namespace BookStoreManagementSystem
                             Quantity = ci.Quantity,
                             OrderType = isRent ? "Thuê" : "Mua",
                             RentalDays = isRent ? 7 : 0,
+                            IsForRent = isRent,
                             CoverImage = BookCardViewModel.LoadImageSafe(coverBytes)
                         });
                     }
@@ -213,6 +214,7 @@ namespace BookStoreManagementSystem
         {
             if (sender is Button btn && btn.Tag is CartItemViewModel item)
             {
+                if (item.IsForRent) return;
                 item.OrderType = "Mua";
                 item.RentalDays = 0;
                 item.UnitPrice = item.OriginalBookPrice;
@@ -224,6 +226,7 @@ namespace BookStoreManagementSystem
         {
             if (sender is Button btn && btn.Tag is CartItemViewModel item)
             {
+                if (item.IsForSale) return;
                 item.OrderType = "Thuê";
                 item.RentalDays = 7;
                 item.UnitPrice = Math.Max(10000m, Math.Round(item.OriginalBookPrice * 0.15m / 1000m, 0) * 1000m);
@@ -235,6 +238,7 @@ namespace BookStoreManagementSystem
         {
             if (sender is Button btn && btn.Tag is CartItemViewModel item)
             {
+                if (item.IsForSale) return;
                 item.OrderType = "Thuê";
                 item.RentalDays = 14;
                 item.UnitPrice = Math.Max(15000m, Math.Round(item.OriginalBookPrice * 0.25m / 1000m, 0) * 1000m);
@@ -246,6 +250,7 @@ namespace BookStoreManagementSystem
         {
             if (sender is Button btn && btn.Tag is CartItemViewModel item)
             {
+                if (item.IsForSale) return;
                 item.OrderType = "Thuê";
                 item.RentalDays = 30;
                 item.UnitPrice = Math.Max(25000m, Math.Round(item.OriginalBookPrice * 0.40m / 1000m, 0) * 1000m);

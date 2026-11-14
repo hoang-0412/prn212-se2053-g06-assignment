@@ -134,10 +134,19 @@ namespace BookStoreManagementSystem
             txtBuyQuantity.Text = _buyQuantity.ToString();
             txtDescription.Text = _currentBook.Description;
 
-            btnAddToCartBuy.IsEnabled = _currentBook.IsInStock;
-            btnBuyNow.IsEnabled = _currentBook.IsInStock;
-            btnAddRentToCart.IsEnabled = _currentBook.IsInStock;
-            btnRentNow.IsEnabled = _currentBook.IsInStock;
+            bool canBuy = _currentBook.IsInStock && _currentBook.IsForSale;
+            bool canRent = _currentBook.IsInStock && _currentBook.IsForRent;
+
+            btnDecreaseQty.IsEnabled = canBuy;
+            btnIncreaseQty.IsEnabled = canBuy;
+            btnAddToCartBuy.IsEnabled = canBuy;
+            btnBuyNow.IsEnabled = canBuy;
+
+            rbRent7Days.IsEnabled = canRent;
+            rbRent14Days.IsEnabled = canRent;
+            rbRent30Days.IsEnabled = canRent;
+            btnAddRentToCart.IsEnabled = canRent;
+            btnRentNow.IsEnabled = canRent;
 
             // Cập nhật gói thuê
             if (rbRent7Days != null)
@@ -451,22 +460,25 @@ namespace BookStoreManagementSystem
 
         private void btnAddToCartBuy_Click(object sender, RoutedEventArgs e)
         {
+            if (_currentBook == null || !_currentBook.IsForSale) return;
             AddBookToUserCart(_buyQuantity, navigateToHome: false);
         }
 
         private void btnBuyNow_Click(object sender, RoutedEventArgs e)
         {
+            if (_currentBook == null || !_currentBook.IsForSale) return;
             AddBookToUserCart(_buyQuantity, navigateToHome: true);
         }
 
         private void btnAddRentToCart_Click(object sender, RoutedEventArgs e)
         {
+            if (_currentBook == null || !_currentBook.IsForRent) return;
             AddBookToUserCart(1, navigateToHome: false);
         }
 
         private void btnRentNow_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentBook == null || !_currentBook.IsInStock) return;
+            if (_currentBook == null || !_currentBook.IsInStock || !_currentBook.IsForRent) return;
 
             var (days, fee) = GetSelectedRentPackage();
             txtModalRentBookTitle.Text = _currentBook.Title;
