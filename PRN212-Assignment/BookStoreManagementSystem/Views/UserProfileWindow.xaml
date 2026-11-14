@@ -169,7 +169,8 @@
                             <TextBlock Text="ĐỊA CHỈ NHẬN SÁCH MẶC ĐỊNH" FontSize="11" FontWeight="Bold" Foreground="#475569" Margin="0,0,0,4" />
                             <TextBox x:Name="txtProfileAddress" Style="{StaticResource InputTextBoxStyle}" Margin="0,0,0,16" />
 
-                            <Button Content="💾 Lưu Thông Tin Cá Nhân" Style="{StaticResource PrimaryButtonStyle}" Click="btnSaveProfile_Click" />
+                            <Button Content="💾 Lưu Thông Tin Cá Nhân" Style="{StaticResource PrimaryButtonStyle}" Click="btnSaveProfile_Click" Margin="0,0,0,10" />
+                            <Button Content="🎟️ Nhập và lưu voucher" Style="{StaticResource SecondaryButtonStyle}" Click="btnOpenVouchers_Click" />
                         </StackPanel>
                     </Border>
 
