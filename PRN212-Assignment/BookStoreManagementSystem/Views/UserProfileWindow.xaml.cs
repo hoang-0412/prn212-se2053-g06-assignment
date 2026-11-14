@@ -58,7 +58,7 @@ namespace BookStoreManagementSystem
 
         private void LoadProfileAndOrders()
         {
-            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            headerControl?.RefreshAuthAndCart();
 
             if (SessionManager.CurrentUser == null) return;
 
@@ -116,18 +116,6 @@ namespace BookStoreManagementSystem
                         UnitPrice = i.UnitPrice
                     }).ToList()
                 }).ToList();
-
-                int rentCount = _myOrders.Count(o => o.IsRentalOrder);
-                int buyCount = _myOrders.Count - rentCount;
-                int activeRentCount = _myOrders.Count(o => o.CanReturnBook);
-                decimal totalSpent = _myOrders
-                    .Where(o => !string.Equals(o.OrderStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
-                    .Sum(o => o.TotalAmount);
-
-                txtStatTotalOrders.Text = $"{_myOrders.Count} đơn";
-                txtStatOrderBreakdown.Text = $"{buyCount} đơn mua • {rentCount} đơn thuê";
-                txtStatActiveRentals.Text = $"{activeRentCount} đơn đang thuê";
-                txtStatTotalSpent.Text = $"{totalSpent:N0} đ";
 
                 ApplyOrderFilter();
             }
@@ -368,23 +356,10 @@ namespace BookStoreManagementSystem
 
                     if (order == null) return;
 
-                    order.OrderStatus = "Returned";
-                    foreach (var item in order.OrderItems)
-                    {
-                        var book = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
-                        if (book != null)
-                        {
-                            book.StockQuantity += item.Quantity;
-                            if (string.Equals(book.BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase))
-                            {
-                                book.BookStatus = "Cho thuê";
-                            }
-                        }
-                    }
-
+                    order.OrderStatus = "ReturnPending";
                     context.SaveChanges();
                     LoadProfileAndOrders();
-                    MessageBox.Show($"📥 Đã hoàn trả sách cho đơn {orderVm.OrderCode} thành công!", "Hoàn trả thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"⏳ Đã gửi yêu cầu trả sách cho đơn {orderVm.OrderCode}.\nTrạng thái: Chờ xác nhận trả. Admin sẽ kiểm tra và xác nhận hoàn kho!", "Chờ xác nhận trả sách", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {

@@ -40,10 +40,7 @@ namespace BookStoreManagementSystem
 
         private void UpdateHeaderAuthUI()
         {
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
-            btnAuthAction.Content = SessionManager.IsLoggedIn ? "🔄 Đổi TK / Thoát" : "🔐 Đăng Nhập";
-            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            headerControl?.RefreshAuthAndCart();
 
             panelAdminImageManager.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
             panelAdminQuickBookActions.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
@@ -113,8 +110,7 @@ namespace BookStoreManagementSystem
         {
             if (_currentBook == null) return;
 
-            Title = $"BookStore - {_currentBook.Title} (/books/detail/{_currentBook.BookId})";
-            txtBreadcrumbRoute.Text = $"/books/detail/{_currentBook.BookId}";
+            Title = $"BookStore - {_currentBook.Title}";
             txtBreadcrumbTitle.Text = _currentBook.Title;
 
             txtCategoryBadge.Text = $"📚 {_currentBook.CategoryName}";
@@ -551,11 +547,7 @@ namespace BookStoreManagementSystem
                     UnitPrice = fee
                 });
 
-                dbBook.StockQuantity -= 1;
-                if (dbBook.StockQuantity == 0)
-                {
-                    dbBook.BookStatus = "Đã thuê";
-                }
+                dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - 1);
 
                 context.SaveChanges();
 

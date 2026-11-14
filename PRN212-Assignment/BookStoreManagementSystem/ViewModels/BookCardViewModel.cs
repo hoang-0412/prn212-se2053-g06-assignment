@@ -42,16 +42,15 @@ namespace BookStoreManagementSystem.ViewModels
         public decimal Price { get; set; }
         public string FormattedPrice => Price.ToString("N0") + " đ";
         public int StockQuantity { get; set; }
-        public string StockStatusText => IsRentedOut ? "Đang được thuê" : (StockQuantity > 0 ? $"Còn {StockQuantity} cuốn" : "Hết hàng");
-        public bool IsInStock => StockQuantity > 0 && !IsRentedOut;
+        public string StockStatusText => StockQuantity > 0 ? $"Còn {StockQuantity} cuốn" : "Hết hàng";
+        public bool IsInStock => StockQuantity > 0;
         public string StockBadgeColor => IsInStock ? "#DCFCE7" : "#FEE2E2";
         public string StockTextColor => IsInStock ? "#15803D" : "#DC2626";
         public string? Description { get; set; }
         public string BookStatus { get; set; } = "Bán";
 
         public bool IsForRent => string.Equals(BookStatus, "Cho thuê", StringComparison.OrdinalIgnoreCase);
-        public bool IsRentedOut => string.Equals(BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase);
-        public bool IsForSale => !IsForRent && !IsRentedOut;
+        public bool IsForSale => !IsForRent;
 
         public decimal RentalPrice7Days => Math.Max(10000m, Math.Round(Price * 0.15m / 1000m, 0) * 1000m);
         public decimal RentalPrice14Days => Math.Max(18000m, Math.Round(Price * 0.25m / 1000m, 0) * 1000m);
@@ -65,17 +64,16 @@ namespace BookStoreManagementSystem.ViewModels
 
         public string SecondaryPriceDisplay => IsForRent
             ? $"Giá bìa: {FormattedPrice}"
-            : (IsRentedOut ? $"Giá bìa: {FormattedPrice}" : $"Thuê từ: {RentalPrice7Days:N0} đ");
+            : $"Thuê từ: {RentalPrice7Days:N0} đ";
 
-        public string PrimaryActionText => IsRentedOut
-            ? "⏳ Đã Thuê"
+        public string PrimaryActionText => StockQuantity <= 0
+            ? "❌ Hết Hàng"
             : (IsForRent ? "📅 Thuê Sách" : "🛒 Mua Sách");
 
         public string StatusBadgeColor => BookStatus switch
         {
             "Bán" => "#10B981",
             "Cho thuê" => "#F59E0B",
-            "Đã thuê" => "#6B7280",
             _ => "#6366F1"
         };
 
@@ -528,6 +526,7 @@ namespace BookStoreManagementSystem.ViewModels
         public string OrderStatus { get; set; } = string.Empty;
         public string PaymentMethod { get; set; } = string.Empty;
         public string PaymentStatus { get; set; } = string.Empty;
+        public string? CancelReason { get; set; }
         public DateTime CreatedAt { get; set; }
         public string FormattedCreatedAt => CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
         public string ItemsSummary { get; set; } = string.Empty;
@@ -537,6 +536,8 @@ namespace BookStoreManagementSystem.ViewModels
         public bool IsRentalOrder =>
             OrderStatus.Contains("Thuê", StringComparison.OrdinalIgnoreCase) ||
             OrderStatus.Equals("Renting", StringComparison.OrdinalIgnoreCase) ||
+            OrderStatus.Equals("ReturnPending", StringComparison.OrdinalIgnoreCase) ||
+            OrderStatus.Equals("Chờ xác nhận trả", StringComparison.OrdinalIgnoreCase) ||
             OrderStatus.Equals("Returned", StringComparison.OrdinalIgnoreCase) ||
             OrderStatus.Equals("Đã trả", StringComparison.OrdinalIgnoreCase) ||
             PaymentMethod.Contains("Thuê", StringComparison.OrdinalIgnoreCase) ||
@@ -553,9 +554,17 @@ namespace BookStoreManagementSystem.ViewModels
             "Completed" => "Hoàn thành",
             "Cancelled" => "Đã hủy",
             "Renting" or "Đang thuê" => "Đang thuê sách",
+            "ReturnPending" or "Chờ xác nhận trả" => "Chờ xác nhận trả",
             "Returned" or "Đã trả" => "Đã trả sách",
             "Overdue" or "Quá hạn" => "Quá hạn trả",
             _ => OrderStatus
+        };
+
+        public string PaymentStatusDisplay => PaymentStatus switch
+        {
+            "Paid" => "Đã thanh toán",
+            "Refunded" => "Đã hoàn tiền",
+            _ => "Chưa thanh toán"
         };
 
         public string StatusBadgeColor => OrderStatus switch
@@ -565,13 +574,17 @@ namespace BookStoreManagementSystem.ViewModels
             "Completed" => "#10B981",
             "Cancelled" => "#EF4444",
             "Renting" or "Đang thuê" => "#8B5CF6",
+            "ReturnPending" or "Chờ xác nhận trả" => "#D97706",
             "Returned" or "Đã trả" => "#059669",
             "Overdue" or "Quá hạn" => "#DC2626",
             _ => "#64748B"
         };
 
         public bool CanCancel =>
-            string.Equals(OrderStatus, "Pending", StringComparison.OrdinalIgnoreCase);
+            string.Equals(OrderStatus, "Pending", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(OrderStatus, "Processing", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(OrderStatus, "Renting", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(OrderStatus, "Đang thuê", StringComparison.OrdinalIgnoreCase);
 
         public bool CanReturnBook =>
             string.Equals(OrderStatus, "Renting", StringComparison.OrdinalIgnoreCase) ||
@@ -589,13 +602,17 @@ namespace BookStoreManagementSystem.ViewModels
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
         public string RoleName { get; set; } = string.Empty;
+        public string UserStatus { get; set; } = "active";
+        public string? BanReason { get; set; }
         public int OrderCount { get; set; }
         public int ActiveRentalCount { get; set; }
         public decimal TotalSpent { get; set; }
         public string FormattedTotalSpent => $"{TotalSpent:N0} đ";
         public DateTime CreatedAt { get; set; }
         public string FormattedCreatedAt => CreatedAt.ToLocalTime().ToString("dd/MM/yyyy");
-        public string RoleBadgeColor => RoleId == 2 || string.Equals(RoleName, "Admin", StringComparison.OrdinalIgnoreCase)
+        public bool IsAdminRole => RoleId == 2 || string.Equals(RoleName, "Admin", StringComparison.OrdinalIgnoreCase);
+        public string DisplayEmail => IsAdminRole ? Email : "🔒 Ẩn bảo mật";
+        public string RoleBadgeColor => IsAdminRole
             ? "#7C3AED"
             : "#0284C7";
     }

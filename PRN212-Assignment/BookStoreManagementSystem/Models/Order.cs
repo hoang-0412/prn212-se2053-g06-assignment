@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace BookStoreManagementSystem.Models;
@@ -20,6 +20,8 @@ public partial class Order
     public string PaymentMethod { get; set; } = null!;
 
     public string PaymentStatus { get; set; } = null!;
+
+    public string? CancelReason { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

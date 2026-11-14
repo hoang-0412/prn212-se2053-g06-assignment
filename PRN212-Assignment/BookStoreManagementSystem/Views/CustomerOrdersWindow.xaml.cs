@@ -50,8 +50,7 @@ namespace BookStoreManagementSystem
                 }
             }
 
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
+            headerControl?.RefreshAuthAndCart();
         }
 
         private void LoadOrdersFromDatabase()
@@ -84,6 +83,7 @@ namespace BookStoreManagementSystem
                     OrderStatus = o.OrderStatus,
                     PaymentMethod = o.PaymentMethod,
                     PaymentStatus = o.PaymentStatus,
+                    CancelReason = o.CancelReason,
                     CreatedAt = o.CreatedAt,
                     TotalQuantity = o.OrderItems.Sum(i => i.Quantity),
                     ItemsSummary = string.Join(", ", o.OrderItems.Select(i => $"{i.Book?.Title} (x{i.Quantity})")),
@@ -97,18 +97,6 @@ namespace BookStoreManagementSystem
                         UnitPrice = i.UnitPrice
                     }).ToList()
                 }).ToList();
-
-                int rentCount = _allOrders.Count(o => o.IsRentalOrder);
-                int buyCount = _allOrders.Count - rentCount;
-                int activeRentCount = _allOrders.Count(o => o.CanReturnBook);
-                decimal totalSpent = _allOrders
-                    .Where(o => !string.Equals(o.OrderStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
-                    .Sum(o => o.TotalAmount);
-
-                kpiTotalOrders.Text = $"{_allOrders.Count} đơn";
-                kpiPurchaseOrders.Text = $"{buyCount} đơn mua";
-                kpiActiveRentals.Text = $"{activeRentCount} đơn đang thuê";
-                kpiTotalSpent.Text = $"{totalSpent:N0} đ";
 
                 ApplyFilters();
 
@@ -218,11 +206,16 @@ namespace BookStoreManagementSystem
             }
 
             txtDetailOrderHeader.Text = $"🧾 Đơn Hàng {order.OrderCode}";
-            txtDetailStatusText.Text = $"{order.OrderTypeDisplay} • Trạng thái: {order.StatusDisplay}";
+            txtDetailStatusText.Text = string.IsNullOrWhiteSpace(order.CancelReason)
+                ? $"{order.OrderTypeDisplay} • Trạng thái: {order.StatusDisplay}"
+                : $"{order.OrderTypeDisplay} • Trạng thái: {order.StatusDisplay}\nLý do hủy: {order.CancelReason}";
             txtDetailCreatedAt.Text = $"Ngày đặt: {order.FormattedCreatedAt}";
             txtDetailPhone.Text = $"SĐT nhận: {order.RecipientPhone}";
             txtDetailAddress.Text = $"Địa chỉ / Kỳ hạn: {order.ShippingAddress}";
-            txtDetailPayment.Text = $"Thanh toán: {order.PaymentMethod} ({order.PaymentStatus})";
+            var cleanPaymentMethod = (order.PaymentMethod ?? string.Empty)
+                .Replace(" (Có sách thuê)", "", StringComparison.OrdinalIgnoreCase)
+                .Trim();
+            txtDetailPayment.Text = $"Thanh toán: {cleanPaymentMethod} - {order.PaymentStatusDisplay}";
             txtDetailTotalAmount.Text = order.FormattedTotalAmount;
             dgDetailOrderItems.ItemsSource = order.Items;
 
@@ -289,23 +282,10 @@ namespace BookStoreManagementSystem
 
                 if (dbOrder == null) return;
 
-                dbOrder.OrderStatus = "Returned";
-                foreach (var item in dbOrder.OrderItems)
-                {
-                    var book = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
-                    if (book != null)
-                    {
-                        book.StockQuantity += item.Quantity;
-                        if (string.Equals(book.BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase))
-                        {
-                            book.BookStatus = "Cho thuê";
-                        }
-                    }
-                }
-
+                dbOrder.OrderStatus = "ReturnPending";
                 context.SaveChanges();
                 LoadOrdersFromDatabase();
-                MessageBox.Show($"📥 Đã hoàn trả sách cho đơn {_selectedOrder.OrderCode} thành công!", "Hoàn trả thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"⏳ Đã gửi yêu cầu trả sách cho đơn {_selectedOrder.OrderCode}.\nTrạng thái hiện tại: Chờ xác nhận trả. Admin sẽ kiểm tra và xác nhận hoàn kho!", "Chờ xác nhận trả sách", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -386,16 +366,24 @@ namespace BookStoreManagementSystem
         {
             if (_selectedOrder == null) return;
 
+            var cleanPaymentMethod = (_selectedOrder.PaymentMethod ?? string.Empty)
+                .Replace(" (Có sách thuê)", "", StringComparison.OrdinalIgnoreCase)
+                .Trim();
+
             var sb = new StringBuilder();
             sb.AppendLine("================================================");
-            sb.AppendLine($"        HÓA ĐƠN BOOKSTORE ({_selectedOrder.OrderCode})");
+            sb.AppendLine($"      HÓA ĐƠN G07 BOOKSTORE ({_selectedOrder.OrderCode})");
             sb.AppendLine("================================================");
             sb.AppendLine($"Khách hàng:     {_selectedOrder.CustomerName}");
             sb.AppendLine($"Số điện thoại:  {_selectedOrder.RecipientPhone}");
             sb.AppendLine($"Địa chỉ nhận:   {_selectedOrder.ShippingAddress}");
             sb.AppendLine($"Ngày đặt:       {_selectedOrder.FormattedCreatedAt}");
             sb.AppendLine($"Hình thức:      {_selectedOrder.OrderTypeDisplay} ({_selectedOrder.StatusDisplay})");
-            sb.AppendLine($"Thanh toán:     {_selectedOrder.PaymentMethod} ({_selectedOrder.PaymentStatus})");
+            if (!string.IsNullOrWhiteSpace(_selectedOrder.CancelReason))
+            {
+                sb.AppendLine($"Lý do hủy:      {_selectedOrder.CancelReason}");
+            }
+            sb.AppendLine($"Thanh toán:     {cleanPaymentMethod} - {_selectedOrder.PaymentStatusDisplay}");
             sb.AppendLine("------------------------------------------------");
             foreach (var item in _selectedOrder.Items)
             {
@@ -433,6 +421,12 @@ namespace BookStoreManagementSystem
                 return;
             }
 
+            string? reason = PromptCancelReason(_selectedOrder.OrderCode);
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                return;
+            }
+
             try
             {
                 using var context = new BookStoreDbContext();
@@ -443,6 +437,7 @@ namespace BookStoreManagementSystem
                 if (dbOrder == null) return;
 
                 dbOrder.OrderStatus = "Cancelled";
+                dbOrder.CancelReason = reason.Trim();
                 foreach (var item in dbOrder.OrderItems)
                 {
                     var book = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
@@ -454,12 +449,88 @@ namespace BookStoreManagementSystem
 
                 context.SaveChanges();
                 LoadOrdersFromDatabase();
-                MessageBox.Show($"Đã hủy đơn hàng {_selectedOrder.OrderCode} và hoàn trả tồn kho thành công!", "Đã hủy đơn", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Đã hủy đơn hàng {_selectedOrder.OrderCode}!\nLý do: {reason.Trim()}", "Đã hủy đơn", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi khi hủy đơn hàng:\n{ex.Message}", "Lỗi CSDL", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private string? PromptCancelReason(string orderCode)
+        {
+            var dlg = new Window
+            {
+                Title = $"Hủy đơn hàng {orderCode}",
+                Width = 420,
+                Height = 250,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize,
+                Background = System.Windows.Media.Brushes.White
+            };
+
+            var root = new StackPanel { Margin = new Thickness(20) };
+            root.Children.Add(new TextBlock
+            {
+                Text = $"Nhập lý do hủy đơn hàng {orderCode} *",
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 0, 0, 10)
+            });
+
+            var txtReason = new TextBox
+            {
+                Height = 84,
+                TextWrapping = TextWrapping.Wrap,
+                AcceptsReturn = true,
+                Padding = new Thickness(10, 8, 10, 8),
+                FontSize = 13,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            root.Children.Add(txtReason);
+
+            var btnRow = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 16, 0, 0)
+            };
+
+            string? result = null;
+            var btnCancel = new Button { Content = "Đóng", Width = 85, Height = 34, Margin = new Thickness(0, 0, 8, 0) };
+            btnCancel.Click += (_, _) => { dlg.DialogResult = false; dlg.Close(); };
+
+            var btnConfirm = new Button
+            {
+                Content = "Xác nhận hủy",
+                Width = 120,
+                Height = 34,
+                Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#DC2626")),
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.Bold,
+                BorderThickness = new Thickness(0)
+            };
+            btnConfirm.Click += (_, _) =>
+            {
+                if (string.IsNullOrWhiteSpace(txtReason.Text))
+                {
+                    MessageBox.Show("Vui lòng nhập lý do hủy đơn hàng!", "Thiếu lý do", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    txtReason.Focus();
+                    return;
+                }
+                result = txtReason.Text.Trim();
+                dlg.DialogResult = true;
+                dlg.Close();
+            };
+
+            btnRow.Children.Add(btnCancel);
+            btnRow.Children.Add(btnConfirm);
+            root.Children.Add(btnRow);
+
+            dlg.Content = root;
+            txtReason.Focus();
+            return dlg.ShowDialog() == true ? result : null;
         }
 
         // ==================== NAVIGATION ====================

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using BookStoreManagementSystem.Models;
 using BookStoreManagementSystem.ViewModels;
@@ -21,10 +22,13 @@ namespace BookStoreManagementSystem
         private BookCardViewModel? _selectedBookForDetail;
         private BookImageItemViewModel? _selectedGalleryImage;
         private BookCardViewModel? _selectedBookForRent;
+        private BookCardViewModel? _spotlightBook;
+        private int? _selectedCategoryId = null;
+        private bool _onlyRentalsFilter = false;
         private bool _isLoaded = false;
         private int _homeCurrentPage = 1;
         private int _homeTotalPages = 1;
-        private const int HomePageSize = 10;
+        private const int HomePageSize = 8;
 
         public HomePage()
         {
@@ -43,10 +47,7 @@ namespace BookStoreManagementSystem
 
         private void UpdateUserHeaderUI()
         {
-            txtCurrentUserName.Text = SessionManager.DisplayName;
-            txtCurrentUserRole.Text = SessionManager.RoleDisplay;
-            btnAuthAction.Content = SessionManager.IsLoggedIn ? "🔄 Đổi TK / Thoát" : "🔐 Đăng Nhập";
-            btnOpenAdmin.Visibility = SessionManager.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            headerControl?.RefreshAuthAndCart();
 
             if (SessionManager.CurrentUser != null)
             {
@@ -60,6 +61,59 @@ namespace BookStoreManagementSystem
                     txtCheckoutAddress.Text = SessionManager.CurrentUser.Address;
                     txtRentAddress.Text = SessionManager.CurrentUser.Address;
                 }
+            }
+        }
+
+        private void headerControl_HomeClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Home");
+            _homeCurrentPage = 1;
+            _onlyRentalsFilter = false;
+            btnResetFilters_Click(this, new RoutedEventArgs());
+            svHomeMain?.ScrollToTop();
+        }
+
+        private void headerControl_RentalsClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Rentals");
+            _homeCurrentPage = 1;
+            _onlyRentalsFilter = true;
+            ApplyFilters();
+            panelCatalogSection?.BringIntoView();
+        }
+
+        private void headerControl_FeaturedClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Featured");
+            _onlyRentalsFilter = false;
+            panelFeaturedSection?.BringIntoView();
+        }
+
+        private void headerControl_PromotionsClicked(object? sender, EventArgs e)
+        {
+            headerControl.SetActiveNav("Promotions");
+            MessageBox.Show(
+                "🎁 ƯU ĐÃI ĐANG ÁP DỤNG TẠI G07 BOOKSTORE:\n\n" +
+                "• Mã BOOK10: Giảm 10% cho mọi đơn hàng\n" +
+                "• Mã SINHVIEN: Giảm 15% cho đơn thuê sách\n" +
+                "• Mã VIP50K: Giảm trực tiếp 50.000 đ cho đơn từ 300.000 đ\n" +
+                "• Mã FREESHIP: Miễn phí giao hàng toàn quốc\n\n" +
+                "Nhập mã trực tiếp tại màn hình Giỏ Hàng & Thanh Toán!",
+                "Chương Trình Khuyến Mãi",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+        private void headerControl_SearchClicked(object? sender, EventArgs e)
+        {
+            if (gridHeaderSearchBar.Visibility == Visibility.Visible)
+            {
+                gridHeaderSearchBar.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                gridHeaderSearchBar.Visibility = Visibility.Visible;
+                txtSearch.Focus();
             }
         }
 
@@ -286,12 +340,6 @@ namespace BookStoreManagementSystem
                     });
                 }
 
-                lstCategories.ItemsSource = _categoryItems;
-                if (lstCategories.SelectedIndex < 0)
-                {
-                    lstCategories.SelectedIndex = 0;
-                }
-
                 // 2. Load Books with category and cover image
                 EnsureValidBookCoversInDatabase(context);
                 var booksFromDb = context.Books
@@ -302,6 +350,23 @@ namespace BookStoreManagementSystem
                     .ToList();
 
                 _allBooks = booksFromDb.Select(BookCardViewModel.FromEntity).ToList();
+
+                // Bind Spotlight Book (Hero right card)
+                _spotlightBook = _allBooks.FirstOrDefault();
+                if (_spotlightBook != null)
+                {
+                    imgSpotlightCover.Source = _spotlightBook.CoverImage;
+                    txtSpotlightTitle.Text = _spotlightBook.Title;
+                    txtSpotlightAuthor.Text = $"Tác giả: {_spotlightBook.Author}";
+                    txtSpotlightPrice.Text = _spotlightBook.FormattedPrice;
+                    txtSpotlightDesc.Text = _spotlightBook.Description;
+                }
+
+                // Bind Featured Bestsellers (4 books)
+                if (icFeaturedBooks != null)
+                {
+                    icFeaturedBooks.ItemsSource = _allBooks.Take(4).ToList();
+                }
 
                 // 3. Apply filters and render
                 _isLoaded = true;
@@ -423,57 +488,32 @@ namespace BookStoreManagementSystem
             var keyword = txtSearch?.Text?.Trim().ToLower() ?? "";
             if (!string.IsNullOrEmpty(keyword))
             {
-                query = query.Where(b => 
-                    b.Title.ToLower().Contains(keyword) || 
-                    b.Author.ToLower().Contains(keyword) || 
+                query = query.Where(b =>
+                    b.Title.ToLower().Contains(keyword) ||
+                    b.Author.ToLower().Contains(keyword) ||
                     b.CategoryName.ToLower().Contains(keyword) ||
                     (!string.IsNullOrEmpty(b.Publisher) && b.Publisher.ToLower().Contains(keyword)));
             }
 
-            // 2. Category Filter
-            if (lstCategories?.SelectedItem is CategoryFilterItem selectedCat && selectedCat.CategoryId.HasValue)
+            // 2. Category Pill Filter
+            if (_selectedCategoryId.HasValue)
             {
-                query = query.Where(b => b.CategoryId == selectedCat.CategoryId.Value);
+                query = query.Where(b => b.CategoryId == _selectedCategoryId.Value);
             }
 
-            // 3. Price Filter
-            if (rbPriceUnder100?.IsChecked == true)
+            // 3. Rentals Filter (from Header nav)
+            if (_onlyRentalsFilter)
             {
-                query = query.Where(b => b.Price < 100000);
-            }
-            else if (rbPrice100To300?.IsChecked == true)
-            {
-                query = query.Where(b => b.Price >= 100000 && b.Price <= 300000);
-            }
-            else if (rbPriceAbove300?.IsChecked == true)
-            {
-                query = query.Where(b => b.Price > 300000);
+                query = query.Where(b => b.IsForRent);
             }
 
-            // 4. Status Filter
-            if (cbBookStatus?.SelectedItem is ComboBoxItem selectedStatusItem)
-            {
-                var statusText = selectedStatusItem.Content?.ToString();
-                if (!string.IsNullOrEmpty(statusText) && statusText != "Tất cả hình thức")
-                {
-                    query = query.Where(b => b.BookStatus.Equals(statusText, StringComparison.OrdinalIgnoreCase));
-                }
-            }
-
-            // 5. Stock Filter
-            if (chkInStockOnly?.IsChecked == true)
-            {
-                query = query.Where(b => b.IsInStock);
-            }
-
-            // 6. Sorting
+            // 4. Sorting
             var sortIndex = cbSortBy?.SelectedIndex ?? 0;
             query = sortIndex switch
             {
                 1 => query.OrderBy(b => b.Price),
                 2 => query.OrderByDescending(b => b.Price),
                 3 => query.OrderBy(b => b.Title),
-                4 => query.OrderByDescending(b => b.Title),
                 _ => query.OrderByDescending(b => b.CreatedAt)
             };
 
@@ -494,7 +534,7 @@ namespace BookStoreManagementSystem
 
             if (txtHomePageIndicator != null && btnHomePrevPage != null && btnHomeNextPage != null)
             {
-                txtHomePageIndicator.Text = $"Trang {_homeCurrentPage} / {_homeTotalPages}";
+                txtHomePageIndicator.Text = $"{_homeCurrentPage} / {_homeTotalPages}";
                 btnHomePrevPage.IsEnabled = _homeCurrentPage > 1;
                 btnHomeNextPage.IsEnabled = _homeCurrentPage < _homeTotalPages;
             }
@@ -523,12 +563,59 @@ namespace BookStoreManagementSystem
             }
         }
 
+        // --- Hero, Category Pills, Cards & Newsletter Handlers ---
+        private void btnHeroExplore_Click(object sender, RoutedEventArgs e)
+        {
+            panelCatalogSection?.BringIntoView();
+        }
+
+        private void btnHeroBestSellers_Click(object sender, RoutedEventArgs e)
+        {
+            panelFeaturedSection?.BringIntoView();
+        }
+
+        private void borderSpotlight_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_spotlightBook != null)
+            {
+                var detailWin = new BookDetailWindow(_spotlightBook.BookId, "Home");
+                detailWin.Show();
+                Close();
+            }
+        }
+
+        private void cardBook_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement fe && fe.Tag is BookCardViewModel book)
+            {
+                var detailWin = new BookDetailWindow(book.BookId, "Home");
+                detailWin.Show();
+                Close();
+            }
+        }
+
+        private void btnQuickCardAction_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is BookCardViewModel book)
+            {
+                if (book.IsForRent)
+                {
+                    btnOpenRentModal_Click(sender, e);
+                }
+                else
+                {
+                    btnAddToCart_Click(sender, e);
+                }
+            }
+        }
+
         // --- Filter Event Handlers ---
         private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
             var hasText = !string.IsNullOrEmpty(txtSearch.Text);
             txtSearchPlaceholder.Visibility = hasText ? Visibility.Collapsed : Visibility.Visible;
             btnClearSearch.Visibility = hasText ? Visibility.Visible : Visibility.Collapsed;
+            _homeCurrentPage = 1;
             ApplyFilters();
         }
 
@@ -537,36 +624,18 @@ namespace BookStoreManagementSystem
             txtSearch.Text = string.Empty;
         }
 
-        private void lstCategories_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ApplyFilters();
-        }
-
-        private void FilterChanged(object sender, RoutedEventArgs e)
-        {
-            ApplyFilters();
-        }
-
-        private void cbBookStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ApplyFilters();
-        }
-
         private void cbSortBy_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            _homeCurrentPage = 1;
             ApplyFilters();
         }
 
         private void btnResetFilters_Click(object sender, RoutedEventArgs e)
         {
-            txtSearch.Text = string.Empty;
-            if (lstCategories != null && lstCategories.Items.Count > 0)
-            {
-                lstCategories.SelectedIndex = 0;
-            }
-            if (rbPriceAll != null) rbPriceAll.IsChecked = true;
-            if (chkInStockOnly != null) chkInStockOnly.IsChecked = false;
-            if (cbBookStatus != null) cbBookStatus.SelectedIndex = 0;
+            if (txtSearch != null) txtSearch.Text = string.Empty;
+            _selectedCategoryId = null;
+            _onlyRentalsFilter = false;
+            _homeCurrentPage = 1;
             if (cbSortBy != null) cbSortBy.SelectedIndex = 0;
             ApplyFilters();
         }
@@ -779,7 +848,7 @@ namespace BookStoreManagementSystem
 
             _selectedBookForRent = book;
             txtRentBookTitle.Text = book.Title;
-            txtRentBookOriginPrice.Text = $"Tác giả: {book.Author} • Giá bìa gốc: {book.FormattedPrice} • Kho còn: {book.StockQuantity} cuốn";
+            txtRentBookOriginPrice.Text = $"Tác giả: {book.Author} • Giá bìa gốc: {book.FormattedPrice}";
             rbRent7Days.IsChecked = true;
             UpdateRentalCalculationUI();
             gridRentModal.Visibility = Visibility.Visible;
@@ -851,7 +920,7 @@ namespace BookStoreManagementSystem
                 var dbBook = context.Books.FirstOrDefault(b => b.BookId == _selectedBookForRent.BookId);
                 if (dbBook == null || dbBook.StockQuantity <= 0)
                 {
-                    MessageBox.Show("Sách này vừa hết hàng trong kho!", "Không đủ tồn kho", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -878,14 +947,7 @@ namespace BookStoreManagementSystem
                     UnitPrice = fee
                 });
 
-                dbBook.StockQuantity -= 1;
-                if (dbBook.StockQuantity == 0 || string.Equals(dbBook.BookStatus, "Cho thuê", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (dbBook.StockQuantity == 0)
-                    {
-                        dbBook.BookStatus = "Đã thuê";
-                    }
-                }
+                dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - 1);
 
                 context.SaveChanges();
 
@@ -937,7 +999,7 @@ namespace BookStoreManagementSystem
             var totalInCartForBook = _cartItems.Where(c => c.BookId == book.BookId).Sum(c => c.Quantity);
             if (totalInCartForBook >= book.StockQuantity)
             {
-                MessageBox.Show($"Số lượng trong giỏ hàng đã đạt giới hạn tồn kho ({book.StockQuantity} cuốn)!", "Giới hạn tồn kho", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -969,7 +1031,7 @@ namespace BookStoreManagementSystem
         private void UpdateCartBadge()
         {
             var totalCount = _cartItems.Sum(x => x.Quantity);
-            txtCartBadge.Text = $"Giỏ hàng ({totalCount})";
+            headerControl?.SetCartCount(totalCount);
 
             var totalAmount = _cartItems.Sum(x => x.SubTotal);
             txtCartTotalAmount.Text = totalAmount.ToString("N0") + " đ";
@@ -1007,7 +1069,7 @@ namespace BookStoreManagementSystem
                 }
                 else
                 {
-                    MessageBox.Show($"Kho chỉ còn {maxStock} cuốn!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Hiện chúng tôi chưa thể cung cấp đủ số lượng bạn yêu cầu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
         }
@@ -1157,10 +1219,6 @@ namespace BookStoreManagementSystem
                     if (dbBook != null)
                     {
                         dbBook.StockQuantity = Math.Max(0, dbBook.StockQuantity - item.Quantity);
-                        if (item.OrderType == "Thuê" && dbBook.StockQuantity == 0)
-                        {
-                            dbBook.BookStatus = "Đã thuê";
-                        }
                     }
                 }
 
@@ -1289,27 +1347,13 @@ namespace BookStoreManagementSystem
 
                     if (order == null) return;
 
-                    order.OrderStatus = "Returned";
-                    order.PaymentStatus = "Paid";
-
-                    foreach (var item in order.OrderItems)
-                    {
-                        var book = context.Books.FirstOrDefault(b => b.BookId == item.BookId);
-                        if (book != null)
-                        {
-                            book.StockQuantity += item.Quantity;
-                            if (string.Equals(book.BookStatus, "Đã thuê", StringComparison.OrdinalIgnoreCase))
-                            {
-                                book.BookStatus = "Cho thuê";
-                            }
-                        }
-                    }
+                    order.OrderStatus = "ReturnPending";
 
                     context.SaveChanges();
                     LoadCustomerOrders();
                     LoadDataFromDatabase();
 
-                    MessageBox.Show($"📥 Đã trả sách thành công cho đơn {orderVm.OrderCode}! Cảm ơn bạn đã sử dụng dịch vụ thuê sách của BookStore.", "Hoàn trả thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"⏳ Đã gửi yêu cầu trả sách cho đơn {orderVm.OrderCode}.\nTrạng thái: Chờ xác nhận trả. Admin sẽ kiểm tra và xác nhận hoàn kho!", "Chờ xác nhận trả sách", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {

@@ -178,7 +178,6 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -193,19 +192,8 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Admin Profile Card -->
-                <Border Grid.Row="1" Background="#1E293B" CornerRadius="10" Padding="12,10" Margin="0,0,0,22">
-                    <StackPanel>
-                        <TextBlock x:Name="txtAdminName" Text="Quản trị viên" FontWeight="Bold" FontSize="13" Foreground="White" />
-                        <TextBlock x:Name="txtAdminEmail" Text="admin@bookstore.com" FontSize="11" Foreground="#94A3B8" Margin="0,2,0,0" />
-                        <Border Background="#312E81" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" Margin="0,6,0,0">
-                            <TextBlock Text="👑 QUYỀN QUẢN TRỊ TOÀN HỆ THỐNG" FontSize="9" FontWeight="Bold" Foreground="#C7D2FE" />
-                        </Border>
-                    </StackPanel>
-                </Border>
-
                 <!-- Navigation Menu -->
-                <StackPanel Grid.Row="2">
+                <StackPanel Grid.Row="1">
                     <TextBlock Text="DANH MỤC QUẢN TRỊ" FontSize="10" FontWeight="Bold" Foreground="#64748B" Margin="8,0,0,8" />
 
                     <Button x:Name="navOverview" Content="📊  Tổng Quan &amp; Thống Kê" Style="{StaticResource SidebarNavButtonStyle}" Click="navOverview_Click" />
@@ -219,13 +207,11 @@
 
                     <TextBlock Text="CÔNG CỤ NHANH" FontSize="10" FontWeight="Bold" Foreground="#64748B" Margin="8,0,0,8" />
                     <Button Content="➕  Tạo Đơn Mua / Thuê Mới (POS)" Style="{StaticResource SidebarNavButtonStyle}" Foreground="#38BDF8" Click="btnOpenCreateOrderPos_Click" />
-                    <Button Content="🌱  Thêm Dữ Liệu Sách Mẫu" Style="{StaticResource SidebarNavButtonStyle}" Foreground="#34D399" Click="btnSeedSampleData_Click" />
-                    <Button Content="🔄  Làm Mới Dữ Liệu CSDL" Style="{StaticResource SidebarNavButtonStyle}" Click="btnRefreshAll_Click" />
                     <Button Content="📥  Xuất Báo Cáo Thống Kê (.csv)" Style="{StaticResource SidebarNavButtonStyle}" Foreground="#FBBF24" Click="btnExportAdminReport_Click" />
                 </StackPanel>
 
                 <!-- Bottom Actions -->
-                <StackPanel Grid.Row="3">
+                <StackPanel Grid.Row="2">
                     <Button Content="📚 Mở Trang Toàn Bộ Sách" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,0,8" Click="btnOpenAllBooks_Click" />
                     <Button Content="🏪 Mở Trang Chủ Cửa Hàng" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,8" Click="btnOpenStorefront_Click" />
                     <Button Content="🚪 Đăng Xuất Tài Khoản" Style="{StaticResource DangerButtonStyle}" Click="btnLogout_Click" />
@@ -248,9 +234,6 @@
                         <TextBlock x:Name="txtPageSubtitle" Text="Theo dõi số liệu kinh doanh, sách bán, sách cho thuê và tồn kho theo thời gian thực" FontSize="12" Foreground="#64748B" />
                     </StackPanel>
                     <WrapPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,12,0,0">
-                        <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,0,10,0" VerticalAlignment="Center">
-                            <TextBlock Text="🟢 SQL Server: BookStoreDB Connected" FontSize="12" FontWeight="SemiBold" Foreground="#15803D" />
-                        </Border>
                         <Button Content="➕ Tạo Đơn Mua / Thuê Mới" Style="{StaticResource SuccessButtonStyle}" Margin="0,0,10,0" Click="btnOpenCreateOrderPos_Click" />
                         <Button Content="🏪 Xem Giao Diện Khách Hàng" Style="{StaticResource SecondaryButtonStyle}" Click="btnOpenStorefront_Click" />
                     </WrapPanel>
@@ -375,40 +358,6 @@
                             </Border>
                         </Grid>
 
-                        <!-- THIRD ROW: LOW STOCK / RENTAL BOOKS WATCHLIST -->
-                        <Border Background="White" CornerRadius="14" Padding="20" Effect="{StaticResource CardShadow}" BorderBrush="#E2E8F0" BorderThickness="1">
-                            <StackPanel>
-                                <Grid Margin="0,0,0,12">
-                                    <TextBlock Text="⚠️ Sách Đang Cho Thuê &amp; Sách Sắp Hết Hàng (Cần Chú Ý)" FontWeight="Bold" FontSize="15" Foreground="#0F172A" VerticalAlignment="Center" />
-                                    <Button Content="Quản lý kho sách →" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" Padding="10,4" FontSize="12" Click="navBooks_Click" />
-                                </Grid>
-                                <DataGrid x:Name="dgWatchlistBooks" AutoGenerateColumns="False" IsReadOnly="True" Height="180"
-                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F1F5F9"
-                                          BorderBrush="#E2E8F0" BorderThickness="1" RowHeight="36" Background="White">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID" Binding="{Binding BookId}" Width="50" />
-                                        <DataGridTemplateColumn Header="Ảnh" Width="56">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Border Width="30" Height="34" CornerRadius="4" ClipToBounds="True" Background="#E0E7FF" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                        <Grid>
-                                                            <TextBlock Text="📖" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                            <Image Source="{Binding CoverImage}" Stretch="UniformToFill" Visibility="{Binding HasCoverImage, Converter={StaticResource BoolToVisConverter}}" />
-                                                        </Grid>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                        <DataGridTextColumn Header="Tên Sách" Binding="{Binding Title}" Width="*" FontWeight="SemiBold" />
-                                        <DataGridTextColumn Header="Tác Giả" Binding="{Binding Author}" Width="160" />
-                                        <DataGridTextColumn Header="Thể Loại" Binding="{Binding CategoryName}" Width="150" />
-                                        <DataGridTextColumn Header="Hình Thức" Binding="{Binding BookStatus}" Width="110" FontWeight="Bold" />
-                                        <DataGridTextColumn Header="Tồn Kho" Binding="{Binding StockQuantity}" Width="90" />
-                                        <DataGridTextColumn Header="Giá Bìa" Binding="{Binding FormattedPrice}" Width="110" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </StackPanel>
-                        </Border>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -437,7 +386,6 @@
                                     <ComboBoxItem Content="Tất cả hình thức" IsSelected="True" />
                                     <ComboBoxItem Content="Bán" />
                                     <ComboBoxItem Content="Cho thuê" />
-                                    <ComboBoxItem Content="Đã thuê" />
                                 </ComboBox>
                             </Grid>
 
@@ -493,8 +441,7 @@
                                             </Grid>
                                         </Border>
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
-                                            <TextBlock Text="Ảnh Bìa Sách (BookImages)" FontWeight="Bold" FontSize="12" Foreground="#1E293B" />
-                                            <TextBlock x:Name="txtCoverImageStatus" Text="Chưa chọn ảnh mới" FontSize="11" Foreground="#64748B" Margin="0,2,0,8" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="Ảnh Bìa Sách (BookImages)" FontWeight="Bold" FontSize="12" Foreground="#1E293B" Margin="0,0,0,8" />
                                             <StackPanel Orientation="Horizontal">
                                                 <Button Content="📁 Chọn Ảnh..." Style="{StaticResource SecondaryButtonStyle}" Padding="8,4" FontSize="11" Margin="0,0,6,0" Click="btnUploadBookCover_Click" />
                                                 <Button Content="Xóa ảnh" Style="{StaticResource DangerButtonStyle}" Padding="8,4" FontSize="11" Click="btnClearBookCover_Click" />
@@ -565,7 +512,6 @@
                                         <ComboBox x:Name="cbBookFormStatus" Padding="8,6">
                                             <ComboBoxItem Content="Bán" IsSelected="True" />
                                             <ComboBoxItem Content="Cho thuê" />
-                                            <ComboBoxItem Content="Đã thuê" />
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
@@ -655,13 +601,14 @@
                                     <ComboBoxItem Content="Đơn Thuê Sách" />
                                 </ComboBox>
                                 <ComboBox x:Name="cbAdminOrderStatusFilter" Grid.Column="2" Margin="0,0,10,0" Padding="8,6" SelectionChanged="AdminOrderFilter_Changed">
-                                    <ComboBoxItem Content="Tất cả trạng thái" IsSelected="True" />
-                                    <ComboBoxItem Content="Pending" />
-                                    <ComboBoxItem Content="Processing" />
-                                    <ComboBoxItem Content="Renting" />
-                                    <ComboBoxItem Content="Returned" />
-                                    <ComboBoxItem Content="Completed" />
-                                    <ComboBoxItem Content="Cancelled" />
+                                    <ComboBoxItem Content="Tất cả trạng thái" Tag="" IsSelected="True" />
+                                    <ComboBoxItem Content="Chờ xác nhận" Tag="Pending" />
+                                    <ComboBoxItem Content="Đang giao" Tag="Processing" />
+                                    <ComboBoxItem Content="Đang thuê sách" Tag="Renting" />
+                                    <ComboBoxItem Content="Chờ xác nhận trả" Tag="ReturnPending" />
+                                    <ComboBoxItem Content="Đã trả sách" Tag="Returned" />
+                                    <ComboBoxItem Content="Hoàn thành" Tag="Completed" />
+                                    <ComboBoxItem Content="Đã hủy" Tag="Cancelled" />
                                 </ComboBox>
                                 <Button Grid.Column="3" Content="➕ Tạo Đơn Mua / Thuê Mới" Style="{StaticResource SuccessButtonStyle}" Padding="14,7" Click="btnOpenCreateOrderPos_Click" />
                             </Grid>
@@ -676,7 +623,7 @@
                                     <DataGridTextColumn Header="Loại" Binding="{Binding OrderTypeDisplay}" Width="120" />
                                     <DataGridTextColumn Header="Tổng Tiền" Binding="{Binding FormattedTotalAmount}" Width="105" FontWeight="Bold" />
                                     <DataGridTextColumn Header="Trạng Thái" Binding="{Binding StatusDisplay}" Width="115" />
-                                    <DataGridTextColumn Header="Thanh Toán" Binding="{Binding PaymentStatus}" Width="90" />
+                                    <DataGridTextColumn Header="Thanh Toán" Binding="{Binding PaymentStatusDisplay}" Width="110" />
                                     <DataGridTextColumn Header="Ngày Đặt" Binding="{Binding FormattedCreatedAt}" Width="*" />
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -718,26 +665,27 @@
                                     <StackPanel Grid.Column="0" Margin="0,0,6,0">
                                         <TextBlock Text="TRẠNG THÁI ĐƠN HÀNG" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
                                         <ComboBox x:Name="cbAdminEditOrderStatus" Padding="8,6">
-                                            <ComboBoxItem Content="Pending" />
-                                            <ComboBoxItem Content="Processing" />
-                                            <ComboBoxItem Content="Renting" />
-                                            <ComboBoxItem Content="Returned" />
-                                            <ComboBoxItem Content="Overdue" />
-                                            <ComboBoxItem Content="Completed" />
-                                            <ComboBoxItem Content="Cancelled" />
+                                            <ComboBoxItem Content="Chờ xác nhận" Tag="Pending" />
+                                            <ComboBoxItem Content="Đang giao" Tag="Processing" />
+                                            <ComboBoxItem Content="Đang thuê sách" Tag="Renting" />
+                                            <ComboBoxItem Content="Chờ xác nhận trả" Tag="ReturnPending" />
+                                            <ComboBoxItem Content="Đã trả sách" Tag="Returned" />
+                                            <ComboBoxItem Content="Quá hạn trả" Tag="Overdue" />
+                                            <ComboBoxItem Content="Hoàn thành" Tag="Completed" />
+                                            <ComboBoxItem Content="Đã hủy" Tag="Cancelled" />
                                         </ComboBox>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="6,0,0,0">
                                         <TextBlock Text="TRẠNG THÁI THANH TOÁN" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
                                         <ComboBox x:Name="cbAdminEditPaymentStatus" Padding="8,6">
-                                            <ComboBoxItem Content="Unpaid" />
-                                            <ComboBoxItem Content="Paid" />
-                                            <ComboBoxItem Content="Refunded" />
+                                            <ComboBoxItem Content="Chưa thanh toán" Tag="Unpaid" />
+                                            <ComboBoxItem Content="Đã thanh toán" Tag="Paid" />
+                                            <ComboBoxItem Content="Đã hoàn tiền" Tag="Refunded" />
                                         </ComboBox>
                                     </StackPanel>
                                 </Grid>
 
-                                <Button Content="💾 Cập Nhật Trạng Thái Đơn Hàng" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,8" Click="btnUpdateOrderStatus_Click" />
+                                <Button x:Name="btnUpdateOrderStatus" Content="💾 Cập Nhật Trạng Thái Đơn Hàng" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,0,8" Click="btnUpdateOrderStatus_Click" />
                                 <Button x:Name="btnConfirmBookReturn" Content="📥 Xác Nhận Khách Đã Trả Sách (Hoàn Kho)" Style="{StaticResource SuccessButtonStyle}" Margin="0,0,0,8" Click="btnConfirmBookReturn_Click" />
                                 <Button Content="➕ Tạo Đơn Mua / Thuê Mới (Chọn User hoặc Khách lẻ)" Style="{StaticResource SecondaryButtonStyle}" Click="btnOpenCreateOrderPos_Click" />
                             </StackPanel>
@@ -912,9 +860,10 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="ID" Binding="{Binding UserId}" Width="50" />
                                     <DataGridTextColumn Header="Họ và Tên" Binding="{Binding FullName}" Width="160" FontWeight="SemiBold" />
-                                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="190" />
+                                    <DataGridTextColumn Header="Email" Binding="{Binding DisplayEmail}" Width="190" />
                                     <DataGridTextColumn Header="Số ĐT" Binding="{Binding PhoneNumber}" Width="110" />
                                     <DataGridTextColumn Header="Vai Trò" Binding="{Binding RoleName}" Width="95" FontWeight="Bold" />
+                                    <DataGridTextColumn Header="Trạng Thái" Binding="{Binding UserStatus}" Width="85" FontWeight="SemiBold" />
                                     <DataGridTextColumn Header="Số Đơn" Binding="{Binding OrderCount}" Width="65" />
                                     <DataGridTextColumn Header="Đang Thuê" Binding="{Binding ActiveRentalCount}" Width="80" />
                                     <DataGridTextColumn Header="Tổng Chi Tiêu" Binding="{Binding FormattedTotalSpent}" Width="115" FontWeight="SemiBold" />
@@ -932,12 +881,9 @@
                             </Grid>
 
                             <TextBlock Text="HỌ VÀ TÊN *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                            <Border x:Name="borderUserSecurityNotice" Visibility="Collapsed" Background="#FFFBEB" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,12">
-                                <TextBlock x:Name="txtUserSecurityNotice" Text="🔒 Bảo mật: Admin không thể sửa Email và Mật khẩu đăng nhập của tài khoản khác." FontSize="11" FontWeight="SemiBold" Foreground="#B45309" TextWrapping="Wrap" />
-                            </Border>
                             <TextBox x:Name="txtAdminUserFullName" Style="{StaticResource FormTextBoxStyle}" Margin="0,0,0,10" />
 
-                            <TextBlock Text="EMAIL ĐĂNG NHẬP *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
+                            <TextBlock x:Name="lblAdminUserEmail" Text="EMAIL ĐĂNG NHẬP *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
                             <TextBox x:Name="txtAdminUserEmail" Style="{StaticResource FormTextBoxStyle}" Margin="0,0,0,10" />
 
                             <Grid Margin="0,0,0,10">

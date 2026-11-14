@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace BookStoreManagementSystem.Models;
@@ -20,6 +20,10 @@ public partial class User
     public string? Address { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public string UserStatus { get; set; } = "active";
+
+    public string? BanReason { get; set; }
 
     public virtual Cart? Cart { get; set; }
 

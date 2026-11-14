@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BookStoreManagementSystem"
         mc:Ignorable="d"
         Title="BookStore - Quản Lý Đơn Mua &amp; Sách Đang Thuê"
         Height="880" Width="1420"
@@ -129,77 +130,14 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- ==================== 1. TOP NAVIGATION BAR ==================== -->
-        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+        <local:StoreHeaderControl x:Name="headerControl" Grid.Row="0" ActiveNav="" />
 
-                <WrapPanel Grid.Row="0" VerticalAlignment="Center">
-                    <Button Content="🏠 Trang Chủ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnGoHome_Click" />
-                    <Button Content="📚 Danh Sách Sách" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnGoBookList_Click" />
-                    <Button Content="🛒 Giỏ Hàng &amp; Thanh Toán" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,16,0" Click="btnGoCartCheckout_Click" />
-
-                    <Border Width="1" Height="28" Background="#E2E8F0" Margin="0,0,16,0" />
-
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Theo Dõi Đơn Mua &amp; Thuê Sách" FontWeight="Bold" FontSize="11" Foreground="#4F46E5" />
-                        <TextBlock Text="Quản Lý Đơn Hàng, Gia Hạn Sách Thuê &amp; Xuất Hóa Đơn" FontWeight="Black" FontSize="15" Foreground="#0F172A" />
-                    </StackPanel>
-                </WrapPanel>
-
-                <WrapPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,12,0,0">
-                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="10,5" Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="👤 " FontSize="13" VerticalAlignment="Center" />
-                            <StackPanel>
-                                <TextBlock x:Name="txtCurrentUserName" Text="Khách hàng" FontWeight="Bold" FontSize="12" Foreground="#0F172A" />
-                                <TextBlock x:Name="txtCurrentUserRole" Text="Customer" FontSize="10" Foreground="#64748B" />
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                    <Button Content="👤 Hồ Sơ" Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,8,0" Click="btnGoProfile_Click" />
-                    <Button Content="🔄 Đăng Xuất" Style="{StaticResource SecondaryButtonStyle}" Click="btnLogout_Click" />
-                </WrapPanel>
-            </Grid>
-        </Border>
-
-        <!-- ==================== 2. KPI SUMMARY STRIP ==================== -->
-        <UniformGrid Grid.Row="1" Columns="4" Margin="24,16,24,0">
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="0,0,10,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="📦 TỔNG SỐ ĐƠN HÀNG" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiTotalOrders" Text="0 đơn" FontSize="22" FontWeight="Black" Foreground="#0F172A" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="5,0,5,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="🛍️ ĐƠN MUA SỞ HỮU" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiPurchaseOrders" Text="0 đơn" FontSize="22" FontWeight="Black" Foreground="#4F46E5" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="5,0,5,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="📅 ĐƠN ĐANG THUÊ SÁCH" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiActiveRentals" Text="0 đơn" FontSize="22" FontWeight="Black" Foreground="#D97706" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-            <Border Background="White" CornerRadius="14" Padding="16,12" Margin="10,0,0,0" Effect="{StaticResource CardShadow}">
-                <StackPanel>
-                    <TextBlock Text="💰 TỔNG CHI TIÊU HỢP LỆ" FontSize="10.5" FontWeight="Bold" Foreground="#64748B" />
-                    <TextBlock x:Name="kpiTotalSpent" Text="0 đ" FontSize="22" FontWeight="Black" Foreground="#10B981" Margin="0,4,0,0" />
-                </StackPanel>
-            </Border>
-        </UniformGrid>
-
-        <!-- ==================== 3. MASTER-DETAIL ORDERS VIEW ==================== -->
-        <Grid Grid.Row="2" Margin="24,16,24,22">
+        <!-- ==================== 2. MASTER-DETAIL ORDERS VIEW ==================== -->
+        <Grid Grid.Row="1" Margin="24,16,24,22">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="20" />
@@ -306,7 +244,7 @@
                             <Button x:Name="btnDetailExportInvoice" Content="💾 Xuất Hóa Đơn (.txt)" Style="{StaticResource SecondaryButtonStyle}" Margin="4,0,0,0" Click="btnDetailExportInvoice_Click" />
                         </UniformGrid>
 
-                        <Button x:Name="btnDetailCancelOrder" Content="✕ Hủy Đơn Hàng Này (Hoàn Tồn Kho)" Style="{StaticResource SecondaryButtonStyle}"
+                        <Button x:Name="btnDetailCancelOrder" Content="✕ Hủy đơn hàng" Style="{StaticResource SecondaryButtonStyle}"
                                 Foreground="#DC2626" BorderBrush="#FECACA" Background="#FEF2F2" Click="btnDetailCancelOrder_Click" />
                     </StackPanel>
                 </ScrollViewer>

@@ -4,36 +4,37 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="BookStore - Đăng Nhập &amp; Đăng Ký Hệ Thống"
-        Height="680" Width="1040"
-        MinHeight="620" MinWidth="920"
+        Title="G07 BookStore - Đăng Nhập &amp; Đăng Ký"
+        Height="740" Width="1060"
+        MinHeight="640" MinWidth="900"
         WindowStartupLocation="CenterScreen"
         Background="#F8FAFC"
         FontFamily="Segoe UI, Inter, Arial">
 
     <Window.Resources>
-        <DropShadowEffect x:Key="CardShadow" BlurRadius="24" Direction="270" ShadowDepth="6" Opacity="0.12" Color="#0F172A" />
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="28" Direction="270" ShadowDepth="8" Opacity="0.10" Color="#0F172A" />
 
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#4F46E5" />
+        <!-- Primary Coral/Rose Pill Button matching reference -->
+        <Style x:Key="PrimaryPillButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#F43F5E" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Padding" Value="16,11" />
+            <Setter Property="Padding" Value="18,12" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="22" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#4338CA" />
+                                <Setter TargetName="border" Property="Background" Value="#E11D48" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#3730A3" />
+                                <Setter TargetName="border" Property="Background" Value="#BE123C" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -41,244 +42,263 @@
             </Setter>
         </Style>
 
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#EEF2FF" />
-            <Setter Property="Foreground" Value="#4F46E5" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Padding" Value="14,9" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="#C7D2FE" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#E0E7FF" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="InputTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#FFFFFF" />
+        <!-- Clean Rounded Input Border -->
+        <Style x:Key="CleanTextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="13.5" />
             <Setter Property="Foreground" Value="#0F172A" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Height" Value="40" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="Padding" Value="10,0" />
-            <Setter Property="BorderBrush" Value="#CBD5E1" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
-                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#4F46E5" />
-                                <Setter TargetName="border" Property="BorderThickness" Value="1.5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <Style x:Key="CleanPasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="FontSize" Value="13.5" />
+            <Setter Property="Foreground" Value="#0F172A" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="0" />
         </Style>
     </Window.Resources>
 
-    <Grid Margin="28">
-        <Border Background="#FFFFFF" CornerRadius="20" Effect="{StaticResource CardShadow}" ClipToBounds="True">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="440" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+    <Grid>
+        <!-- ==================== VIEW 1: LOGIN MODAL (STEP 1 & STEP 2) ==================== -->
+        <Grid x:Name="gridLoginView" Visibility="Visible" Background="#E2E8F0">
+            <!-- Subtle decorative backdrop -->
+            <Border Background="#94A3B8" Opacity="0.25" />
 
-                <!-- LEFT PANEL: BRANDING -->
-                <Border Grid.Column="0" CornerRadius="20,0,0,20" Padding="34,36">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#312E81" Offset="0" />
-                            <GradientStop Color="#4F46E5" Offset="0.55" />
-                            <GradientStop Color="#0284C7" Offset="1" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+            <!-- Centered Modal Card -->
+            <Border Width="450" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Background="#FFFFFF" CornerRadius="18" Padding="32,26,32,30"
+                    Effect="{StaticResource CardShadow}">
+                <StackPanel>
+                    <!-- Top Bar inside Modal (Back on Step 2 + Close X) -->
+                    <Grid Margin="0,0,0,6">
+                        <Button x:Name="btnBackToIdentifier" Content="←" Visibility="Collapsed"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Width="30" Height="30" Background="#F1F5F9" Foreground="#475569"
+                                FontSize="15" FontWeight="Bold" BorderThickness="0" Cursor="Hand"
+                                Click="btnBackToIdentifier_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="15">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
 
-                        <!-- Brand Header -->
-                        <StackPanel Grid.Row="0">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <Border Width="46" Height="46" CornerRadius="12" Background="#30FFFFFF" Margin="0,0,12,0">
-                                    <TextBlock Text="📚" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="BOOKSTORE PORTAL" FontWeight="Black" FontSize="19" Foreground="White" />
-                                    <TextBlock Text="/auth/portal • Mua Bán &amp; Thuê Sách" FontSize="12" Foreground="#C7D2FE" />
-                                </StackPanel>
-                            </StackPanel>
-
-                            <TextBlock Text="Website Hiệu Sách Trực Tuyến Toàn Diện" FontWeight="Black" FontSize="24" Foreground="White" TextWrapping="Wrap" Margin="0,8,0,12" />
-                            <TextBlock Text="Hệ thống tích hợp đầy đủ: Mua sách sở hữu, Thuê sách theo tuần/tháng, Quản lý giỏ hàng, Theo dõi đơn thuê/mua và Admin Dashboard quản trị."
-                                       FontSize="13" Foreground="#E0E7FF" TextWrapping="Wrap" LineHeight="20" />
-                        </StackPanel>
-
-                        <!-- Feature Highlights -->
-                        <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,16">
-                            <Border Background="#20FFFFFF" CornerRadius="10" Padding="12,10" Margin="0,0,0,10">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🛍️" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center" />
-                                    <StackPanel>
-                                        <TextBlock Text="Mua Bán &amp; Thanh Toán Trực Tuyến" FontWeight="Bold" FontSize="13" Foreground="White" />
-                                        <TextBlock Text="Tự động đồng bộ giỏ hàng, tồn kho và hóa đơn CSDL" FontSize="11" Foreground="#C7D2FE" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Background="#20FFFFFF" CornerRadius="10" Padding="12,10" Margin="0,0,0,10">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📅" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center" />
-                                    <StackPanel>
-                                        <TextBlock Text="Dịch Vụ Thuê Sách &amp; Trả Sách" FontWeight="Bold" FontSize="13" Foreground="White" />
-                                        <TextBlock Text="Chọn kỳ hạn thuê 7/14/30 ngày, quản lý trạng thái Đang thuê &amp; Đã trả" FontSize="11" Foreground="#C7D2FE" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Background="#20FFFFFF" CornerRadius="10" Padding="12,10">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🛠️" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center" />
-                                    <StackPanel>
-                                        <TextBlock Text="Admin Dashboard Chuyên Nghiệp" FontWeight="Bold" FontSize="13" Foreground="White" />
-                                        <TextBlock Text="Thống kê doanh thu, CRUD Sách + Ảnh bìa, Thể loại, Đơn hàng &amp; User" FontSize="11" Foreground="#C7D2FE" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
+                        <Button x:Name="btnCloseLoginModal" Content="✕"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Width="30" Height="30" Background="Transparent" BorderBrush="#CBD5E1" BorderThickness="1"
+                                Foreground="#64748B" FontSize="12" Cursor="Hand"
+                                Click="btnContinueAsGuest_Click">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="15">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </Grid>
-                </Border>
 
-                <!-- RIGHT PANEL: LOGIN / REGISTER FORMS -->
-                <Grid Grid.Column="1" Margin="44,32">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <!-- Mode Switcher Tabs -->
-                    <Border Grid.Row="0" Background="#F1F5F9" CornerRadius="10" Padding="4" HorizontalAlignment="Left" Margin="0,0,0,20">
-                        <StackPanel Orientation="Horizontal">
-                            <Button x:Name="btnTabLogin" Content="🔐 Đăng Nhập" Width="150" Padding="12,8"
-                                    Background="#4F46E5" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand"
-                                    Click="btnTabLogin_Click">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                            <Button x:Name="btnTabRegister" Content="✨ Đăng Ký Mới" Width="150" Padding="12,8"
-                                    Background="Transparent" Foreground="#475569" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"
-                                    Click="btnTabRegister_Click">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                        </StackPanel>
+                    <!-- Logo Circle -->
+                    <Border Width="52" Height="52" CornerRadius="26" Background="#0F172A" HorizontalAlignment="Center" Margin="0,0,0,16">
+                        <TextBlock Text="📚" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
 
-                    <!-- LOGIN FORM -->
-                    <StackPanel x:Name="panelLogin" Grid.Row="1" VerticalAlignment="Center">
-                        <TextBlock Text="Chào mừng trở lại! 👋" FontWeight="Black" FontSize="24" Foreground="#0F172A" Margin="0,0,0,6" />
-                        <TextBlock Text="Nhập email và mật khẩu của bạn để truy cập hệ thống hiệu sách." FontSize="13" Foreground="#64748B" Margin="0,0,0,22" />
+                    <!-- STEP 1: IDENTIFIER (PHONE OR EMAIL) -->
+                    <StackPanel x:Name="panelStepIdentifier" Visibility="Visible">
+                        <TextBlock Text="Đăng nhập" FontSize="20" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,0,0,6" />
+                        <TextBlock Text="Nhập số điện thoại hoặc email hoặc đăng ký tài khoản mới"
+                                   FontSize="12.5" Foreground="#64748B" HorizontalAlignment="Center" TextAlignment="Center"
+                                   TextWrapping="Wrap" Margin="0,0,0,20" />
 
-                        <TextBlock Text="ĐỊA CHỈ EMAIL" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,6" />
-                        <TextBox x:Name="txtLoginEmail" Style="{StaticResource InputTextBoxStyle}" Text="" Margin="0,0,0,16" />
-
-                        <TextBlock Text="MẬT KHẨU" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,6" />
-                        <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White" Margin="0,0,0,24">
-                            <PasswordBox x:Name="txtLoginPassword" FontSize="13" Padding="10,0" VerticalContentAlignment="Center" BorderThickness="0" Background="Transparent" />
+                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="44" Padding="14,0" Margin="0,0,0,18" Background="#FFFFFF">
+                            <Grid>
+                                <TextBlock x:Name="phIdentifier" Text="Nhập số điện thoại hoặc email"
+                                           Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                <TextBox x:Name="txtIdentifier" Style="{StaticResource CleanTextBoxStyle}"
+                                         TextChanged="txtIdentifier_TextChanged" KeyDown="txtIdentifier_KeyDown" />
+                            </Grid>
                         </Border>
 
-                        <Button Content="Đăng Nhập Vào Hệ Thống →" Style="{StaticResource PrimaryButtonStyle}" Click="btnSubmitLogin_Click" />
+                        <Button Content="Tiếp tục →" Style="{StaticResource PrimaryPillButtonStyle}"
+                                Click="btnContinueIdentifier_Click" Margin="0,0,0,12" />
+
+                        <Button Content="Quay lại"
+                                Background="Transparent" BorderThickness="0" Foreground="#64748B" FontSize="12"
+                                Cursor="Hand" HorizontalAlignment="Center" Click="btnContinueAsGuest_Click" />
                     </StackPanel>
 
-                    <!-- REGISTER FORM -->
-                    <ScrollViewer x:Name="panelRegister" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Focusable="False" FocusVisualStyle="{x:Null}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Tạo Tài Khoản Khách Hàng ✨" FontWeight="Black" FontSize="22" Foreground="#0F172A" Margin="0,0,0,4" />
-                            <TextBlock Text="Đăng ký tài khoản để mua sách, thuê sách và theo dõi đơn hàng." FontSize="13" Foreground="#64748B" Margin="0,0,0,14" />
-
+                    <!-- STEP 2: PASSWORD (WHEN ACCOUNT EXISTS) -->
+                    <StackPanel x:Name="panelStepPassword" Visibility="Collapsed">
+                        <TextBlock Text="Đăng nhập" FontSize="20" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,0,0,4" />
+                        <TextBlock Text="Nhập mật khẩu" FontSize="12.5" FontWeight="SemiBold" Foreground="#334155" Margin="0,0,0,6" />
+                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="44" Padding="14,0,10,0" Margin="0,0,0,8" Background="#FFFFFF">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="phLoginPassword" Text="Nhập mật khẩu"
+                                           Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                <PasswordBox x:Name="pwdLogin" Style="{StaticResource CleanPasswordBoxStyle}"
+                                             PasswordChanged="pwdLogin_PasswordChanged" KeyDown="pwdLogin_KeyDown" />
+                                <TextBox x:Name="txtLoginPasswordVisible" Style="{StaticResource CleanTextBoxStyle}"
+                                         Visibility="Collapsed" TextChanged="txtLoginPasswordVisible_TextChanged" KeyDown="pwdLogin_KeyDown" />
+                                <Button Grid.Column="1" Content="👁" Background="Transparent" BorderThickness="0"
+                                        Foreground="#64748B" FontSize="14" Cursor="Hand" Padding="6,0"
+                                        Click="btnToggleLoginPwd_Click" ToolTip="Hiện / Ẩn mật khẩu" />
+                            </Grid>
+                        </Border>
+
+                        <Button Content="Quên mật khẩu?" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0"
+                                Foreground="#E11D48" FontSize="12" FontWeight="SemiBold" Cursor="Hand" Margin="0,0,0,18"
+                                Click="btnForgotPassword_Click" />
+
+                        <Button Content="Tiếp tục →" Style="{StaticResource PrimaryPillButtonStyle}"
+                                Click="btnSubmitPassword_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ==================== VIEW 2: REGISTER PAGE (WHEN NOT REGISTERED) ==================== -->
+        <Grid x:Name="gridRegisterView" Visibility="Collapsed" Background="#F8FAFC">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Top Sub-Header Bar -->
+            <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,14">
+                <Grid MaxWidth="1120">
+                    <Button Content="←" HorizontalAlignment="Left" VerticalAlignment="Center"
+                            Background="Transparent" BorderThickness="0" Foreground="#0F172A"
+                            FontSize="18" FontWeight="Bold" Cursor="Hand" Padding="6,2"
+                            Click="btnBackToIdentifier_Click" ToolTip="Quay lại đăng nhập" />
+                    <TextBlock Text="Đăng ký tài khoản" FontSize="18" FontWeight="Bold" Foreground="#0F172A"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Centered Registration Form Card -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,24">
+                <Border Width="520" HorizontalAlignment="Center" VerticalAlignment="Top"
+                        Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="16" Padding="28,24,28,28"
+                        Effect="{StaticResource CardShadow}">
+                    <StackPanel>
+                        <TextBlock Text="Thông tin liên hệ" FontSize="13.5" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,10" />
+
+                        <!-- Gender Radio Buttons -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <RadioButton x:Name="rbMale" Content="Nam" IsChecked="True" FontSize="13" Foreground="#0F172A" Margin="0,0,22,0" VerticalContentAlignment="Center" />
+                            <RadioButton x:Name="rbFemale" Content="Nữ" FontSize="13" Foreground="#0F172A" VerticalContentAlignment="Center" />
+                        </StackPanel>
+
+                        <!-- Full Name -->
+                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0" Margin="0,0,0,12" Background="#FFFFFF">
+                            <Grid>
+                                <TextBlock x:Name="phRegFullName" Text="Nhập họ và tên khách hàng"
+                                           Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                <TextBox x:Name="txtRegFullName" Style="{StaticResource CleanTextBoxStyle}" TextChanged="RegField_TextChanged" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Phone Number with (+84) prefix -->
+                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0" Margin="0,0,0,12" Background="#FFFFFF">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,8,12">
-                                    <TextBlock Text="HỌ VÀ TÊN *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                                    <TextBox x:Name="txtRegFullName" Style="{StaticResource InputTextBoxStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Margin="8,0,0,12">
-                                    <TextBlock Text="SỐ ĐIỆN THOẠI *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                                    <TextBox x:Name="txtRegPhone" Style="{StaticResource InputTextBoxStyle}" />
-                                </StackPanel>
+                                <TextBlock Text="(+84)" FontSize="13" FontWeight="SemiBold" Foreground="#0F172A" VerticalAlignment="Center" Margin="0,0,12,0" />
+                                <Grid Grid.Column="1">
+                                    <TextBlock x:Name="phRegPhone" Text="Nhập số điện thoại"
+                                               Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                    <TextBox x:Name="txtRegPhone" Style="{StaticResource CleanTextBoxStyle}" TextChanged="RegField_TextChanged" />
+                                </Grid>
                             </Grid>
+                        </Border>
 
-                            <TextBlock Text="ĐỊA CHỈ EMAIL *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                            <TextBox x:Name="txtRegEmail" Style="{StaticResource InputTextBoxStyle}" Margin="0,0,0,12" />
+                        <!-- Email -->
+                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0" Margin="0,0,0,14" Background="#FFFFFF">
+                            <Grid>
+                                <TextBlock x:Name="phRegEmail" Text="Nhập Email"
+                                           Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                <TextBox x:Name="txtRegEmail" Style="{StaticResource CleanTextBoxStyle}" TextChanged="RegField_TextChanged" />
+                            </Grid>
+                        </Border>
 
-                            <TextBlock Text="ĐỊA CHỈ NHẬN SÁCH" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                            <TextBox x:Name="txtRegAddress" Style="{StaticResource InputTextBoxStyle}" Margin="0,0,0,12" />
-
-                            <Grid Margin="0,0,0,16">
+                        <!-- Password -->
+                        <TextBlock Text="Mật khẩu" FontSize="13" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,6" />
+                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0,10,0" Margin="0,0,0,14" Background="#FFFFFF">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                    <TextBlock Text="MẬT KHẨU *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                                    <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White">
-                                        <PasswordBox x:Name="txtRegPassword" FontSize="13" Padding="10,0" VerticalContentAlignment="Center" BorderThickness="0" Background="Transparent" />
-                                    </Border>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Margin="8,0,0,0">
-                                    <TextBlock Text="XÁC NHẬN MẬT KHẨU *" FontWeight="Bold" FontSize="11" Foreground="#475569" Margin="0,0,0,4" />
-                                    <Border Height="40" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Background="White">
-                                        <PasswordBox x:Name="txtRegConfirmPassword" FontSize="13" Padding="10,0" VerticalContentAlignment="Center" BorderThickness="0" Background="Transparent" />
-                                    </Border>
-                                </StackPanel>
+                                <TextBlock x:Name="phRegPassword" Text="Nhập mật khẩu"
+                                           Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                <PasswordBox x:Name="pwdReg" Style="{StaticResource CleanPasswordBoxStyle}" PasswordChanged="pwdReg_PasswordChanged" />
+                                <TextBox x:Name="txtRegPwdVisible" Style="{StaticResource CleanTextBoxStyle}" Visibility="Collapsed" TextChanged="txtRegPwdVisible_TextChanged" />
+                                <Button Grid.Column="1" Content="👁" Background="Transparent" BorderThickness="0"
+                                        Foreground="#64748B" FontSize="14" Cursor="Hand" Padding="6,0" Click="btnToggleRegPwd_Click" />
                             </Grid>
+                        </Border>
 
-                            <Button Content="Hoàn Tất Đăng Ký Tài Khoản" Style="{StaticResource PrimaryButtonStyle}" Click="btnSubmitRegister_Click" />
-                        </StackPanel>
-                    </ScrollViewer>
+                        <!-- Confirm Password -->
+                        <TextBlock Text="Nhập lại mật khẩu" FontSize="13" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,6" />
+                        <Border BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0,10,0" Margin="0,0,0,14" Background="#FFFFFF">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="phRegConfirmPassword" Text="Nhập lại mật khẩu"
+                                           Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                <PasswordBox x:Name="pwdRegConfirm" Style="{StaticResource CleanPasswordBoxStyle}" PasswordChanged="pwdRegConfirm_PasswordChanged" />
+                                <TextBox x:Name="txtRegConfirmPwdVisible" Style="{StaticResource CleanTextBoxStyle}" Visibility="Collapsed" TextChanged="txtRegConfirmPwdVisible_TextChanged" />
+                                <Button Grid.Column="1" Content="👁" Background="Transparent" BorderThickness="0"
+                                        Foreground="#64748B" FontSize="14" Cursor="Hand" Padding="6,0" Click="btnToggleRegConfirmPwd_Click" />
+                            </Grid>
+                        </Border>
 
-                    <!-- Footer Guest Access -->
-                    <Border Grid.Row="2" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="0,14,0,0" Margin="0,12,0,0">
-                        <Grid>
-                            <TextBlock Text="Bạn chỉ muốn dạo xem kho sách?" FontSize="12" Foreground="#64748B" VerticalAlignment="Center" />
-                            <Button Content="🏪 Vào Trang Chủ Ngay (Khách)" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Right" Click="btnContinueAsGuest_Click" />
+                        <!-- Address -->
+                        <Grid Margin="0,0,0,6">
+                            <TextBlock Text="Địa chỉ" FontSize="13" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                            <CheckBox x:Name="chkCustomAddress" Content="Tùy chỉnh" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      FontSize="12.5" FontWeight="SemiBold" Foreground="#475569" Cursor="Hand"
+                                      Checked="chkCustomAddress_Changed" Unchecked="chkCustomAddress_Changed" />
                         </Grid>
-                    </Border>
-                </Grid>
-            </Grid>
-        </Border>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="cbProvince" Grid.Column="0" Height="40" Padding="10,8" FontSize="13"
+                                      SelectionChanged="cbProvince_SelectionChanged" />
+                            <ComboBox x:Name="cbWard" Grid.Column="2" Height="40" Padding="10,8" FontSize="13" />
+                        </Grid>
+
+                        <Border x:Name="borderRegStreet" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Height="42" Padding="14,0" Margin="0,0,0,22" Background="#F1F5F9">
+                            <Grid>
+                                <TextBlock x:Name="phRegStreet" Text="Nhập địa chỉ cụ thể ..."
+                                           Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center" IsHitTestVisible="False" />
+                                <TextBox x:Name="txtRegStreetAddress" Style="{StaticResource CleanTextBoxStyle}" IsEnabled="False" TextChanged="RegField_TextChanged" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Submit Button -->
+                        <Button Content="Xác nhận" Style="{StaticResource PrimaryPillButtonStyle}"
+                                Width="140" HorizontalAlignment="Center" Click="btnSubmitRegister_Click" />
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>
