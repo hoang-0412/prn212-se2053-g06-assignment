@@ -174,16 +174,18 @@ namespace BookStoreManagementSystem
                 return;
             }
 
-            txtProfileDetailOrderHeader.Text = $"🧾 Chi Tiết Đơn {order.OrderCode}";
-            txtProfileDetailStatus.Text = $"{order.OrderTypeDisplay} • Trạng thái: {order.StatusDisplay}";
+            txtProfileDetailOrderHeader.Text = $"🧾 Đơn Hàng {order.OrderCode}";
+            txtProfileDetailStatus.Text = string.IsNullOrWhiteSpace(order.CancelReason)
+                ? $"{order.OrderTypeDisplay} • Trạng thái: {order.StatusDisplay}"
+                : $"{order.OrderTypeDisplay} • Trạng thái: {order.StatusDisplay}\nLý do hủy: {order.CancelReason}";
             txtProfileDetailCreatedAt.Text = $"Ngày đặt: {order.FormattedCreatedAt}";
             txtProfileDetailPhone.Text = $"SĐT nhận: {order.RecipientPhone}";
-            txtProfileDetailAddress.Text = $"Địa chỉ: {order.ShippingAddress}";
-            txtProfileDetailPayment.Text = $"Thanh toán: {order.PaymentMethod} ({order.PaymentStatus})";
-            txtProfileDetailTotal.Text = $"Tiền sách: {order.FormattedItemsSubtotal}\n" +
-                                         $"Phí vận chuyển: {order.FormattedShippingFee}\n" +
-                                         $"Giảm giá voucher: {order.FormattedDiscountAmount}\n" +
-                                         $"Tổng phải trả: {order.FormattedTotalAmount}";
+            txtProfileDetailAddress.Text = $"Địa chỉ / Kỳ hạn: {order.ShippingAddress}";
+            var cleanPaymentMethod = (order.PaymentMethod ?? string.Empty)
+                .Replace(" (Có sách thuê)", "", StringComparison.OrdinalIgnoreCase)
+                .Trim();
+            txtProfileDetailPayment.Text = $"Thanh toán: {cleanPaymentMethod} - {order.PaymentStatusDisplay}";
+            txtProfileDetailTotal.Text = order.FormattedTotalAmount;
             dgProfileOrderItems.ItemsSource = order.Items;
             panelProfileOrderDetail.Visibility = Visibility.Visible;
         }
