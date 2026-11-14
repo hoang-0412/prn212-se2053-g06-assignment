@@ -194,6 +194,9 @@ namespace BookStoreManagementSystem
                 txtDetailPhone.Text = "SĐT nhận: -";
                 txtDetailAddress.Text = "Địa chỉ / Kỳ hạn thuê: -";
                 txtDetailPayment.Text = "Thanh toán: -";
+                txtDetailItemsSubtotal.Text = "0 đ";
+                txtDetailShippingFee.Text = "0 đ";
+                txtDetailDiscountAmount.Text = "-0 đ";
                 txtDetailTotalAmount.Text = "0 đ";
                 dgDetailOrderItems.ItemsSource = null;
 
@@ -216,6 +219,9 @@ namespace BookStoreManagementSystem
                 .Replace(" (Có sách thuê)", "", StringComparison.OrdinalIgnoreCase)
                 .Trim();
             txtDetailPayment.Text = $"Thanh toán: {cleanPaymentMethod} - {order.PaymentStatusDisplay}";
+            txtDetailItemsSubtotal.Text = order.FormattedItemsSubtotal;
+            txtDetailShippingFee.Text = order.FormattedShippingFee;
+            txtDetailDiscountAmount.Text = order.FormattedDiscountAmount;
             txtDetailTotalAmount.Text = order.FormattedTotalAmount;
             dgDetailOrderItems.ItemsSource = order.Items;
 

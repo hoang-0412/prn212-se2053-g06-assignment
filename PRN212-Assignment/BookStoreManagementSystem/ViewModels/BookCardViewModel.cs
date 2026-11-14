@@ -523,6 +523,16 @@ namespace BookStoreManagementSystem.ViewModels
         public string ShippingAddress { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public string FormattedTotalAmount => TotalAmount.ToString("N0") + " đ";
+        public decimal ItemsSubtotal => Items.Sum(item => item.SubTotal);
+        public decimal ShippingFee => Items.Count == 0
+            || PaymentMethod.Contains("tại quầy", StringComparison.OrdinalIgnoreCase)
+            || PaymentMethod.Contains("Thuê sách", StringComparison.OrdinalIgnoreCase)
+            ? 0m
+            : 25000m;
+        public decimal DiscountAmount => Math.Max(0m, ItemsSubtotal + ShippingFee - TotalAmount);
+        public string FormattedItemsSubtotal => ItemsSubtotal.ToString("N0") + " đ";
+        public string FormattedShippingFee => ShippingFee.ToString("N0") + " đ";
+        public string FormattedDiscountAmount => $"-{DiscountAmount:N0} đ";
         public string OrderStatus { get; set; } = string.Empty;
         public string PaymentMethod { get; set; } = string.Empty;
         public string PaymentStatus { get; set; } = string.Empty;
